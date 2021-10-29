@@ -1,0 +1,12 @@
+useDynLib("logreg2ph", .registration=TRUE)
+useDynLib(TwoPhaseReg)
+useDynLib(TwoPhaseReg,.registration = TRUE)
+
+export(logreg2ph)
+exportPattern("^[[:alpha:]]+")
+
+importFrom(Rcpp, evalCpp)
+importFrom(lme4,lmer)
+importFrom(stats,as.formula)
+importFrom(stats,coef)
+importFrom(stats,pchisq)
