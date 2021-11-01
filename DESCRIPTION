@@ -2,13 +2,11 @@ Package: CombinedReg
 Type: Package
 Title: Implements Sieve Maximum Likelihood Estimation (SMLE) Approach for Two-Phase Logistic Regression
 Version: 0.0.0.1000
-Authors@R: 
-    person(given = "Sarah",
+Authors@R: c(person(given = "Sarah",
            family = "Lotspeich",
            role = c("aut", "cre"),
-           email = "sarah.c.lotspeich@vanderbilt.edu",
-           comment = c(ORCID = "YOUR-ORCID-ID")),
-    Ran Tao <r.tao@vanderbilt.edu>
+           email = "sarah.c.lotspeich@vanderbilt.edu"),
+    person("Ran", "Tao", "aut", "r.tao@vanderbilt.edu"))
 Description: Efficient regression analysis under general two-phase, outcome-dependent sampling.
 License: GPL (>= 2)
 Encoding: UTF-8
