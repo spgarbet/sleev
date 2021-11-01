@@ -14,7 +14,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: Rcpp (>= 1.0.7)
-Depends: Rcpp (>= 1.0.7), RcppArmadillo (>= 0.2.0), lme4
+Depends: Rcpp (>= 1.0.7), lme4
 LinkingTo:
     Rcpp,
     RcppArmadillo,

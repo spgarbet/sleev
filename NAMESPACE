@@ -6,6 +6,7 @@ export(logreg2ph)
 exportPattern("^[[:alpha:]]+")
 
 importFrom(Rcpp, evalCpp)
+importFrom(Rcpp, sourceCpp)
 importFrom(lme4,lmer)
 importFrom(stats,as.formula)
 importFrom(stats,coef)
