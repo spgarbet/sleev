@@ -5,11 +5,11 @@
 #include <string>
 #include "utility.h"
 
+// [[Rcpp::depends(RcppEigen)]]
+
 using namespace Rcpp;
 
-typedef Map<VectorXd> MapVecd;
-typedef Map<VectorXi> MapVeci;
-typedef Map<MatrixXd> MapMatd;
+
 
 double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	VectorXd q_row_sum, MatrixXd p, MatrixXd p0, MatrixXd P_theta, MatrixXd q, VectorXd resi_n, MatrixXd logp,

@@ -10,9 +10,6 @@
 using namespace Rcpp;
 using namespace std;
 
-typedef Map<VectorXd> MapVecd;
-typedef Map<VectorXi> MapVeci;
-typedef Map<MatrixXd> MapMatd;
 
 double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 	VectorXd& q_row_sum, MatrixXd& p, MatrixXd& p0, MatrixXd& P_theta, MatrixXd& q, VectorXd& resi_n, MatrixXd& logp,
@@ -59,7 +56,7 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 	for (iter=0; iter<MAX_ITER; ++iter) 
 	{
 		/* test code */
-		auto time = tic();
+		// auto time = tic();
 		// time(&t1);
 		/* test code end */
 		
@@ -229,7 +226,7 @@ List TwoPhase_GeneralSpline (
 	const double& TOL,
 	const int& noSE)
 {
-	auto start = tic();
+	// auto start = tic();
 	/*#############################################################################################################################################*/
 	/**** pass arguments from R to cpp *************************************************************************************************************/
 	// const MapVecd Y(as<MapVecd>(Y_R));
@@ -244,7 +241,7 @@ List TwoPhase_GeneralSpline (
 	/*#############################################################################################################################################*/
 
 
-	auto time = tic();
+	// auto time = tic();
 	/*#############################################################################################################################################*/
 	/**** some useful constants ********************************************************************************************************************/
 	const int n = Y.size();  // number of subjects in the first phase
@@ -356,7 +353,7 @@ List TwoPhase_GeneralSpline (
 	/**** temporary variables **********************************************************************************************************************/
 	/*#############################################################################################################################################*/
 
-	Rcout << "initializing " << chrono::duration<double> (tic() - time).count() << endl;
+	// Rcout << "initializing " << chrono::duration<double> (tic() - time).count() << endl;
 
 	/*#############################################################################################################################################*/
 	/**** EM algorithm *****************************************************************************************************************************/
@@ -401,7 +398,7 @@ List TwoPhase_GeneralSpline (
 		P_theta /= -2. * sigma_sq;
 		P_theta = P_theta.array().exp();
 		/**** update P_theta ***********************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 
 		// for (int i = 0; i < n_minus_n2; ++i)
@@ -426,7 +423,7 @@ List TwoPhase_GeneralSpline (
 		// q.array().colwise() /= q_row_sum;
 		q_col_sum = q.colwise().sum();
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		Rcout << "update q " << chrono::duration<double> (tic() - time).count() << endl;
+		// Rcout << "update q " << chrono::duration<double> (tic() - time).count() << endl;
 		/**** E-step *******************************************************************************************************************************/
 
 
@@ -456,8 +453,8 @@ List TwoPhase_GeneralSpline (
 		sigma_sq = LS_XtY.transpose()*theta;
 		sigma_sq = (LS_YtY_static-sigma_sq)/n;
 		/**** update theta and sigma_sq ************************************************************************************************************/
-		Rcout << "update theta & sigma_sq " << chrono::duration<double> (tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update theta & sigma_sq " << chrono::duration<double> (tic() - time).count() << endl;
+		// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		p.setZero();
 		const MatrixXd pthetaOverQ = P_theta.array().colwise() / q_row_sum.array();
@@ -483,7 +480,7 @@ List TwoPhase_GeneralSpline (
 			p.col(j) /= p_col_sum(j);
 		}
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p " << chrono::duration<double> (tic() - time).count() << endl;
+		// Rcout << "update p " << chrono::duration<double> (tic() - time).count() << endl;
 		/**** M-step *******************************************************************************************************************************/
 
 
@@ -646,6 +643,8 @@ List TwoPhase_GeneralSpline (
 			// 		profile_mat(j,i) = profile_mat(i,j);
 			// 	}
 			// }
+
+			// BEFORE						AFTER
 			// 0 	1 	2  	3 	4 			0 	1 	2  	3 	4
 			// 5 	6 	7 	8 	9 			1 	6 	7 	8 	9
 			// 10 	11 	12 	13 	14 			2 	7 	12 	13 	14
@@ -665,7 +664,7 @@ List TwoPhase_GeneralSpline (
 	/*#############################################################################################################################################*/
 
 
-	Rcout << "TwoPhase_GeneralSpline: " << chrono::duration<double> (tic() - start).count() << endl;
+	// Rcout << "TwoPhase_GeneralSpline: " << chrono::duration<double> (tic() - start).count() << endl;
 
 	/*#############################################################################################################################################*/
 	/**** return output to R ***********************************************************************************************************************/
@@ -689,7 +688,7 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 	MatrixXd Q(dimQ, dimQ);
 	MatrixXd resi(n_minus_n2, m);
 	MatrixXd inv_profile_mat(dimQ-1, dimQ-1);
-	auto time = tic();
+	// auto time = tic();
 	/**** calculate resi ***************************************************************************************************************************/
 	resi.col(0) = Y.tail(n_minus_n2);
 	resi.col(0).noalias() -= ZW.bottomRows(n_minus_n2)*theta.tail(ZW_nc);
@@ -704,11 +703,11 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 		resi.col(k).noalias() -= (X_uni.row(k)*theta.head(X_nc)).replicate(n_minus_n2,1);
 	}
 	/**** calculate resi ***************************************************************************************************************************/
-	Rcout << "calc resi: " << chrono::duration<double> (tic() - time).count() << endl;
+	// Rcout << "calc resi: " << chrono::duration<double> (tic() - time).count() << endl;
 
 
 	/**** augment the upper diagonal of Q **********************************************************************************************************/
-	time = tic();
+	// time = tic();
 	// add l2
 	Q.setZero();
 	Q.topLeftCorner(ncov,ncov) = LS_XtX/sigma_sq;
@@ -718,8 +717,8 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 	{
 		Q(ncov+1+k,ncov+1+k) = (n+0.)/p(k);
 	}
-	Rcout << "add 12: " << chrono::duration<double> (tic() - time).count() << endl;
-	time = tic();
+	// Rcout << "add 12: " << chrono::duration<double> (tic() - time).count() << endl;
+	// time = tic();
 	// add l1i, l1ik
 	// add l1i: 1816.85 sec
 	const double half = -1. / (2 * sigma_sq);
@@ -755,10 +754,10 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 
 
 		Q += l1i * l1i.transpose();
-		Rcout << "inner loop: " << chrono::duration<double> (tic() - innerloop).count() << endl;
+		// Rcout << "inner loop: " << chrono::duration<double> (tic() - innerloop).count() << endl;
 	}
-	Rcout << "add l1i: " << chrono::duration<double> (tic() - time).count() << endl;
-	time = tic();
+	// Rcout << "add l1i: " << chrono::duration<double> (tic() - time).count() << endl;
+	// time = tic();
 	for (int k = 0; k < m-1; ++k)
 	{
 		Q.block(0, ncov+1+k, ncov+1, 1) -= Q.topRightCorner(ncov+1, 1);
@@ -767,7 +766,7 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 			Q(ncov+1+k, ncov+1+kk) -= Q(ncov+1+k, dimQ-1) + Q(ncov+1+kk, dimQ-1) - Q(dimQ-1, dimQ-1);
 		}
 	}
-	Rcout << "loop 2: " << chrono::duration<double> (tic() - time).count() << endl;
+	// Rcout << "loop 2: " << chrono::duration<double> (tic() - time).count() << endl;
 	/**** augment the upper diagonal of Q **********************************************************************************************************/
 	inv_profile_mat = Q.topLeftCorner(dimQ-1,dimQ-1).selfadjointView<Eigen::Upper>().ldlt().solve(MatrixXd::Identity(dimQ-1, dimQ-1));
 	return inv_profile_mat.topLeftCorner(ncov,ncov);
@@ -778,8 +777,8 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, const int& MAX_ITER, const double& TOL, const int& noSE)
 /**** when there is no Z ***************************************************************************************************************************/
 {
-	Rcout << "yes we're working" <<endl;
-	auto start = tic();
+	// Rcout << "yes we're working" <<endl;
+	// auto start = tic();
 	/*#############################################################################################################################################*/
 	/**** pass arguments from R to cpp *************************************************************************************************************/
 	// const MapVecd Y(as<MapVecd>(Y_R));
@@ -901,7 +900,7 @@ List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, c
 		// /* RT's test code end */
 
 		/**** E-step *******************************************************************************************************************************/
-		auto time = tic();
+		// auto time = tic();
 		/**** update P_theta ***********************************************************************************************************************/
 		P_theta.col(0) = Y.tail(n_minus_n2);
 		P_theta.col(0).noalias() -= ZW.bottomRows(n_minus_n2)*theta.tail(ZW_nc);
@@ -917,8 +916,8 @@ List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, c
 		P_theta /= -2.*sigma_sq;
 		P_theta = P_theta.array().exp();
 		/**** update P_theta ***********************************************************************************************************************/
-		Rcout << "update ptheta: " << chrono::duration<double> (tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update ptheta: " << chrono::duration<double> (tic() - time).count() << endl;
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		for (int i=0; i<n_minus_n2; ++i)
 		{
@@ -935,12 +934,12 @@ List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, c
 		}
 		q_col_sum = q.colwise().sum();
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		Rcout << "update q: " << chrono::duration<double> (tic() - time).count() << endl;
+		// Rcout << "update q: " << chrono::duration<double> (tic() - time).count() << endl;
 		/**** E-step *******************************************************************************************************************************/
 
 
 		/**** M-step *******************************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		/**** update theta and sigma_sq ************************************************************************************************************/
 		LS_XtX = LS_XtX_static;
 		LS_XtY = LS_XtY_static;
@@ -964,8 +963,8 @@ List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, c
 		sigma_sq = LS_XtY.transpose()*theta;
 		sigma_sq = (LS_YtY_static-sigma_sq)/n;
 		/**** update theta and sigma_sq ************************************************************************************************************/
-		Rcout << "update theta & sigma_sq: " << chrono::duration<double> (tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update theta & sigma_sq: " << chrono::duration<double> (tic() - time).count() << endl;
+		// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		for (int k=0; k<m; ++k)
 		{
@@ -974,7 +973,7 @@ List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, c
 		p += q_col_sum.transpose();
 		p /= n+0.;
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p: " << chrono::duration<double> (tic() - time).count() << endl;
+		// Rcout << "update p: " << chrono::duration<double> (tic() - time).count() << endl;
 		/**** M-step *******************************************************************************************************************************/
 
 
@@ -1029,7 +1028,7 @@ List TwoPhase_MLE0 (const VectorXd& Y, const MatrixXd& X,  const MatrixXd& ZW, c
 	/**** variance estimation **********************************************************************************************************************/
 	/*#############################################################################################################################################*/
 
-	Rcout << "TwoPhase_MLE0: " << chrono::duration<double> (tic() - start).count() << endl;
+	// Rcout << "TwoPhase_MLE0: " << chrono::duration<double> (tic() - start).count() << endl;
 
 
 	/*#############################################################################################################################################*/

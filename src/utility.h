@@ -3,16 +3,18 @@
 
 #include <string>
 #include <RcppEigen.h>
+#include "CombinedReg_types.h"
 
-// Packages and function alias for testing
-#include <chrono>
-#include <ctime>
-const auto tic = std::chrono::system_clock::now;
+// Packages and function alias for speed testing
+// #include <chrono>
+// #include <ctime>
+// const auto tic = std::chrono::system_clock::now;
 
 
 using namespace std;
 using namespace Eigen;
 using namespace Rcpp;
+
 
 /**
  * Prints an error message 'reason' and stops the program

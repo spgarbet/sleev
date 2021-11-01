@@ -5,12 +5,12 @@
 #include <string>
 #include "utility.h"
 
+// [[Rcpp::depends(RcppEigen)]]
+
 using namespace Rcpp;
 using namespace Eigen;
 
-typedef Map<VectorXd> MapVecd;
-typedef Map<VectorXi> MapVeci;
-typedef Map<MatrixXd> MapMatd;
+
 // [[Rcpp::export]]
 double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, VectorXd ZW_theta, VectorXd X_uni_theta, MatrixXd e_X_uni_theta,
 	VectorXd e_X_theta, VectorXd lambda, VectorXd lambda0, VectorXd Lambda,
@@ -21,7 +21,7 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 	const VectorXi& Y_risk_ind, const MatrixXd& p_static, const int n, const int n2, const int m, const int n_event_uni,
 	const int s, const int n_minus_n2, const int X_nc, const int ZW_nc, const int MAX_ITER, const double TOL)
 {
-	auto whole = tic();
+	// auto whole = tic();
 	/*#############################################################################################################################################*/
 	/**** temporary variables **********************************************************************************************************************/
 	double tol;
@@ -35,7 +35,7 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 
 	/*#############################################################################################################################################*/
 	/**** EM algorithm *****************************************************************************************************************************/
-	auto time = tic();
+	// auto time = tic();
 	/**** fixed quantities *************************************************************************************************************************/
 	ZW_theta = ZW*theta.tail(ZW_nc);
 	X_uni_theta = X_uni*theta.head(X_nc);
@@ -54,8 +54,8 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 	}
 	e_X_theta = e_X_theta.array().exp();
 	/**** fixed quantities *************************************************************************************************************************/
-	Rcout << "fixed quantities " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+	// Rcout << "fixed quantities " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 	/**** parameter initialization *****************************************************************************************************************/
 	p_col_sum = p_static.colwise().sum();
 	for (int j=0; j<s; ++j)
@@ -83,7 +83,7 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 		Lambda(i) = Lambda(i-1)+lambda(i);
 	}
 	/**** parameter initialization *****************************************************************************************************************/
-	Rcout << "param initialization " << chrono::duration<double>(tic() - time).count() << endl;
+	// Rcout << "param initialization " << chrono::duration<double>(tic() - time).count() << endl;
 	for (iter=0; iter<MAX_ITER; ++iter)
 	{
 		// /* RT test block */
@@ -122,8 +122,8 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 			}
 		}
 		/**** update P_theta ***********************************************************************************************************************/
-		Rcout << "update p_theta " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update p_theta " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		// for (int i = 0 ; i < n_minus_n2; ++i)
 		// {
@@ -143,8 +143,8 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 			q.row(i) /= q_row_sum(i);
 		}
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** E-step *******************************************************************************************************************************/
 
 
@@ -195,8 +195,8 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 			Lambda(i) = Lambda(i-1)+lambda(i);
 		}
 		/**** update lambda ************************************************************************************************************************/
-		Rcout << "update lambda " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update lambda " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		p.setZero();
 		for (int i=0; i<n_minus_n2; ++i)
@@ -217,7 +217,7 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 			p.col(j) /= p_col_sum(j);
 		}
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
 		/**** M-step *******************************************************************************************************************************/
 
 
@@ -292,7 +292,7 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 
 		loglik += q_row_sum.array().log().sum();
 		/**** calculate the likelihood *************************************************************************************************************/
-		Rcout << "WaldCoxphGeneralSplineProfile " << chrono::duration<double>(tic() - whole).count() << endl;
+		// Rcout << "WaldCoxphGeneralSplineProfile " << chrono::duration<double>(tic() - whole).count() << endl;
 
 		return loglik;
 	}
@@ -498,7 +498,7 @@ List TwoPhase_GeneralSpline_coxph (const VectorXd& Y,
 		pB = Bspline_uni*p.transpose();
 		/**** update pB ****************************************************************************************************************************/
 
-		auto time = tic();
+		// auto time = tic();
 		/**** update P_theta ***********************************************************************************************************************/
 		ZW_theta = ZW*theta.tail(ZW_nc);
 		X_uni_theta = X_uni*theta.head(X_nc);
@@ -537,8 +537,8 @@ List TwoPhase_GeneralSpline_coxph (const VectorXd& Y,
 			}
 		}
 		/**** update P_theta ***********************************************************************************************************************/
-		Rcout << "update ptheta " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update ptheta " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		MatrixXd Bspline_Mat(n_minus_n2, m);
 		for (int i = 0 ; i < n_minus_n2; ++i)
@@ -559,8 +559,8 @@ List TwoPhase_GeneralSpline_coxph (const VectorXd& Y,
 			q.row(i) /= q_row_sum(i);
 		}
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** E-step *******************************************************************************************************************************/
 
 
@@ -694,8 +694,8 @@ List TwoPhase_GeneralSpline_coxph (const VectorXd& Y,
 		theta = LS_XtX.selfadjointView<Eigen::Upper>().ldlt().solve(LS_XtY);
 		theta += theta0;
 		/**** update theta *************************************************************************************************************************/
-		Rcout << "update theta " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update theta " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** update lambda ************************************************************************************************************************/
 		lambda.setZero();
 
@@ -741,8 +741,8 @@ List TwoPhase_GeneralSpline_coxph (const VectorXd& Y,
 			Lambda(i) = Lambda(i-1)+lambda(i);
 		}
 		/**** update lambda ************************************************************************************************************************/
-		Rcout << "update lambda " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update lambda " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		p.setZero();
 		for (int i=0; i<n_minus_n2; ++i)
@@ -763,7 +763,7 @@ List TwoPhase_GeneralSpline_coxph (const VectorXd& Y,
 			p.col(j) /= p_col_sum(j);
 		}
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
 		/**** M-step *******************************************************************************************************************************/
 
 
@@ -934,7 +934,7 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 	/**** pass arguments from R to cpp *************************************************************************************************************/
 	/*#############################################################################################################################################*/
 
-	
+
 	/*#############################################################################################################################################*/
 	/**** some useful constants ********************************************************************************************************************/
 	const int n = Y.size();  // number of subjects in the first phase
@@ -944,44 +944,44 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 	const int X_nc = X.cols(); // number of expensive covariates X
 	const int ncov = X_nc+ZW_nc; // number of all covariates
 	/**** some useful constants ********************************************************************************************************************/
-	/*#############################################################################################################################################*/	
-	
+	/*#############################################################################################################################################*/
 
-	
-	/*#############################################################################################################################################*/	
+
+
+	/*#############################################################################################################################################*/
 	/**** summarize observed distinct rows of X ****************************************************************************************************/
 	// m: number of distinct rows of X
 	// X_uni_ind(n2): row index of rows of X in X_uni
 	// X_uni(m, X_nc): distinct rows of X
-	// X_uni_n(m): count of appearances of each distinct row of X	
+	// X_uni_n(m): count of appearances of each distinct row of X
 	VectorXi X_index = indexx_Matrix_Row(X);
-	int m  = Num_Uni_Matrix_Row(X, X_index);	
-	VectorXi X_uni_ind(n2);	
-	MatrixXd X_uni(m, X_nc); 
-	VectorXi X_uni_n(m);	
+	int m  = Num_Uni_Matrix_Row(X, X_index);
+	VectorXi X_uni_ind(n2);
+	MatrixXd X_uni(m, X_nc);
+	VectorXi X_uni_n(m);
 	Create_Uni_Matrix_Row(X, X_index, X_uni, X_uni_ind, X_uni_n);
 	/**** summarize observed distinct rows of X ****************************************************************************************************/
 	/*#############################################################################################################################################*/
-	
 
-	
-	/*#############################################################################################################################################*/	
+
+
+	/*#############################################################################################################################################*/
 	/**** summarize observed distinct values of Y **************************************************************************************************/
 	// n_event_uni: number of distinct values of Y where Delta=1
 	// Y_uni_event: vector of unique events
 	// Y_risk_ind: vector of indexes of which one of the risk sets each element in Y corresponds to.
-	// Y_uni_event_n: count of appearances of each distinct event time	
+	// Y_uni_event_n: count of appearances of each distinct event time
 	VectorXi Y_index = indexx_Vector(Y);
-	int n_event_uni = Num_Distinct_Events(Y, Y_index, Delta); 	
-	VectorXd Y_uni_event(n_event_uni); 
+	int n_event_uni = Num_Distinct_Events(Y, Y_index, Delta);
+	VectorXd Y_uni_event(n_event_uni);
 	VectorXi Y_risk_ind(n);
 	VectorXi Y_uni_event_n(n_event_uni);
 	Create_Uni_Events(Y, Y_index, Delta, Y_uni_event, Y_risk_ind, Y_uni_event_n);
 	/**** summarize observed distinct values of Y **************************************************************************************************/
 	/*#############################################################################################################################################*/
-	
-	
-	
+
+
+
 	/*#############################################################################################################################################*/
 	/**** output ***********************************************************************************************************************************/
 	VectorXd theta(ncov); // regression coefficients
@@ -990,16 +990,16 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 	bool flag_nonconvergence_cov; // flag of none convergence in the estimation of covariance matrix
 	/**** output ***********************************************************************************************************************************/
 	/*#############################################################################################################################################*/
-	
 
-		
+
+
 	/*#############################################################################################################################################*/
 	/**** temporary variables **********************************************************************************************************************/
 	VectorXd LS_XtY(ncov);
 	MatrixXd LS_XtX(ncov, ncov);
 	VectorXd theta0(ncov);
-	VectorXd p(m); 
-	VectorXd p0(m);		
+	VectorXd p(m);
+	VectorXd p0(m);
 	MatrixXd q(n_minus_n2, m);
 	VectorXd q_row_sum(n_minus_n2);
 	RowVectorXd q_col_sum(m);
@@ -1022,25 +1022,25 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 	// /* RT test block */
 	/**** temporary variables **********************************************************************************************************************/
 	/*#############################################################################################################################################*/
-	
 
-	
+
+
 	/*#############################################################################################################################################*/
 	/**** EM algorithm *****************************************************************************************************************************/
-	
+
 	/**** parameter initialization *****************************************************************************************************************/
 	theta.setZero();
 	theta0.setZero();
-		
+
 	for (int k=0; k<m; ++k)
 	{
 		p(k) = (X_uni_n(k)+0.)/(n2+0.);
 	}
 	p0 = p;
-	
+
 	flag_nonconvergence = false;
 	flag_nonconvergence_cov = false;
-	
+
 	lambda.setZero();
 	for (int i=0; i<n_event_uni; ++i)
 	{
@@ -1060,15 +1060,15 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 		Lambda(i) = Lambda(i-1)+lambda(i);
 	}
 	/**** parameter initialization *****************************************************************************************************************/
-	
-	for (iter=0; iter<MAX_ITER; ++iter) 
+
+	for (iter=0; iter<MAX_ITER; ++iter)
 	{
 		// /* RT test block */
 		//	time(&t1);
 		//	/* RT test block */
-		
+
 		/**** E-step *******************************************************************************************************************************/
-		
+
 		/**** update P_theta ***********************************************************************************************************************/
 		ZW_theta = ZW*theta.tail(ZW_nc);
 		X_uni_theta = X_uni*theta.head(X_nc);
@@ -1080,7 +1080,7 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 			}
 		}
 		e_X_uni_theta = e_X_uni_theta.array().exp();
-		
+
 		for (int i=0; i<n_minus_n2; i++)
 		{
 			idx = i+n2;
@@ -1092,7 +1092,7 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 				{
 					P_theta.row(i) *= lambda(Y_risk_ind(idx));
 					P_theta.row(i) = P_theta.row(i).array()*e_X_uni_theta.row(i).array();
-				}				
+				}
 			}
 			else
 			{
@@ -1100,34 +1100,34 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 				{
 					stdError("Error: In TwoPhase_MLE0_coxph, the calculation of unique event times is wrong!");
 				}
-				
-				P_theta.row(i).setOnes();			
+
+				P_theta.row(i).setOnes();
 			}
 		}
 		/**** update P_theta ***********************************************************************************************************************/
-		
-		/**** update q, q_row_sum ******************************************************************************************************************/		
-		for (int i=0; i<n_minus_n2; i++) 
+
+		/**** update q, q_row_sum ******************************************************************************************************************/
+		for (int i=0; i<n_minus_n2; i++)
 		{
-			for (int k=0; k<m; k++) 
+			for (int k=0; k<m; k++)
 			{
 				q(i,k) = P_theta(i,k)*p(k);
 			}
 		}
-		q_row_sum = q.rowwise().sum();		
-		for (int i=0; i<n_minus_n2; i++) 
+		q_row_sum = q.rowwise().sum();
+		for (int i=0; i<n_minus_n2; i++)
 		{
 			q.row(i) /= q_row_sum(i);
 		}
 		q_col_sum = q.colwise().sum();
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		
+
 		/**** E-step *******************************************************************************************************************************/
-		
-		
+
+
 		/**** M-step *******************************************************************************************************************************/
-		
-		/**** update theta *************************************************************************************************************************/		
+
+		/**** update theta *************************************************************************************************************************/
 		for (int i=0; i<n2; i++)
 		{
 			e_X_theta(i) = ZW_theta(i)+X_uni_theta(X_uni_ind(i));
@@ -1136,7 +1136,7 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 
 		LS_XtX.setZero();
 		LS_XtY.setZero();
-		
+
 		for (int i=0; i<n2; i++)
 		{
 			if (Delta(i) == 1)
@@ -1144,20 +1144,20 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 				s0 = 0.;
 				s1.setZero();
 				s2.setZero();
-				
+
 				for (int i1=0; i1<n2; i1++)
 				{
 					if (Y(i1) >= Y(i))
 					{
-						s0 += e_X_theta(i1);						
+						s0 += e_X_theta(i1);
 						s1.head(X_nc).noalias() += X.row(i1).transpose()*e_X_theta(i1);
-						s1.tail(ZW_nc).noalias() += ZW.row(i1).transpose()*e_X_theta(i1);				
+						s1.tail(ZW_nc).noalias() += ZW.row(i1).transpose()*e_X_theta(i1);
 						s2.topLeftCorner(X_nc,X_nc).noalias() += X.row(i1).transpose()*X.row(i1)*e_X_theta(i1);
 						s2.topRightCorner(X_nc,ZW_nc).noalias() += X.row(i1).transpose()*ZW.row(i1)*e_X_theta(i1);
 						s2.bottomRightCorner(ZW_nc,ZW_nc).noalias() += ZW.row(i1).transpose()*ZW.row(i1)*e_X_theta(i1);
 					}
 				}
-				
+
 				for (int i1=0; i1<n_minus_n2; i1++)
 				{
 					idx1 = i1+n2;
@@ -1165,21 +1165,21 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 					{
 						for (int k=0; k<m; k++)
 						{
-							s0 += q(i1,k)*e_X_uni_theta(i1,k);						
+							s0 += q(i1,k)*e_X_uni_theta(i1,k);
 							s1.head(X_nc).noalias() += q(i1,k)*X_uni.row(k).transpose()*e_X_uni_theta(i1,k);
 							s1.tail(ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*e_X_uni_theta(i1,k);
 							s2.topLeftCorner(X_nc,X_nc).noalias() += q(i1,k)*X_uni.row(k).transpose()*X_uni.row(k)*e_X_uni_theta(i1,k);
 							s2.topRightCorner(X_nc,ZW_nc).noalias() += q(i1,k)*X_uni.row(k).transpose()*ZW.row(idx1)*e_X_uni_theta(i1,k);
-							s2.bottomRightCorner(ZW_nc,ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*ZW.row(idx1)*e_X_uni_theta(i1,k);							
+							s2.bottomRightCorner(ZW_nc,ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*ZW.row(idx1)*e_X_uni_theta(i1,k);
 						}
-					}					
-				}				
+					}
+				}
 				LS_XtY.head(X_nc).noalias() += X.row(i).transpose()-s1.head(X_nc)/s0;
 				LS_XtY.tail(ZW_nc).noalias() += ZW.row(i).transpose()-s1.tail(ZW_nc)/s0;
 				LS_XtX.noalias() += s2/s0-s1*s1.transpose()/(s0*s0);
 			}
 		}
-		
+
 		for (int i=0; i<n_minus_n2; i++)
 		{
 			idx = i+n2;
@@ -1188,20 +1188,20 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 				s0 = 0.;
 				s1.setZero();
 				s2.setZero();
-				
+
 				for (int i1=0; i1<n2; i1++)
 				{
 					if (Y(i1) >= Y(idx))
 					{
-						s0 += e_X_theta(i1);					
+						s0 += e_X_theta(i1);
 						s1.head(X_nc).noalias() += X.row(i1).transpose()*e_X_theta(i1);
-						s1.tail(ZW_nc).noalias() += ZW.row(i1).transpose()*e_X_theta(i1);				
+						s1.tail(ZW_nc).noalias() += ZW.row(i1).transpose()*e_X_theta(i1);
 						s2.topLeftCorner(X_nc,X_nc).noalias() += X.row(i1).transpose()*X.row(i1)*e_X_theta(i1);
 						s2.topRightCorner(X_nc,ZW_nc).noalias() += X.row(i1).transpose()*ZW.row(i1)*e_X_theta(i1);
 						s2.bottomRightCorner(ZW_nc,ZW_nc).noalias() += ZW.row(i1).transpose()*ZW.row(i1)*e_X_theta(i1);
 					}
 				}
-				
+
 				for (int i1=0; i1<n_minus_n2; i1++)
 				{
 					idx1 = i1+n2;
@@ -1209,32 +1209,32 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 					{
 						for (int k=0; k<m; k++)
 						{
-							s0 += q(i1,k)*e_X_uni_theta(i1,k);						
+							s0 += q(i1,k)*e_X_uni_theta(i1,k);
 							s1.head(X_nc).noalias() += q(i1,k)*X_uni.row(k).transpose()*e_X_uni_theta(i1,k);
-							s1.tail(ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*e_X_uni_theta(i1,k);						
+							s1.tail(ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*e_X_uni_theta(i1,k);
 							s2.topLeftCorner(X_nc,X_nc).noalias() += q(i1,k)*X_uni.row(k).transpose()*X_uni.row(k)*e_X_uni_theta(i1,k);
 							s2.topRightCorner(X_nc,ZW_nc).noalias() += q(i1,k)*X_uni.row(k).transpose()*ZW.row(idx1)*e_X_uni_theta(i1,k);
-							s2.bottomRightCorner(ZW_nc,ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*ZW.row(idx1)*e_X_uni_theta(i1,k);							
+							s2.bottomRightCorner(ZW_nc,ZW_nc).noalias() += q(i1,k)*ZW.row(idx1).transpose()*ZW.row(idx1)*e_X_uni_theta(i1,k);
 						}
-					}					
-				}			
+					}
+				}
 				for (int k=0; k<m; k++)
 				{
-					LS_XtY.head(X_nc).noalias() += q(i,k)*X_uni.row(k).transpose();				
+					LS_XtY.head(X_nc).noalias() += q(i,k)*X_uni.row(k).transpose();
 				}
-				LS_XtY.head(X_nc).noalias() -= s1.head(X_nc)/s0;			
+				LS_XtY.head(X_nc).noalias() -= s1.head(X_nc)/s0;
 				LS_XtY.tail(ZW_nc).noalias() += ZW.row(idx).transpose()-s1.tail(ZW_nc)/s0;
 				LS_XtX.noalias() += s2/s0-s1*s1.transpose()/(s0*s0);
 			}
 		}
-		
+
 		theta = LS_XtX.selfadjointView<Eigen::Upper>().ldlt().solve(LS_XtY);
 		theta += theta0;
 		/**** update theta *************************************************************************************************************************/
-		
+
 		/**** update lambda ************************************************************************************************************************/
 		lambda.setZero();
-		
+
 		for (int i=0; i<n_event_uni; i++)
 		{
 			for (int i1=0; i1<n2; i1++)
@@ -1251,7 +1251,7 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 					for (int k=0; k<m; k++)
 					{
 						lambda(i) += q(i1,k)*e_X_uni_theta(i1,k);
-					}						
+					}
 				}
 			}
 			lambda(i) = (Y_uni_event_n(i)+0.)/lambda(i);
@@ -1261,40 +1261,40 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 		for (int i=1; i<n_event_uni; i++)
 		{
 			Lambda(i) = Lambda(i-1)+lambda(i);
-		}		
+		}
 		/**** update lambda ************************************************************************************************************************/
-		
-		/**** update p *****************************************************************************************************************************/		
-		for (int k=0; k<m; k++) 
+
+		/**** update p *****************************************************************************************************************************/
+		for (int k=0; k<m; k++)
 		{
 			p(k) = X_uni_n(k)+0.;
 		}
 		p += q_col_sum.transpose();
 		p /= n+0.;
 		/**** update p *****************************************************************************************************************************/
-		
+
 		/**** M-step *******************************************************************************************************************************/
-		
-		
+
+
 		/**** calculate the sum of absolute differences between estimates in the current and previous iterations ***********************************/
 		tol = (theta-theta0).array().abs().sum();
 		tol += (lambda-lambda0).array().abs().sum();
 		tol += (p-p0).array().abs().sum();
-		/**** calculate the sum of absolute differences between estimates in the current and previous iterations ***********************************/		
-				
+		/**** calculate the sum of absolute differences between estimates in the current and previous iterations ***********************************/
+
 		/**** update parameters ********************************************************************************************************************/
 		theta0 = theta;
 		lambda0 = lambda;
 		p0 = p;
 		/**** update parameters ********************************************************************************************************************/
-		
+
 		/**** check convergence ********************************************************************************************************************/
-		if (tol < TOL) 
+		if (tol < TOL)
 		{
 			break;
 		}
 		/**** check convergence ********************************************************************************************************************/
-		
+
 		// /* RT test block */
 		//	time(&t2);
 		//	Rcout << iter << '\t' << difftime(t2, t1) << '\t' << tol << endl;
@@ -1303,31 +1303,31 @@ List TwoPhase_MLE0_coxph (const VectorXd& Y,
 	/**** EM algorithm *****************************************************************************************************************************/
 	/*#############################################################################################################################################*/
 
-	
-	
+
+
 	/*#############################################################################################################################################*/
 	/**** variance estimation **********************************************************************************************************************/
-	if (iter == MAX_ITER) 
+	if (iter == MAX_ITER)
 	{
 		flag_nonconvergence = true;
 		flag_nonconvergence_cov = true;
 		theta.setConstant(-999.);
 		cov_theta.setConstant(-999.);
-	} 
-	else if (noSE) 
+	}
+	else if (noSE)
 	{
 		flag_nonconvergence_cov = true;
 		cov_theta.setConstant(-999.);
-	} 
-	else 
+	}
+	else
 	{
 		// to be added
 	}
 	/**** variance estimation **********************************************************************************************************************/
 	/*#############################################################################################################################################*/
-	
-	
-	
+
+
+
 	/*#############################################################################################################################################*/
 	/**** return output to R ***********************************************************************************************************************/
 	return List::create(Named("theta") = theta,

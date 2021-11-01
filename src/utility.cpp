@@ -163,7 +163,7 @@ int Num_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index)
 void Create_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index, MatrixXd& uni_mat,
 	VectorXi& ind, VectorXi& N_uni)
 {
-	auto start = tic();
+	// auto start = tic();
 	/***************************************************************************************
 	 Create unique covariates. "mat" is a matrix (not changed). "index" is the index vector
 	 of the rows of mat output by indexx_Matrix_Row (not changed). "uni_mat" is the matrix
@@ -196,7 +196,7 @@ void Create_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index, MatrixXd
 			N_uni(k) = 1;
 		}
 	}
-	Rcout << "Create_Uni_Matrix_Row " << chrono::duration<double> (tic() - start).count() << endl;
+	// Rcout << "Create_Uni_Matrix_Row " << chrono::duration<double> (tic() - start).count() << endl;
 
 } // Create_Uni_Matrix_Row
 
@@ -340,7 +340,7 @@ int Num_Distinct_Events (const VectorXd& Y, const VectorXi& Y_index, const Vecto
 void Create_Uni_Events (const VectorXd& Y, const VectorXi& Y_index, const VectorXi& Delta,
 	VectorXd& Y_uni_event, VectorXi& Y_risk_ind, VectorXi& Y_uni_event_n)
 {
-	auto start = tic();
+	// auto start = tic();
 	double event_prev;
 	int k = -1, n_event = Y_uni_event.size();
 
@@ -429,7 +429,7 @@ void Create_Uni_Events (const VectorXd& Y, const VectorXi& Y_index, const Vector
 			stdError("Error: In Create_Uni_Events(), k != 1");
 		}
 	}
-	Rcout << "Create_Uni_Events " << chrono::duration<double> (tic() - start).count() << endl;
+	// Rcout << "Create_Uni_Events " << chrono::duration<double> (tic() - start).count() << endl;
 
 } // Create_Uni_Events
 

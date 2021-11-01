@@ -6,12 +6,11 @@
 #include <vector>
 #include "utility.h"
 
+// [[Rcpp::depends(RcppEigen)]]
+
 using namespace Rcpp;
 
-typedef Map<VectorXd> MapVecd;
-typedef Map<VectorXi> MapVeci;
-typedef Map<MatrixXd> MapMatd;
-typedef Map<MatrixXi> MapMati;
+
 
 double LMM_GeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, VectorXd& q_row_sum, VectorXd& vcparams,
 	VectorXd& vcparams0, MatrixXd& p, MatrixXd& p0, MatrixXd& P_theta, MatrixXd& q, MatrixXd& logp,
