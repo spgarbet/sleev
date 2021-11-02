@@ -96,7 +96,7 @@ double WaldCoxphGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum, Vector
 		pB = Bspline_uni*p.transpose();
 		/**** update pB ****************************************************************************************************************************/
 
-		time = tic();
+		// time = tic();
 		/**** update P_theta ***********************************************************************************************************************/
 		for (int i=0; i<n_minus_n2; ++i)
 		{
@@ -1443,7 +1443,7 @@ List TwoPhase_MLE0_noZW_coxph (const VectorXd& Y, const VectorXi& Delta, const M
 
 	/*#############################################################################################################################################*/
 	/**** EM algorithm *****************************************************************************************************************************/
-	auto time = tic();
+	// auto time = tic();
 	/**** parameter initialization *****************************************************************************************************************/
 	theta.setZero();
 	theta0.setZero();
@@ -1476,8 +1476,8 @@ List TwoPhase_MLE0_noZW_coxph (const VectorXd& Y, const VectorXi& Delta, const M
 		Lambda(i) = Lambda(i-1)+lambda(i);
 	}
 	/**** parameter initialization *****************************************************************************************************************/
-	Rcout << "param init " << chrono::duration<double>(tic() - time).count() << endl;
-	time = tic();
+	// Rcout << "param init " << chrono::duration<double>(tic() - time).count() << endl;
+	// time = tic();
 	for (iter=0; iter<MAX_ITER; iter++)
 	{
 		// /* RT test block */
@@ -1514,8 +1514,8 @@ List TwoPhase_MLE0_noZW_coxph (const VectorXd& Y, const VectorXi& Delta, const M
 			}
 		}
 		/**** update P_theta ***********************************************************************************************************************/
-		Rcout << "update P_theta " << chrono::duration<double>(tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update P_theta " << chrono::duration<double>(tic() - time).count() << endl;
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		for (int i=0; i<n_minus_n2; i++)
 		{
@@ -1531,8 +1531,8 @@ List TwoPhase_MLE0_noZW_coxph (const VectorXd& Y, const VectorXi& Delta, const M
 		}
 		q_col_sum = q.colwise().sum();
 		/**** update q, q_row_sum ******************************************************************************************************************/
-Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
-	time = tic();
+// Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
+// 	time = tic();
 		/**** E-step *******************************************************************************************************************************/
 
 
@@ -1623,8 +1623,8 @@ Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl
 		theta = LS_XtX.selfadjointView<Eigen::Upper>().ldlt().solve(LS_XtY);
 		theta += theta0;
 		/**** update theta *************************************************************************************************************************/
-		Rcout << "update theta " << chrono::duration<double>(tic() - time).count() << endl;
-	time = tic();
+	// 	Rcout << "update theta " << chrono::duration<double>(tic() - time).count() << endl;
+	// time = tic();
 		/**** update lambda ************************************************************************************************************************/
 		lambda.setZero();
 
@@ -1656,8 +1656,8 @@ Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl
 			Lambda(i) = Lambda(i-1)+lambda(i);
 		}
 		/**** update lambda ************************************************************************************************************************/
-		Rcout << "update lambda " << chrono::duration<double>(tic() - time).count() << endl;
-	time = tic();
+	// 	Rcout << "update lambda " << chrono::duration<double>(tic() - time).count() << endl;
+	// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		for (int k=0; k<m; k++)
 		{
@@ -1666,8 +1666,8 @@ Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl
 		p += q_col_sum.transpose();
 		p /= n+0.;
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
-	time = tic();
+	// 	Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
+	// time = tic();
 		/**** M-step *******************************************************************************************************************************/
 
 

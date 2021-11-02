@@ -28,7 +28,7 @@ double LMM_GeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, VectorXd&
 	/**** temporary variables **********************************************************************************************************************/
 	double tol, V_inv_1R, V_inv_TR, V_inv_R2;
 	int iter, idx, idxx;
-	auto time = tic();
+	// auto time = tic();
 	// /* RT's test code */
 	// time_t t1, // t2;
 	// /* RT's test code end */
@@ -366,7 +366,7 @@ double LMM_GeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, VectorXd&
 			loglik -= (resi2.segment(index_obs(i,0), index_obs(i, 1)).transpose()*V_inv[i]*resi2.segment(index_obs(i,0), index_obs(i, 1)))(0,0)/2.;
 		}
 		/**** calculate the likelihood *************************************************************************************************************/
-		Rcout << "LMM_GeneralSplineProfile " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "LMM_GeneralSplineProfile " << chrono::duration<double>(tic() - time).count() << endl;
 		return loglik;
 	}
 } // LMM_GeneralSplineProfile

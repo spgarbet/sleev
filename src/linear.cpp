@@ -16,16 +16,16 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 	const VectorXd& theta, const VectorXd& Y, const MatrixXd& X, const MatrixXd& Bspline_uni,
 	const MatrixXd& ZW, const MatrixXd& X_uni, const VectorXi& X_uni_ind,
 	const VectorXi& Bspline_uni_ind, const MatrixXd& p_static, const double& sigma_sq, const int& n, const int& n2, const int& m,
-	const int& s, const int& n_minus_n2, const int& X_nc, const int& ZW_nc, const int& MAX_ITER, const double& TOL) 
+	const int& s, const int& n_minus_n2, const int& X_nc, const int& ZW_nc, const int& MAX_ITER, const double& TOL)
 {
-	/**** temporary variables **********************************************************************************************************************/	
+	/**** temporary variables **********************************************************************************************************************/
 	double tol;
 	int iter;
 	/* test code */
 	// time_t t1, t2;
 	/* test code end */
 	/**** temporary variables **********************************************************************************************************************/
-	
+
 	/**** update P_theta ***************************************************************************************************************************/
 	P_theta.col(0) = Y.tail(n_minus_n2);
 	P_theta.col(0).noalias() -= ZW.bottomRows(n_minus_n2)*theta.tail(ZW_nc);
@@ -40,7 +40,7 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 	P_theta /= -2.*sigma_sq;
 	P_theta = P_theta.array().exp();
 	/**** update P_theta ***************************************************************************************************************************/
-		
+
 	/**** parameter initialization *****************************************************************************************************************/
 	p_col_sum = p_static.colwise().sum();
 	for (int j = 0; j < s; ++j)
@@ -52,29 +52,29 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
  	MatrixXd pthetaOverQ(P_theta.rows(), P_theta.cols());
 
 	/**** parameter initialization *****************************************************************************************************************/
-	
-	for (iter=0; iter<MAX_ITER; ++iter) 
+
+	for (iter=0; iter<MAX_ITER; ++iter)
 	{
 		/* test code */
 		// auto time = tic();
 		// time(&t1);
 		/* test code end */
-		
+
 		/**** E-step *******************************************************************************************************************************/
-		
+
 		/**** update pB ****************************************************************************************************************************/
 		pB = Bspline_uni*p.transpose();
 		/**** update pB ****************************************************************************************************************************/
-				
+
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		// Construct Bspline matrix - ~2x faster (0.01)
-		
+
 		for (int i = 0; i < n_minus_n2; ++i)
 		{
 			Bspline_Mat.row(i) = pB.row(Bspline_uni_ind(i + n2));
 		}
 		q = P_theta.array() * Bspline_Mat.array();
-		
+
 		// for (int i = 0; i < n_minus_n2; ++i)
 		// {
 		// 	for (int k = 0; k < m; ++k)
@@ -83,24 +83,24 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 		// 		q(i,k) = P_theta(i,k) * pB(Bspline_uni_ind(i + n2), k);
 		// 	}
 		// }
-		
-		q_row_sum = q.rowwise().sum();		
-		for (int i=0; i<n_minus_n2; ++i) 
+
+		q_row_sum = q.rowwise().sum();
+		for (int i=0; i<n_minus_n2; ++i)
 		{
 			q.row(i) /= q_row_sum(i);
 		}
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		
+
 		/**** E-step *******************************************************************************************************************************/
-			
-		
+
+
 		/**** M-step *******************************************************************************************************************************/
-		
+
 		/**** update p *****************************************************************************************************************************/
 		p.setZero();
 		// Each row of P_theta is divided by q_row_sum[row]
 		pthetaOverQ = P_theta.array().colwise() / q_row_sum.array();
-		
+
 		for (int i = 0; i < n_minus_n2; ++i)
 		{
 			// for (int k = 0; k < m; ++k)
@@ -117,49 +117,49 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 			// Creates a matrix of size p made of every element of Bspline_mat * every element of pthetaOverQ
 			// ~10 sec speedup
 			p += pthetaOverQ.row(i).transpose() * Bspline_uni.row(Bspline_uni_ind(i + n2));
-		}	
+		}
 		p = p.array()*p0.array();
 		p += p_static;
 		p_col_sum = p.colwise().sum();
-		for (int j=0; j<s; ++j) 
+		for (int j=0; j<s; ++j)
 		{
 			p.col(j) /= p_col_sum(j);
 		}
 		/**** update p *****************************************************************************************************************************/
-		
+
 		/**** M-step *******************************************************************************************************************************/
-				
+
 		/**** calculate the sum of absolute differences between estimates in the current and previous iterations ***********************************/
 		tol = (p-p0).array().abs().sum();
 		/**** calculate the sum of absolute differences between estimates in the current and previous iterations ***********************************/
-								
+
 		/**** update parameters ********************************************************************************************************************/
 		p0 = p;
 		/**** update parameters ********************************************************************************************************************/
-		
+
 		/**** check convergence ********************************************************************************************************************/
-		if (tol < TOL) 
+		if (tol < TOL)
 		{
 			break;
 		}
 		/**** check convergence ********************************************************************************************************************/
-		
+
 		/* test code */
 		// time(&t2);
 		// Rcpp::Rcout << iter << '\t' << difftime(t2, t1) << '\t' << tol << endl;
 		// Rcout << iter << '\t' << chrono::duration<double>(tic() - time).count() << '\t' << tol << endl;
 		/* test code end */
 	}
-	
-	if (iter == MAX_ITER) 
+
+	if (iter == MAX_ITER)
 	{
 		return -999.;
-	} 
-	else 
+	}
+	else
 	{
 		/**** calculate the likelihood *************************************************************************************************************/
 		double tmp, loglik;
-		
+
 		logp = p.array().log();
 		for (int k=0; k<m; ++k)
 		{
@@ -172,13 +172,13 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 			}
 		}
 		pB = Bspline_uni*logp.transpose();
-		
+
 		loglik = 0.;
-		for (int i=0; i<n2; ++i) 
+		for (int i=0; i<n2; ++i)
 		{
 			loglik += pB(Bspline_uni_ind(i),X_uni_ind(i));
 		}
-		
+
 		pB = Bspline_uni*p.transpose();
 		Bspline_Mat.setZero();
 		for (int i = 0; i < n_minus_n2; ++i)
@@ -187,29 +187,29 @@ double WaldLinearGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum,
 		}
 		q = P_theta.array() * Bspline_Mat.array();
 
-		
-		// for (int i=0; i<n_minus_n2; ++i) 
+
+		// for (int i=0; i<n_minus_n2; ++i)
 		// {
-		// 	for (int k=0; k<m; ++k) 
+		// 	for (int k=0; k<m; ++k)
 		// 	{
 		// 		q(i,k) = P_theta(i,k)*pB(Bspline_uni_ind(i+n2),k);
 		// 	}
 		// }
-		q_row_sum = q.rowwise().sum();		
-		
-		loglik += q_row_sum.array().log().sum();		
+		q_row_sum = q.rowwise().sum();
+
+		loglik += q_row_sum.array().log().sum();
 		loglik += -log(2.*M_PI*sigma_sq)*n/2.;
-		
+
 		resi_n = Y.head(n2);
 		resi_n.noalias() -= X*theta.head(X_nc);
 		resi_n.noalias() -= ZW.topRows(n2)*theta.tail(ZW_nc);
-		
+
 		tmp = resi_n.squaredNorm();
 		tmp /= 2.*sigma_sq;
 		loglik -= tmp;
 		/**** calculate the likelihood *************************************************************************************************************/
-		
-		return loglik;	
+
+		return loglik;
 	}
 } // WaldLinearGeneralSplineProfile
 
@@ -428,7 +428,7 @@ List TwoPhase_GeneralSpline (
 
 
 		/**** M-step *******************************************************************************************************************************/
-		time= tic();
+		// time= tic();
 		/**** update theta and sigma_sq ************************************************************************************************************/
 		LS_XtX = LS_XtX_static;
 		LS_XtY = LS_XtY_static;
@@ -730,7 +730,7 @@ MatrixXd WaldLinearVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& LS_XtY,
 	{
 		l1i.setZero();
 		const VectorXd segment = (ZW.row(i+n2).transpose()) / sigma_sq;
-		auto innerloop = tic();
+		// auto innerloop = tic();
 		for (int k = 0; k < m; ++k)
 		{
 			// auto one = tic();

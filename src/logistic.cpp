@@ -27,7 +27,7 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
 	// time_t t1, t2;
 	/* test code end */
 	/**** temporary variables **********************************************************************************************************************/
-	auto time = tic();
+	// auto time = tic();
 	/**** update P_theta ***************************************************************************************************************************/
 	ZW_theta = ZW*theta.tail(ZW_nc);
 	X_uni_theta = X_uni*theta.head(X_nc);
@@ -54,7 +54,7 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
 		}
 	}
 	/**** update P_theta ***************************************************************************************************************************/
-	Rcout << "update p_theta " << chrono::duration<double>(tic() - time).count() << endl;
+	// Rcout << "update p_theta " << chrono::duration<double>(tic() - time).count() << endl;
 	/**** parameter initialization *****************************************************************************************************************/
 	p_col_sum = p_static.colwise().sum();
 	for (int j=0; j<s; ++j)
@@ -76,7 +76,7 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
 		/**** update pB ****************************************************************************************************************************/
 		pB = Bspline_uni * p.transpose();
 		/**** update pB ****************************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		for (int i = 0; i < n_minus_n2; ++i)
 		{
@@ -98,12 +98,12 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
 			q.row(i) /= q_row_sum(i);
 		}
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		Rcout << "update q " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update q " << chrono::duration<double>(tic() - time).count() << endl;
 		/**** E-step *******************************************************************************************************************************/
 
 
 		/**** M-step *******************************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		p.setZero();
 
@@ -133,7 +133,7 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
 			p.col(j) /= p_col_sum(j);
 		}
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update p " << chrono::duration<double>(tic() - time).count() << endl;
 		/**** M-step *******************************************************************************************************************************/
 
 		/**** calculate the sum of absolute differences between estimates in the current and previous iterations ***********************************/
@@ -165,7 +165,7 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
 	{
 		/**** calculate the likelihood *************************************************************************************************************/
 		double loglik;
-		time = tic();
+		// time = tic();
 
 		logp = p.array().log();
 		for (int k=0; k<m; ++k)
@@ -214,7 +214,7 @@ double WaldLogisticGeneralSplineProfile (MatrixXd& pB, RowVectorXd& p_col_sum, V
         e_X_theta = e_X_theta.array()+1.;
         loglik -= e_X_theta.array().log().sum();
 		/**** calculate the likelihood *************************************************************************************************************/
-        Rcout << "caclulate log likelihood " << chrono::duration<double>(tic() - time).count() << endl;
+        // Rcout << "caclulate log likelihood " << chrono::duration<double>(tic() - time).count() << endl;
 		return loglik;
 	}
 } // WaldLogisticGeneralSplineProfile
@@ -372,7 +372,7 @@ List TwoPhase_GeneralSpline_logistic (const VectorXd& Y, const MatrixXd& X, cons
 		/**** update pB ****************************************************************************************************************************/
 
 		/**** update P_theta ***********************************************************************************************************************/
-		auto time = tic();
+		// auto time = tic();
 		ZW_theta = ZW*theta.tail(ZW_nc);
 		X_uni_theta = X_uni*theta.head(X_nc);
 		for (int i=0; i<n_minus_n2; i++)
@@ -404,12 +404,12 @@ List TwoPhase_GeneralSpline_logistic (const VectorXd& Y, const MatrixXd& X, cons
 				stop(error_message.str());
 			}
 		}
-		Rcout << "update p theta " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update p theta " << chrono::duration<double>(tic() - time).count() << endl;
 
 		/**** update P_theta ***********************************************************************************************************************/
 
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		for (int i=0; i<n_minus_n2; i++)
 		{
 			for (int k=0; k<m; k++)
@@ -422,7 +422,7 @@ List TwoPhase_GeneralSpline_logistic (const VectorXd& Y, const MatrixXd& X, cons
 		{
 			q.row(i) /= q_row_sum(i);
 		}
-		Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update q's " << chrono::duration<double>(tic() - time).count() << endl;
 		/**** update q, q_row_sum ******************************************************************************************************************/
 
 		/**** E-step *******************************************************************************************************************************/
@@ -431,7 +431,7 @@ List TwoPhase_GeneralSpline_logistic (const VectorXd& Y, const MatrixXd& X, cons
 		/**** M-step *******************************************************************************************************************************/
 
 		/**** update theta *************************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		for (int i=0; i<n2; i++)
 		{
 			e_X_theta(i) = ZW_theta(i)+X_uni_theta(X_uni_ind(i));
@@ -467,11 +467,11 @@ List TwoPhase_GeneralSpline_logistic (const VectorXd& Y, const MatrixXd& X, cons
 
 		theta = LS_XtX.selfadjointView<Eigen::Upper>().ldlt().solve(LS_XtY);
 		theta += theta0;
-		Rcout << "update theta " << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update theta " << chrono::duration<double>(tic() - time).count() << endl;
 		/**** update theta *************************************************************************************************************************/
 
 		/**** update p *****************************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		p.setZero();
 		for (int i=0; i<n_minus_n2; i++)
 		{
@@ -490,7 +490,7 @@ List TwoPhase_GeneralSpline_logistic (const VectorXd& Y, const MatrixXd& X, cons
 		{
 			p.col(j) /= p_col_sum(j);
 		}
-		Rcout << "update p" << chrono::duration<double>(tic() - time).count() << endl;
+		// Rcout << "update p" << chrono::duration<double>(tic() - time).count() << endl;
 		/**** update p *****************************************************************************************************************************/
 
 		/**** M-step *******************************************************************************************************************************/
@@ -661,7 +661,7 @@ MatrixXd WaldLogisticVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& p, co
 	for (int i = 0, idx = n2; i < n_minus_n2; ++i, ++idx)
 	// for (int i = 0, idx = n2; i < 100; ++i, ++idx) // bug-testing, shorter and inaccurate loop
 	{
-		auto outer = tic();
+		// auto outer = tic();
 		// const MatrixXd oldQ = Q;
 		l1i.setZero();
 		for (int k = 0; k < m; ++k) {
@@ -675,7 +675,7 @@ MatrixXd WaldLogisticVarianceMLE0 (const MatrixXd& LS_XtX, const VectorXd& p, co
 			// Rcout << "inner loop WALD "  << chrono::duration<double> (tic() - time).count() << endl;
 		}
 		Q += l1i * l1i.transpose();
-		Rcout << "outer loop WALD "   << chrono::duration<double> (tic() - outer).count() << endl;
+		// Rcout << "outer loop WALD "   << chrono::duration<double> (tic() - outer).count() << endl;
 		// Rcout << Q.block(0,0, ncov, ncov) << endl << "Diff: " << (Q - oldQ).block(0,0, ncov, ncov).cwiseAbs().maxCoeff() << endl;
 
 	}
@@ -803,7 +803,7 @@ List TwoPhase_MLE0_logistic (const VectorXd& Y, const MatrixXd& X, const MatrixX
 		//	/* RT test block */
 
 		/**** E-step *******************************************************************************************************************************/
-		auto time = tic();
+		// auto time = tic();
 		/**** update P_theta ***********************************************************************************************************************/
 		ZW_theta = ZW*theta.tail(ZW_nc);
 		X_uni_theta = X_uni*theta.head(X_nc);
@@ -837,8 +837,8 @@ List TwoPhase_MLE0_logistic (const VectorXd& Y, const MatrixXd& X, const MatrixX
 			}
 		}
 		/**** update P_theta ***********************************************************************************************************************/
-		Rcout << "update p theta "  << chrono::duration<double> (tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update p theta "  << chrono::duration<double> (tic() - time).count() << endl;
+		// time = tic();
 		/**** update q, q_row_sum ******************************************************************************************************************/
 		for (int i=0; i<n_minus_n2; ++i)
 		{
@@ -856,12 +856,12 @@ List TwoPhase_MLE0_logistic (const VectorXd& Y, const MatrixXd& X, const MatrixX
 		}
 		q_col_sum = q.colwise().sum();
 		/**** update q, q_row_sum ******************************************************************************************************************/
-		Rcout << "q, q_row_sum, "  << chrono::duration<double> (tic() - time).count() << endl;
+		// Rcout << "q, q_row_sum, "  << chrono::duration<double> (tic() - time).count() << endl;
 		/**** E-step *******************************************************************************************************************************/
 
 
 		/**** M-step *******************************************************************************************************************************/
-		time = tic();
+		// time = tic();
 		/**** update theta *************************************************************************************************************************/
 		for (int i=0; i<n2; i++)
 		{
@@ -902,8 +902,8 @@ List TwoPhase_MLE0_logistic (const VectorXd& Y, const MatrixXd& X, const MatrixX
 		theta = LS_XtX.selfadjointView<Eigen::Upper>().ldlt().solve(LS_XtY);
 		theta += theta0;
 		/**** update theta *************************************************************************************************************************/
-		Rcout << "update theta "  << chrono::duration<double> (tic() - time).count() << endl;
-		time = tic();
+		// Rcout << "update theta "  << chrono::duration<double> (tic() - time).count() << endl;
+		// time = tic();
 		/**** update p *****************************************************************************************************************************/
 		for (int k=0; k<m; ++k)
 		{
@@ -912,7 +912,7 @@ List TwoPhase_MLE0_logistic (const VectorXd& Y, const MatrixXd& X, const MatrixX
 		p += q_col_sum.transpose();
 		p /= n+0.;
 		/**** update p *****************************************************************************************************************************/
-		Rcout << "update p " << chrono::duration<double> (tic() - time).count() << endl;
+		// Rcout << "update p " << chrono::duration<double> (tic() - time).count() << endl;
 		/**** M-step *******************************************************************************************************************************/
 
 
