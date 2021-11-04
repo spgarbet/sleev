@@ -1,14 +1,14 @@
 #' Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
 #'
-#' @param Y_tilde Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{Y_tilde} are omitted from the analysis. This argument is required.
-#' @param Y Specifies the column that stores the validated value of \code{Y_tilde} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
-#' @param X_tilde Specifies the columns of the error-prone covariates. Subjects with missing values of \code{X_tilde} are omitted from the analysis. This argument is required.
-#' @param X Specifies the columns that store the validated values of \code{X_tilde} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.
+#' @param mod_Y_unvalidated Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{mod_Y_unvalidated} are omitted from the analysis. This argument is required.
+#' @param mod_Y_validated Specifies the column that stores the validated value of \code{mod_Y_unvalidated} in the second phase. Subjects with missing values of \code{mod_Y_validated} are considered as those not selected in the second phase. This argument is required.
+#' @param mod_X_unvalidated Specifies the columns of the error-prone covariates. Subjects with missing values of \code{mod_X_unvalidated} are omitted from the analysis. This argument is required.
+#' @param mod_X_validated Specifies the columns that store the validated values of \code{mod_X_unvalidated} in the second phase. Subjects with missing values of \code{mod_X_validated} are considered as those not selected in the second phase. This argument is required.
 #' @param Bspline Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required. 
-#' @param Z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional. 
+#' @param true_covariates Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{true_covariates} are omitted from the analysis. This argument is optional. 
 #' @param data Specifies the name of the dataset. This argument is required.
-#' @param hn_scale Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.
-#' @param MAX_ITER Specifies the maximum number of iterations in the EM algorithm. The default number is \code{2000}. This argument is optional.
+#' @param se_scale Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{se_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.
+#' @param MAX_ITER Specifies the maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
 #' @param TOL Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
 #' @param noSE If \code{TRUE}, then the variances of the parameter estimators will not be estimated. The default value is \code{FALSE}. This argument is optional.
 #' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
@@ -22,8 +22,9 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
 #' @exportPattern "^[[:alpha:]]+"
-smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=2000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
+smle_MEXY <- function (mod_Y_unvalidated=NULL, mod_Y_validated=NULL, mod_X_unvalidated=NULL, mod_X_validated=NULL, true_covariates=NULL, Bspline=NULL, data=NULL, se_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
 
+### linear2ph
     ###############################################################################################################
     #### check data ###############################################################################################
     storage.mode(MAX_ITER) = "integer"
@@ -34,16 +35,16 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 	    stop("No dataset is provided!")
 	}
 
-	if (is.null(Y_tilde)) {
-		stop("The error-prone response Y_tilde is not specified!")
+	if (is.null(mod_Y_unvalidated)) {
+		stop("The error-prone response mod_Y_unvalidated is not specified!")
 	} else {
-		vars_ph1 = Y_tilde
+		vars_ph1 = mod_Y_unvalidated
 	}
 
-	if (is.null(X_tilde)) {
-		stop("The error-prone covariates X_tilde is not specified!")
+	if (is.null(mod_X_unvalidated)) {
+		stop("The error-prone covariates mod_X_unvalidated is not specified!")
 	} else {
-		vars_ph1 = c(vars_ph1, X_tilde)
+		vars_ph1 = c(vars_ph1, mod_X_unvalidated)
 	}
 
 	if (is.null(Bspline)) {
@@ -52,20 +53,20 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 	    vars_ph1 = c(vars_ph1, Bspline)
 	}
 
-	if (is.null(Y)) {
-		stop("The accurately measured response Y is not specified!")
+	if (is.null(mod_Y_validated)) {
+		stop("The accurately measured response mod_Y_validated is not specified!")
 	}
 	
-	if (is.null(X)) {
+	if (is.null(mod_X_validated)) {
 		stop("The validated covariates in the second-phase are not specified!")
 	}
 	
-	if (length(X_tilde) != length(X)) {
-	    stop("The number of columns in X_tilde and X is different!")
+	if (length(mod_X_unvalidated) != length(mod_X_validated)) {
+	    stop("The number of columns in mod_X_unvalidated and mod_X_validated is different!")
 	}
 
-	if (!is.null(Z)) {
-		vars_ph1 = c(vars_ph1, Z)
+	if (!is.null(true_covariates)) {
+		vars_ph1 = c(vars_ph1, true_covariates)
 	}
 	
     id_exclude = c()
@@ -75,7 +76,7 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 	
 	if (verbose) {
     	print(paste("There are", nrow(data), "observations in the dataset."))
-    	print(paste(length(id_exclude), "observations are excluded due to missing Y_tilde, X_tilde, or Z."))
+    	print(paste(length(id_exclude), "observations are excluded due to missing mod_Y_unvalidated, mod_X_unvalidated, or true_covariates."))
 	}
 	if (length(id_exclude) > 0) {
 		data = data[-id_exclude,]
@@ -86,8 +87,8 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
     	print(paste("There are", n, "observations in the analysis."))
 	}
 
-    id_phase1 = which(is.na(data[,Y]))
-    for (var in X) {
+    id_phase1 = which(is.na(data[,mod_Y_validated]))
+    for (var in mod_X_validated) {
         id_phase1 = union(id_phase1, which(is.na(data[,var])))
     }
 	if (verbose) {
@@ -100,33 +101,33 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 	
 	###############################################################################################################
 	#### prepare analysis #########################################################################################	
-    Y_tilde_vec = c(as.vector(data[-id_phase1,Y_tilde]), as.vector(data[id_phase1,Y_tilde]))
-	storage.mode(Y_tilde_vec) = "double"
+    mod_Y_unvalidated_vec = c(as.vector(data[-id_phase1,mod_Y_unvalidated]), as.vector(data[id_phase1,mod_Y_unvalidated]))
+	storage.mode(mod_Y_unvalidated_vec) = "double"
 	
-	X_tilde_mat = rbind(as.matrix(data[-id_phase1,X_tilde]), as.matrix(data[id_phase1,X_tilde]))
+	X_tilde_mat = rbind(as.matrix(data[-id_phase1,mod_X_unvalidated]), as.matrix(data[id_phase1,mod_X_unvalidated]))
 	storage.mode(X_tilde_mat) = "double"
 	
 	Bspline_mat = rbind(as.matrix(data[-id_phase1,Bspline]), as.matrix(data[id_phase1,Bspline]))
 	storage.mode(Bspline_mat) = "double"
 	
-	Y_vec = as.vector(data[-id_phase1,Y])
+	Y_vec = as.vector(data[-id_phase1,mod_Y_validated])
 	storage.mode(Y_vec) = "double"
 	
-    X_mat = as.matrix(data[-id_phase1,X])
+    X_mat = as.matrix(data[-id_phase1,mod_X_validated])
 	storage.mode(X_mat) = "double"
 	
-    if (!is.null(Z)) {
-        Z_mat = rbind(as.matrix(data[-id_phase1,Z]), as.matrix(data[id_phase1,Z]))
+    if (!is.null(true_covariates)) {
+        Z_mat = rbind(as.matrix(data[-id_phase1,true_covariates]), as.matrix(data[id_phase1,true_covariates]))
 		storage.mode(Z_mat) = "double"
     }
 	
-    cov_names = c("Intercept", X)
-	if (!is.null(Z)) {
-		cov_names = c(cov_names, Z)
+    cov_names = c("Intercept", mod_X_validated)
+	if (!is.null(true_covariates)) {
+		cov_names = c(cov_names, true_covariates)
 	}
 	
 	ncov = length(cov_names)
-	X_nc = length(X)
+	X_nc = length(mod_X_validated)
 	rowmap = rep(NA, ncov)
 	res_coefficients = matrix(NA, nrow=ncov, ncol=4)
 	colnames(res_coefficients) = c("Estimate", "SE", "Statistic", "p-value")
@@ -135,7 +136,7 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 	colnames(res_cov) = cov_names
 	rownames(res_cov) = cov_names
 	
-	if (is.null(Z)) {
+	if (is.null(true_covariates)) {
 		Z_mat = rep(1., n)
 		rowmap[1] = ncov
 		rowmap[2:ncov] = 1:X_nc
@@ -146,7 +147,7 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 		rowmap[(X_nc+2):ncov] = (X_nc+2):ncov
 	}
 	
-	hn = hn_scale/sqrt(n)
+	hn = se_scale/sqrt(n)
 	#### prepare analysis #########################################################################################
 	###############################################################################################################
 	
@@ -154,7 +155,7 @@ smle_MEXY <- function (Y_tilde=NULL, Y=NULL, X_tilde=NULL, X=NULL, Z=NULL, Bspli
 	
 	###############################################################################################################
 	#### analysis #################################################################################################
-	res = TwoPhase_MLE0_MEXY(Y_tilde_vec, X_tilde_mat, Y_vec, X_mat, Z_mat, Bspline_mat, hn, MAX_ITER, TOL, noSE)
+	res = TwoPhase_MLE0_MEXY(mod_Y_unvalidated_vec, X_tilde_mat, Y_vec, X_mat, Z_mat, Bspline_mat, hn, MAX_ITER, TOL, noSE)
     #### analysis #################################################################################################
 	###############################################################################################################
 	

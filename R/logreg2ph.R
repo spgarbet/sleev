@@ -1,18 +1,18 @@
 #' Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 #' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)
 #'
-#' @param Y_unval Column name with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.
-#' @param Y_val Column name with the validated outcome.
-#' @param X_unval Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X_val} are \code{null}, all precictors are assumed to be error-free.
-#' @param X_val Column name(s) with the validated predictors. If \code{X_unval} and \code{X_val} are \code{null}, all precictors are assumed to be error-free.
-#' @param C (Optional) Column name(s) with additional error-free covariates.
+#' @param mod_Y_unvalidated Column name with the unvalidated outcome. If \code{mod_Y_unvalidated} is null, the outcome is assumed to be error-free.
+#' @param mod_Y_validated Column name with the validated outcome.
+#' @param mod_X_unvalidated Column name(s) with the unvalidated predictors.  If \code{mod_X_unvalidated} and \code{mod_X_validated} are \code{null}, all precictors are assumed to be error-free.
+#' @param mod_X_validated Column name(s) with the validated predictors. If \code{mod_X_unvalidated} and \code{mod_X_validated} are \code{null}, all precictors are assumed to be error-free.
+#' @param true_covariates (Optional) Column name(s) with additional error-free covariates.
 #' @param Validated Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.
 #' @param Bspline Vector of column names containing the B-spline basis functions.
-#' @param data A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y_val}, \code{X_unval}, \code{X_val}, \code{C}, \code{Validated}, and \code{Bspline}.
+#' @param data A dataframe with one row per subject containing columns: \code{mod_Y_unvalidated}, \code{mod_Y_validated}, \code{mod_X_unvalidated}, \code{mod_X_validated}, \code{true_covariates}, \code{Validated}, and \code{Bspline}.
 #' @param theta_pred Vector of columns in \code{data} that pertain to the predictors in the analysis model.
 #' @param gamma_pred Vector of columns in \code{data} that pertain to the predictors in the outcome error model.
-#' @param initial_lr_params Initial values for parametric model parameters. Choices include (1) \code{"Zero"} (non-informative starting values) or (2) \code{"Complete-data"} (estimated based on validated subjects only)
-#' @param h_N_scale Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is `h_N_scale = 1`.
+#' @param initial_lr_params Initial values for parametric model parameters. Choices include (1) \code{"Zeros"} (non-informative starting values) or (2) \code{"Complete-data"} (estimated based on validated subjects only)
+#' @param se_scale Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is `se_scale = 1`.
 #' @param noSE Indicator for whether standard errors are desired. Defaults to \code{noSE = FALSE}.
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
@@ -28,9 +28,9 @@
 #' \item{od_loglik_at_conv}{value of the observed-data log-likelihood at convergence.}
 #' @export
 
-logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL, C = NULL,
+logreg2ph <- function(mod_Y_unvalidated = NULL, mod_Y_validated = NULL, mod_X_unvalidated = NULL, mod_X_validated = NULL, true_covariates = NULL,
   Validated = NULL, Bspline = NULL, data, theta_pred = NULL, gamma_pred = NULL,
-  initial_lr_params = "Zero", h_N_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000)
+  initial_lr_params = "Zeros", se_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000)
 {
   N <- nrow(data)
   n <- sum(data[, Validated])
@@ -41,10 +41,10 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
   # Determine error setting -----------------------------------------
   ## If unvalidated variable was left blank, assume error-free ------
   errorsY <- errorsX <- TRUE
-  if (is.null(Y_unval))
+  if (is.null(mod_Y_unvalidated))
   {errorsY <- FALSE}
 
-  if (is.null(X_unval) & is.null(X_val))
+  if (is.null(mod_X_unvalidated) & is.null(mod_X_validated))
   {errorsX <- FALSE}
 
   ## ------ If unvalidated variable was left blank, assume error-free
@@ -75,14 +75,14 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
 
   if (is.null(theta_pred))
   {
-    theta_pred <- c(X_val, C)
+    theta_pred <- c(mod_X_validated, true_covariates)
     message("Analysis model assumed main effects only.")
   }
 
 
   if (is.null(gamma_pred) & errorsY)
   {
-    gamma_pred <- c(X_unval, Y_val, X_val, C)
+    gamma_pred <- c(mod_X_unvalidated, mod_Y_validated, mod_X_validated, true_covariates)
     message("Outcome error model assumed main effects only.")
   }
 
@@ -92,29 +92,29 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
   if (errorsX & errorsY)
   {
     # Save distinct X -------------------------------------------------
-    x_obs <- data.frame(unique(data[1:n, c(X_val)]))
+    x_obs <- data.frame(unique(data[1:n, c(mod_X_validated)]))
     x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
     m <- nrow(x_obs)
     x_obs_stacked <- do.call(rbind, replicate(n = (N - n), expr = x_obs, simplify = FALSE))
     x_obs_stacked <- data.frame(x_obs_stacked[order(x_obs_stacked[, 1]), ])
-    colnames(x_obs) <- colnames(x_obs_stacked) <- c(X_val)
+    colnames(x_obs) <- colnames(x_obs_stacked) <- c(mod_X_validated)
 
-    # Save static (X*,Y*,X,Y,C) since they don't change ---------------
-    comp_dat_val <- data[c(1:n), c(Y_unval, X_unval, C, Bspline, X_val, Y_val)]
+    # Save static (X*,Y*,X,Y,true_covariates) since they don't change ---------------
+    comp_dat_val <- data[c(1:n), c(mod_Y_unvalidated, mod_X_unvalidated, true_covariates, Bspline, mod_X_validated, mod_Y_validated)]
     comp_dat_val <- merge(x = comp_dat_val, y = data.frame(x_obs, k = 1:m), all.x = TRUE)
-    comp_dat_val <- comp_dat_val[, c(Y_unval, pred, Bspline, "k")]
+    comp_dat_val <- comp_dat_val[, c(mod_Y_unvalidated, pred, Bspline, "k")]
     comp_dat_val <- data.matrix(comp_dat_val)
 
     # 2 (m x n)xd matrices (y=0/y=1) of each (one column per person, --
     # one row per x) --------------------------------------------------
-    suppressWarnings(comp_dat_unval <- cbind(data[-c(1:n), c(Y_unval, setdiff(x = pred, y = c(Y_val, X_val)), Bspline)],
+    suppressWarnings(comp_dat_unval <- cbind(data[-c(1:n), c(mod_Y_unvalidated, setdiff(x = pred, y = c(mod_Y_validated, mod_X_validated)), Bspline)],
      x_obs_stacked))
     comp_dat_y0 <- data.frame(comp_dat_unval, Y = 0)
     comp_dat_y1 <- data.frame(comp_dat_unval, Y = 1)
-    colnames(comp_dat_y0)[length(colnames(comp_dat_y0))] <- colnames(comp_dat_y1)[length(colnames(comp_dat_y1))] <- Y_val
+    colnames(comp_dat_y0)[length(colnames(comp_dat_y0))] <- colnames(comp_dat_y1)[length(colnames(comp_dat_y1))] <- mod_Y_validated
     comp_dat_unval <- data.matrix(cbind(rbind(comp_dat_y0, comp_dat_y1),
       k = rep(rep(seq(1, m), each = (N - n)), times = 2)))
-    comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k")]
+    comp_dat_unval <- comp_dat_unval[, c(mod_Y_unvalidated, pred, Bspline, "k")]
 
     comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
 
@@ -128,28 +128,28 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
   else if (errorsX)
   {
     # Save distinct X -------------------------------------------------
-    x_obs <- data.frame(unique(data[1:n, c(X_val)]))
+    x_obs <- data.frame(unique(data[1:n, c(mod_X_validated)]))
     x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
     m <- nrow(x_obs)
     x_obs_stacked <- do.call(rbind, replicate(n = (N - n), expr = x_obs, simplify = FALSE))
     x_obs_stacked <- data.frame(x_obs_stacked[order(x_obs_stacked[, 1]), ])
-    colnames(x_obs) <- colnames(x_obs_stacked) <- c(X_val)
+    colnames(x_obs) <- colnames(x_obs_stacked) <- c(mod_X_validated)
 
-    # Save static (X*,X,Y,C) since they don't change ---------------
-    comp_dat_val <- data[c(1:n), c(Y_val, pred, Bspline)]
+    # Save static (X*,X,Y,true_covariates) since they don't change ---------------
+    comp_dat_val <- data[c(1:n), c(mod_Y_validated, pred, Bspline)]
     comp_dat_val <- merge(x = comp_dat_val, y = data.frame(x_obs, k = 1:m), all.x = TRUE)
-    comp_dat_val <- comp_dat_val[, c(Y_val, pred, Bspline, "k")]
+    comp_dat_val <- comp_dat_val[, c(mod_Y_validated, pred, Bspline, "k")]
     comp_dat_val <- data.matrix(comp_dat_val)
 
     # (m x n)xd vectors of each (one column per person, one row per x) --
     suppressWarnings(
       comp_dat_unval <- data.matrix(
-        cbind(data[-c(1:n), c(Y_val, setdiff(x = pred, y = c(X_val)), Bspline)],
+        cbind(data[-c(1:n), c(mod_Y_validated, setdiff(x = pred, y = c(mod_X_validated)), Bspline)],
           x_obs_stacked,
           k = rep(seq(1, m), each = (N - n)))
         )
       )
-    comp_dat_unval <- comp_dat_unval[, c(Y_val, pred, Bspline, "k")]
+    comp_dat_unval <- comp_dat_unval[, c(mod_Y_validated, pred, Bspline, "k")]
 
     comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
 
@@ -162,15 +162,15 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
   }
   else if (errorsY)
   {
-    # Save static (Y*,X,Y,C) since they don't change ------------------
-    comp_dat_val <- data.matrix(data[c(1:n), c(Y_unval, pred)])
+    # Save static (Y*,X,Y,true_covariates) since they don't change ------------------
+    comp_dat_val <- data.matrix(data[c(1:n), c(mod_Y_unvalidated, pred)])
 
     # Create duplicate rows of each person (one each for y = 0/1) -----
-    comp_dat_unval <- data[-c(1:n), c(Y_unval, setdiff(x = pred, y = c(Y_val)))]
+    comp_dat_unval <- data[-c(1:n), c(mod_Y_unvalidated, setdiff(x = pred, y = c(mod_Y_validated)))]
     comp_dat_y0 <- data.frame(comp_dat_unval, Y = 0)
     comp_dat_y1 <- data.frame(comp_dat_unval, Y = 1)
     colnames(comp_dat_y0)[length(colnames(comp_dat_y0))] <-
-    colnames(comp_dat_y1)[length(colnames(comp_dat_y1))] <- Y_val
+    colnames(comp_dat_y1)[length(colnames(comp_dat_y1))] <- mod_Y_validated
     comp_dat_unval <- data.matrix(rbind(comp_dat_y0, comp_dat_y1))
 
     # Stack complete data: --------------------------------------------
@@ -180,26 +180,26 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
   }
 
 
-  theta_formula <- as.formula(paste0(Y_val, "~", paste(theta_pred, collapse = "+")))
+  theta_formula <- as.formula(paste0(mod_Y_validated, "~", paste(theta_pred, collapse = "+")))
   theta_design_mat <- cbind(int = 1, comp_dat_all[, theta_pred])
 
   if (errorsY)
   {
-    gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
+    gamma_formula <- as.formula(paste0(mod_Y_unvalidated, "~", paste(gamma_pred, collapse = "+")))
     gamma_design_mat <- cbind(int = 1, comp_dat_all[, gamma_pred])
   }
 
 
   # Initialize parameter values -------------------------------------
   ## theta, gamma ---------------------------------------------------
-  if(!(initial_lr_params %in% c("Zero", "Complete-data")))
+  if(!(initial_lr_params %in% c("Zeros", "Complete-data")))
   {
     message("Invalid starting values provided. Non-informative zeros assumed.")
-    initial_lr_params <- "Zero"
+    initial_lr_params <- "Zeros"
   }
 
 
-  if(initial_lr_params == "Zero")
+  if(initial_lr_params == "Zeros")
   {
     prev_theta <- theta0 <- matrix(0, nrow = ncol(theta_design_mat), ncol = 1)
     if (errorsY)
@@ -234,7 +234,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
     ### P(Y|X) --------------------------------------------------------
     mu_theta <- as.numeric((theta_design_mat[-c(1:n), ] %*% prev_theta))
     pY_X <- 1 / (1 + exp(- mu_theta))
-    I_y0 <- comp_dat_unval[, Y_val] == 0
+    I_y0 <- comp_dat_unval[, mod_Y_validated] == 0
     pY_X[I_y0] <- 1 - pY_X[I_y0]
 
     ### -------------------------------------------------------- P(Y|X)
@@ -243,7 +243,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
     if (errorsY)
     {
       pYstar <- 1 / (1 + exp(- as.numeric((gamma_design_mat[-c(1:n), ] %*% prev_gamma))))
-      I_ystar0 <- comp_dat_unval[, Y_unval] == 0
+      I_ystar0 <- comp_dat_unval[, mod_Y_unvalidated] == 0
       pYstar[I_ystar0] <- 1 - pYstar[I_ystar0]
 
     } #else {
@@ -287,7 +287,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
     ### Estimate conditional expectations -----------------------------
     if (errorsY & errorsX)
     {
-      ### P(Y|X,C)P(Y*|X*,Y,X,C)p_kjB(X*) -----------------------------
+      ### P(Y|X,true_covariates)P(Y*|X*,Y,X,true_covariates)p_kjB(X*) -----------------------------
       psi_num <- c(pY_X * pYstar) * pX
       ### Update denominator ------------------------------------------
       #### Sum up all rows per id (e.g. sum over xk/y) ----------------
@@ -307,7 +307,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
       u_t <- psi_t[c(1:(m * (N - n))), ] + psi_t[- c(1:(m * (N - n))), ]
       } else if (errorsX)
       {
-      ### P(Y|X,C)p_kjB(X*) -------------------------------------------
+      ### P(Y|X,true_covariates)p_kjB(X*) -------------------------------------------
       psi_num <- c(pY_X) * pX
       ### Update denominator ------------------------------------------
       #### Sum up all rows per id (e.g. sum over xk) ------------------
@@ -323,7 +323,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
       w_t <- rowSums(psi_t)
       } else if (errorsY)
       {
-      ### P(Y|X,C)P(Y*|Y,X,C) -----------------------------------------
+      ### P(Y|X,true_covariates)P(Y*|Y,X,true_covariates) -----------------------------------------
       #### Sum up all rows per id (e.g. sum over y) -------------------
       psi_num <- matrix(c(pY_X * pYstar), ncol = 1)
       psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = 2))
@@ -352,14 +352,14 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
 
     # calculateMu returns exp(-mu) / (1 + exp(-mu))
     muVector <- calculateMu(theta_design_mat, prev_theta)
-    gradient_theta <- calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, Y_val], muVector)
+    gradient_theta <- calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, mod_Y_validated], muVector)
     hessian_theta <- calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
 
 
     # tic("m-step R")
     # mu <- theta_design_mat %*% prev_theta
     # w_t <- c(rep(1, n), w_t)
-    # gradient_theta_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, Y_val] - 1 + exp(-mu) / (1 + exp(- mu)))) * theta_design_mat)), ncol = 1)
+    # gradient_theta_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, mod_Y_validated] - 1 + exp(-mu) / (1 + exp(- mu)))) * theta_design_mat)), ncol = 1)
     # toc()
     #
     #
@@ -395,11 +395,11 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
 
       ## Update gamma using weighted logistic regression ----------------
       muVector <- calculateMu(gamma_design_mat, prev_gamma)
-      gradient_gamma <- calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
+      gradient_gamma <- calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(mod_Y_unvalidated)], muVector)
       hessian_gamma <- calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
 
       # mu <- gamma_design_mat %*% prev_gamma
-      # gradient_gamma_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, c(Y_unval)] - 1 + exp(- mu) / (1 + exp(- mu)))) * gamma_design_mat)), ncol = 1)
+      # gradient_gamma_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, c(mod_Y_unvalidated)] - 1 + exp(- mu) / (1 + exp(- mu)))) * gamma_design_mat)), ncol = 1)
 
       # if (max(abs(gradient_gamma - gradient_gamma_R)) > 1e-10)
       # {
@@ -520,11 +520,11 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
     ## Calculate pl(theta) -------------------------------------------------
     od_loglik_theta <- observed_data_loglik(N = N,
      n = n,
-     Y_unval = Y_unval,
-     Y_val = Y_val,
-     X_unval = X_unval,
-     X_val = X_val,
-     C = C,
+     mod_Y_unvalidated = mod_Y_unvalidated,
+     mod_Y_validated = mod_Y_validated,
+     mod_X_unvalidated = mod_X_unvalidated,
+     mod_X_validated = mod_X_validated,
+     true_covariates = true_covariates,
      Bspline = Bspline,
      comp_dat_all = comp_dat_all,
      theta_pred = theta_pred,
@@ -546,7 +546,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
   else
   {
     # Estimate Cov(theta) using profile likelihood -------------------------
-    h_N <- h_N_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
+    h_N <- se_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
 
     if (!errorsX)
     {
@@ -562,11 +562,11 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
     ## Calculate pl(theta) -------------------------------------------------
     od_loglik_theta <- observed_data_loglik(N = N,
       n = n,
-      Y_unval = Y_unval,
-      Y_val = Y_val,
-      X_unval = X_unval,
-      X_val = X_val,
-      C = C,
+      mod_Y_unvalidated = mod_Y_unvalidated,
+      mod_Y_validated = mod_Y_validated,
+      mod_X_unvalidated = mod_X_unvalidated,
+      mod_X_validated = mod_X_validated,
+      true_covariates = true_covariates,
       Bspline = Bspline,
       comp_dat_all = comp_dat_all,
       theta_pred = theta_pred,
@@ -583,11 +583,11 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
       h_N = h_N,
       n = n,
       N = N,
-      Y_unval = Y_unval,
-      Y_val = Y_val,
-      X_unval = X_unval,
-      X_val = X_val,
-      C = C,
+      mod_Y_unvalidated = mod_Y_unvalidated,
+      mod_Y_validated = mod_Y_validated,
+      mod_X_unvalidated = mod_X_unvalidated,
+      mod_X_validated = mod_X_validated,
+      true_covariates = true_covariates,
       Bspline = Bspline,
       comp_dat_all = comp_dat_all,
       theta_pred = theta_pred,
@@ -623,11 +623,11 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
         h_N = h_N,
         n = n,
         N = N,
-        Y_unval = Y_unval,
-        Y_val = Y_val,
-        X_unval = X_unval,
-        X_val = X_val,
-        C = C,
+        mod_Y_unvalidated = mod_Y_unvalidated,
+        mod_Y_validated = mod_Y_validated,
+        mod_X_unvalidated = mod_X_unvalidated,
+        mod_X_validated = mod_X_validated,
+        true_covariates = true_covariates,
         Bspline = Bspline,
         comp_dat_all = comp_dat_all,
         theta_pred = theta_pred,
@@ -661,7 +661,7 @@ logreg2ph <- function(Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL
       )
     # ------------------------- Estimate Cov(theta) using profile likelihood
     # if(any(diag(cov_theta) < 0)) {
-    #   warning("Negative variance estimate. Increase the h_N_scale parameter and repeat variance estimation.")
+    #   warning("Negative variance estimate. Increase the se_scale parameter and repeat variance estimation.")
     #   SE_CONVERGED <- FALSE
     # }
 
