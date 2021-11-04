@@ -45,7 +45,7 @@ bool EqualArray (const RowVectorXd& arr1, const RowVectorXd& arr2, const int& ma
 
 VectorXi indexx_Matrix_Row (const MatrixXd& mat)
 {
-	auto start = tic();
+	// auto start = tic();
 
 	int n = mat.rows(), ncol = mat.cols(), i, indxt, ir = n - 1, j, k, l = 0, jstack = 0, tmp;
 	RowVectorXd a(ncol);
@@ -133,13 +133,13 @@ VectorXi indexx_Matrix_Row (const MatrixXd& mat)
 			}
 		}
 	}
-	Rcout << "indexx_Matrix_Row " << chrono::duration<double> (tic() - start).count() << endl;
+	// Rcout << "indexx_Matrix_Row " << chrono::duration<double> (tic() - start).count() << endl;
 	return indx;
 } // indexx_Matrix_Row
 
 int Num_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index)
 {
-	auto start = tic();
+	// auto start = tic();
 	/***************************************************************************************
 	 Find the number of unique rows in "mat" and return it as "n1". "index" is the index
 	 vector of the rows of "mat" output by "indexx_Matrix_Row". "mat" and "index" are not
@@ -156,7 +156,7 @@ int Num_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index)
 		if(EqualArray(mat.row(index(i)), mat.row(index(i+1)), ncol));
 		else ++n1;
 	}
-	Rcout << "Num_Uni_Matrix_Row " << chrono::duration<double> (tic() - start).count() << endl;
+	// Rcout << "Num_Uni_Matrix_Row " << chrono::duration<double> (tic() - start).count() << endl;
 	return n1;
 } // Num_Uni_Matrix_Row
 
