@@ -1,4 +1,5 @@
 library(testthat)
+library(CombinedReg)
 
 	# Set sample sizes ----------------------------------------
 N <- 1000 # Phase-I = N
