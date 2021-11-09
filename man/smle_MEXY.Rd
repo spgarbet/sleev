@@ -4,24 +4,39 @@
 \alias{smle_MEXY}
 \title{Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.}
 \usage{
-smle_MEXY(Y_tilde = NULL, Y = NULL, X_tilde = NULL, X = NULL,
-  Z = NULL, data = NULL, MAX_ITER = 2000, TOL = 1e-04, noSE = FALSE,
-  verbose = FALSE)
+smle_MEXY(
+  mod_Y_unvalidated = NULL,
+  mod_Y_validated = NULL,
+  mod_X_unvalidated = NULL,
+  mod_X_validated = NULL,
+  true_covariates = NULL,
+  Bspline = NULL,
+  data = NULL,
+  se_scale = 1,
+  MAX_ITER = 1000,
+  TOL = 1e-04,
+  noSE = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
-\item{Y_tilde}{Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{Y_tilde} are omitted from the analysis. This argument is required.}
+\item{mod_Y_unvalidated}{Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{mod_Y_unvalidated} are omitted from the analysis. This argument is required.}
 
-\item{Y}{Specifies the column that stores the validated value of \code{Y_tilde} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
+\item{mod_Y_validated}{Specifies the column that stores the validated value of \code{mod_Y_unvalidated} in the second phase. Subjects with missing values of \code{mod_Y_validated} are considered as those not selected in the second phase. This argument is required.}
 
-\item{X_tilde}{Specifies the columns of the error-prone covariates. Subjects with missing values of \code{X_tilde} are omitted from the analysis. This argument is required.}
+\item{mod_X_unvalidated}{Specifies the columns of the error-prone covariates. Subjects with missing values of \code{mod_X_unvalidated} are omitted from the analysis. This argument is required.}
 
-\item{X}{Specifies the columns that store the validated values of \code{X_tilde} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
+\item{mod_X_validated}{Specifies the columns that store the validated values of \code{mod_X_unvalidated} in the second phase. Subjects with missing values of \code{mod_X_validated} are considered as those not selected in the second phase. This argument is required.}
 
-\item{Z}{Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.}
+\item{true_covariates}{Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{true_covariates} are omitted from the analysis. This argument is optional.}
+
+\item{Bspline}{Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.}
 
 \item{data}{Specifies the name of the dataset. This argument is required.}
 
-\item{MAX_ITER}{Specifies the maximum number of iterations in the EM algorithm. The default number is \code{2000}. This argument is optional.}
+\item{se_scale}{Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{se_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.}
+
+\item{MAX_ITER}{Specifies the maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 
 \item{TOL}{Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.}
 
@@ -31,6 +46,8 @@ smle_MEXY(Y_tilde = NULL, Y = NULL, X_tilde = NULL, X = NULL,
 }
 \value{
 \item{coefficients}{Stores the analysis results.}
+\item{sigma}{Stores the residual standard error.}
+\item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
 \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 \item{converge2}{In variance estimation, if the EM algorithm converges, then \code{converge2 = TRUE}. Otherwise, \code{converge2 = FALSE}.}
 }

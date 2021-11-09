@@ -13,106 +13,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// WaldCoxphGeneralSplineProfile
-double WaldCoxphGeneralSplineProfile(MatrixXd pB, RowVectorXd p_col_sum, VectorXd ZW_theta, VectorXd X_uni_theta, MatrixXd e_X_uni_theta, VectorXd e_X_theta, VectorXd lambda, VectorXd lambda0, VectorXd Lambda, VectorXd q_row_sum, MatrixXd p, MatrixXd p0, MatrixXd P_theta, MatrixXd q, MatrixXd logp, const VectorXd& theta, const VectorXd& Y, const VectorXi& Delta, const MatrixXd& X, const MatrixXd& Bspline_uni, const MatrixXd& ZW, const MatrixXd& X_uni, const VectorXi& X_uni_ind, const VectorXi& Bspline_uni_ind, const VectorXd& Y_uni_event, const VectorXi& Y_uni_event_n, const VectorXi& Y_risk_ind, const MatrixXd& p_static, const int n, const int n2, const int m, const int n_event_uni, const int s, const int n_minus_n2, const int X_nc, const int ZW_nc, const int MAX_ITER, const double TOL);
-RcppExport SEXP _CombinedReg_WaldCoxphGeneralSplineProfile(SEXP pBSEXP, SEXP p_col_sumSEXP, SEXP ZW_thetaSEXP, SEXP X_uni_thetaSEXP, SEXP e_X_uni_thetaSEXP, SEXP e_X_thetaSEXP, SEXP lambdaSEXP, SEXP lambda0SEXP, SEXP LambdaSEXP, SEXP q_row_sumSEXP, SEXP pSEXP, SEXP p0SEXP, SEXP P_thetaSEXP, SEXP qSEXP, SEXP logpSEXP, SEXP thetaSEXP, SEXP YSEXP, SEXP DeltaSEXP, SEXP XSEXP, SEXP Bspline_uniSEXP, SEXP ZWSEXP, SEXP X_uniSEXP, SEXP X_uni_indSEXP, SEXP Bspline_uni_indSEXP, SEXP Y_uni_eventSEXP, SEXP Y_uni_event_nSEXP, SEXP Y_risk_indSEXP, SEXP p_staticSEXP, SEXP nSEXP, SEXP n2SEXP, SEXP mSEXP, SEXP n_event_uniSEXP, SEXP sSEXP, SEXP n_minus_n2SEXP, SEXP X_ncSEXP, SEXP ZW_ncSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< MatrixXd >::type pB(pBSEXP);
-    Rcpp::traits::input_parameter< RowVectorXd >::type p_col_sum(p_col_sumSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type ZW_theta(ZW_thetaSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type X_uni_theta(X_uni_thetaSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type e_X_uni_theta(e_X_uni_thetaSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type e_X_theta(e_X_thetaSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type lambda0(lambda0SEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type Lambda(LambdaSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type q_row_sum(q_row_sumSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type p(pSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type p0(p0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type P_theta(P_thetaSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type q(qSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type logp(logpSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Delta(DeltaSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Bspline_uni(Bspline_uniSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X_uni(X_uniSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type X_uni_ind(X_uni_indSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Bspline_uni_ind(Bspline_uni_indSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y_uni_event(Y_uni_eventSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Y_uni_event_n(Y_uni_event_nSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Y_risk_ind(Y_risk_indSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type p_static(p_staticSEXP);
-    Rcpp::traits::input_parameter< const int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const int >::type n2(n2SEXP);
-    Rcpp::traits::input_parameter< const int >::type m(mSEXP);
-    Rcpp::traits::input_parameter< const int >::type n_event_uni(n_event_uniSEXP);
-    Rcpp::traits::input_parameter< const int >::type s(sSEXP);
-    Rcpp::traits::input_parameter< const int >::type n_minus_n2(n_minus_n2SEXP);
-    Rcpp::traits::input_parameter< const int >::type X_nc(X_ncSEXP);
-    Rcpp::traits::input_parameter< const int >::type ZW_nc(ZW_ncSEXP);
-    Rcpp::traits::input_parameter< const int >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double >::type TOL(TOLSEXP);
-    rcpp_result_gen = Rcpp::wrap(WaldCoxphGeneralSplineProfile(pB, p_col_sum, ZW_theta, X_uni_theta, e_X_uni_theta, e_X_theta, lambda, lambda0, Lambda, q_row_sum, p, p0, P_theta, q, logp, theta, Y, Delta, X, Bspline_uni, ZW, X_uni, X_uni_ind, Bspline_uni_ind, Y_uni_event, Y_uni_event_n, Y_risk_ind, p_static, n, n2, m, n_event_uni, s, n_minus_n2, X_nc, ZW_nc, MAX_ITER, TOL));
-    return rcpp_result_gen;
-END_RCPP
-}
-// TwoPhase_GeneralSpline_coxph
-List TwoPhase_GeneralSpline_coxph(const VectorXd& Y, const VectorXi& Delta, const MatrixXd& X, const MatrixXd& ZW, const MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_GeneralSpline_coxph(SEXP YSEXP, SEXP DeltaSEXP, SEXP XSEXP, SEXP ZWSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Delta(DeltaSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Bspline(BsplineSEXP);
-    Rcpp::traits::input_parameter< const double& >::type hn(hnSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_GeneralSpline_coxph(Y, Delta, X, ZW, Bspline, hn, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
-// TwoPhase_MLE0_coxph
-List TwoPhase_MLE0_coxph(const VectorXd& Y, const VectorXi& Delta, const MatrixXd& X, const MatrixXd& ZW, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_MLE0_coxph(SEXP YSEXP, SEXP DeltaSEXP, SEXP XSEXP, SEXP ZWSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Delta(DeltaSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0_coxph(Y, Delta, X, ZW, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
-// TwoPhase_MLE0_noZW_coxph
-List TwoPhase_MLE0_noZW_coxph(const VectorXd& Y, const VectorXi& Delta, const MatrixXd& X, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_MLE0_noZW_coxph(SEXP YSEXP, SEXP DeltaSEXP, SEXP XSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const VectorXi& >::type Delta(DeltaSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0_noZW_coxph(Y, Delta, X, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
 // matTimesVec
 arma::mat matTimesVec(arma::mat mat, arma::vec v);
 RcppExport SEXP _CombinedReg_matTimesVec(SEXP matSEXP, SEXP vSEXP) {
@@ -228,40 +128,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// TwoPhase_GeneralSpline
-List TwoPhase_GeneralSpline(const MapVecd& Y, const MapMatd& X, const MapMatd& ZW, const MapMatd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_GeneralSpline(SEXP YSEXP, SEXP XSEXP, SEXP ZWSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const MapVecd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const MapMatd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MapMatd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const MapMatd& >::type Bspline(BsplineSEXP);
-    Rcpp::traits::input_parameter< const double& >::type hn(hnSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_GeneralSpline(Y, X, ZW, Bspline, hn, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
-// TwoPhase_MLE0
-List TwoPhase_MLE0(const VectorXd& Y, const MatrixXd& X, const MatrixXd& ZW, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_MLE0(SEXP YSEXP, SEXP XSEXP, SEXP ZWSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0(Y, X, ZW, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
 // TwoPhase_MLE0_MEXY
 List TwoPhase_MLE0_MEXY(const MapVecd& Y_tilde, const MapMatd& X_tilde, const MapVecd& Y, const MapMatd& X, const MapMatd& Z, const MapMatd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
 RcppExport SEXP _CombinedReg_TwoPhase_MLE0_MEXY(SEXP Y_tildeSEXP, SEXP X_tildeSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
@@ -282,69 +148,8 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// LMM_GeneralSpline
-List LMM_GeneralSpline(const MapVecd& Y, const MapVecd& T, const MapMatd& X, const MapMatd& Z, const MapVeci& ZT_colid, const MapMatd& Bspline, const MapMati& index_obs, const MapVecd& coef_initial, const MapVecd& vc_initial, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_LMM_GeneralSpline(SEXP YSEXP, SEXP TSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP ZT_colidSEXP, SEXP BsplineSEXP, SEXP index_obsSEXP, SEXP coef_initialSEXP, SEXP vc_initialSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const MapVecd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const MapVecd& >::type T(TSEXP);
-    Rcpp::traits::input_parameter< const MapMatd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MapMatd& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const MapVeci& >::type ZT_colid(ZT_colidSEXP);
-    Rcpp::traits::input_parameter< const MapMatd& >::type Bspline(BsplineSEXP);
-    Rcpp::traits::input_parameter< const MapMati& >::type index_obs(index_obsSEXP);
-    Rcpp::traits::input_parameter< const MapVecd& >::type coef_initial(coef_initialSEXP);
-    Rcpp::traits::input_parameter< const MapVecd& >::type vc_initial(vc_initialSEXP);
-    Rcpp::traits::input_parameter< const double& >::type hn(hnSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(LMM_GeneralSpline(Y, T, X, Z, ZT_colid, Bspline, index_obs, coef_initial, vc_initial, hn, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
-// TwoPhase_GeneralSpline_logistic
-List TwoPhase_GeneralSpline_logistic(const VectorXd& Y, const MatrixXd& X, const MatrixXd& ZW, const MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_GeneralSpline_logistic(SEXP YSEXP, SEXP XSEXP, SEXP ZWSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Bspline(BsplineSEXP);
-    Rcpp::traits::input_parameter< const double& >::type hn(hnSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_GeneralSpline_logistic(Y, X, ZW, Bspline, hn, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
-// TwoPhase_MLE0_logistic
-List TwoPhase_MLE0_logistic(const VectorXd& Y, const MatrixXd& X, const MatrixXd& ZW, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_MLE0_logistic(SEXP YSEXP, SEXP XSEXP, SEXP ZWSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type ZW(ZWSEXP);
-    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0_logistic(Y, X, ZW, MAX_ITER, TOL, noSE));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CombinedReg_WaldCoxphGeneralSplineProfile", (DL_FUNC) &_CombinedReg_WaldCoxphGeneralSplineProfile, 38},
-    {"_CombinedReg_TwoPhase_GeneralSpline_coxph", (DL_FUNC) &_CombinedReg_TwoPhase_GeneralSpline_coxph, 9},
-    {"_CombinedReg_TwoPhase_MLE0_coxph", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0_coxph, 7},
-    {"_CombinedReg_TwoPhase_MLE0_noZW_coxph", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0_noZW_coxph, 6},
     {"_CombinedReg_matTimesVec", (DL_FUNC) &_CombinedReg_matTimesVec, 2},
     {"_CombinedReg_matDivideVec", (DL_FUNC) &_CombinedReg_matDivideVec, 2},
     {"_CombinedReg_lengthenWT", (DL_FUNC) &_CombinedReg_lengthenWT, 3},
@@ -353,12 +158,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CombinedReg_calculateHessian", (DL_FUNC) &_CombinedReg_calculateHessian, 6},
     {"_CombinedReg_pYstarCalc", (DL_FUNC) &_CombinedReg_pYstarCalc, 8},
     {"_CombinedReg_pXCalc", (DL_FUNC) &_CombinedReg_pXCalc, 6},
-    {"_CombinedReg_TwoPhase_GeneralSpline", (DL_FUNC) &_CombinedReg_TwoPhase_GeneralSpline, 8},
-    {"_CombinedReg_TwoPhase_MLE0", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0, 6},
     {"_CombinedReg_TwoPhase_MLE0_MEXY", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0_MEXY, 10},
-    {"_CombinedReg_LMM_GeneralSpline", (DL_FUNC) &_CombinedReg_LMM_GeneralSpline, 13},
-    {"_CombinedReg_TwoPhase_GeneralSpline_logistic", (DL_FUNC) &_CombinedReg_TwoPhase_GeneralSpline_logistic, 8},
-    {"_CombinedReg_TwoPhase_MLE0_logistic", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0_logistic, 6},
     {NULL, NULL, 0}
 };
 
