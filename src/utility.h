@@ -59,6 +59,9 @@ int Num_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index) ;
  */
 void Create_Uni_Matrix_Row (const MatrixXd& mat, const VectorXi& index, MatrixXd& uni_mat, VectorXi& ind, VectorXi& N_uni) ;
 
+/**
+ * 
+ */
 VectorXi indexx_Vector (const VectorXd& vec) ;
 
 /***************************************************************************************
@@ -77,12 +80,22 @@ int Num_Distinct_Events (const VectorXd& Y, const VectorXi& Y_index, const Vecto
  "Y_uni_event" is a vector of unique events.
  "Y_risk_ind" is a vector of indexes to which one of the risk sets each element in "Y" corresponds.
  "Y_uni_event_n" is a vector of numbers of events corresponding to each unique event time.
+***************************************************************************************/
+void Create_Uni_Events (const VectorXd& Y, const VectorXi& Y_index, const VectorXi& Delta, 
+    VectorXd& Y_uni_event, VectorXi& Y_risk_ind, VectorXi& Y_uni_event_n); 
+
+/***************************************************************************************
+ Create unique events.
+ "Y" is the vector of times.
+ "Y_index" is the index vector of Y output by "indexx_Vector()".
+ "Delta" is the vector of event indicators.
+ "Y_uni_event" is a vector of unique events.
+ "Y_risk_ind" is a vector of indexes to which one of the risk sets each element in "Y" corresponds.
+ "Y_uni_event_n" is a vector of numbers of events corresponding to each unique event time.
  "L" is the vector of left-truncation times.
  "L_index" is the index vector of L output by "indexx_Vector()".
  "L_risk_ind" is a vector of indexes to which one of the risk sets each element in "L" corresponds.
 ***************************************************************************************/
-void Create_Uni_Events (const VectorXd& Y, const VectorXi& Y_index, const VectorXi& Delta, 
-    VectorXd& Y_uni_event, VectorXi& Y_risk_ind, VectorXi& Y_uni_event_n); 
 void Create_Uni_Events_LeftTrunc (const VectorXd& Y, const VectorXd& L, const VectorXi& Y_index, const VectorXi& L_index,
     const VectorXi& Delta, VectorXd& Y_uni_event, VectorXi& Y_risk_ind, VectorXi& Y_uni_event_n, VectorXi& L_risk_ind) ;
 
