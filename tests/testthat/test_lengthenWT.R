@@ -12,7 +12,8 @@ test_that("0 vector", {
 test_that("empty vector", {
 	w_t <- c()
 	result <- as.vector( lengthenWT(w_t, 3))
-
+print("EMPTY VECTOR: ")
+print(result)
 	expect_equal(result, c(1,1,1))
 	})
 

@@ -9,7 +9,7 @@ smle_MEXY(
   Y = NULL,
   X_unval = NULL,
   X = NULL,
-  true_covariates = NULL,
+  Z = NULL,
   Bspline = NULL,
   data = NULL,
   hn_scale = 1,
@@ -28,7 +28,7 @@ smle_MEXY(
 
 \item{X}{Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
 
-\item{true_covariates}{Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{true_covariates} are omitted from the analysis. This argument is optional.}
+\item{Z}{Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.}
 
 \item{Bspline}{Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.}
 

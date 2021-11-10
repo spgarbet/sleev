@@ -7,10 +7,10 @@ This function returns the complete dataset trying all validated values for each 
 \usage{
 complete_data(
   Y_unval = NULL,
-  Y_val = NULL,
+  Y = NULL,
   X_unval = NULL,
-  X_val = NULL,
-  C = NULL,
+  X = NULL,
+  Z = NULL,
   Validated = NULL,
   Bspline = NULL,
   data,
@@ -21,19 +21,19 @@ complete_data(
 \arguments{
 \item{Y_unval}{Column names with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.}
 
-\item{Y_val}{Column names with the validated outcome.}
+\item{Y}{Column names with the validated outcome.}
 
-\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X_val} are \code{null}, all precictors are assumed to be error-free.}
+\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
-\item{X_val}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X_val} are \code{null}, all precictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
-\item{C}{(Optional) Column name(s) with additional error-free covariates.}
+\item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
 \item{Validated}{Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.}
 
 \item{Bspline}{Vector of column names containing the B-spline basis functions.}
 
-\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y_val}, \code{X_unval}, \code{X_val}, \code{C}, \code{Validated}, and \code{Bspline}.}
+\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, \code{Validated}, and \code{Bspline}.}
 
 \item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
 

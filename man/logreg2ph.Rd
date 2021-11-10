@@ -10,7 +10,7 @@ logreg2ph(
   Y = NULL,
   X_unval = NULL,
   X = NULL,
-  true_covariates = NULL,
+  Z = NULL,
   Validated = NULL,
   Bspline = NULL,
   data,
@@ -32,13 +32,13 @@ logreg2ph(
 
 \item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
-\item{true_covariates}{(Optional) Column name(s) with additional error-free covariates.}
+\item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
 \item{Validated}{Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.}
 
 \item{Bspline}{Vector of column names containing the B-spline basis functions.}
 
-\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{true_covariates}, \code{Validated}, and \code{Bspline}.}
+\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, \code{Validated}, and \code{Bspline}.}
 
 \item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
 

@@ -9,10 +9,10 @@ profile_out(
   n,
   N,
   Y_unval = NULL,
-  Y_val = NULL,
+  Y = NULL,
   X_unval = NULL,
-  X_val = NULL,
-  C = NULL,
+  X = NULL,
+  Z = NULL,
   Bspline = NULL,
   comp_dat_all,
   theta_pred,
@@ -33,13 +33,13 @@ profile_out(
 
 \item{Y_unval}{Column with the unvalidated outcome (can be name or numeric index)}
 
-\item{Y_val}{Column with the validated outcome (can be name or numeric index)}
+\item{Y}{Column with the validated outcome (can be name or numeric index)}
 
 \item{X_unval}{Column(s) with the unvalidated predictors (can be name or numeric index)}
 
-\item{X_val}{Column(s) with the validated predictors (can be name or numeric index)}
+\item{X}{Column(s) with the validated predictors (can be name or numeric index)}
 
-\item{C}{(Optional) Column(s) with additional error-free covariates (can be name or numeric index)}
+\item{Z}{(Optional) Column(s) with additional error-free covariates (can be name or numeric index)}
 
 \item{Bspline}{Vector of columns containing the B-spline basis functions (can be name or numeric index)}
 
@@ -63,7 +63,7 @@ profile_out(
 Profile likelihood for \code{theta}: the value of the observed-data log-likelihood after profiling out other parameters.
 }
 \description{
-For a given vector \code{theta} to parameterize P(Y|X,C), this function repeats the EM algorithm to find
+For a given vector \code{theta} to parameterize P(Y|X,Z), this function repeats the EM algorithm to find
 the values of \code{gamma} and \code{p} at convergence. The resulting parameters are used to find the profile
 log-likelihood for \code{theta} by plugging them into the observed-data log-likelihood.
 This function is used by \code{pl_theta()}.

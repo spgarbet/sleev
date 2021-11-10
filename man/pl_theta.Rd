@@ -11,10 +11,10 @@ pl_theta(
   n,
   N,
   Y_unval,
-  Y_val,
+  Y,
   X_unval,
-  X_val,
-  C,
+  X,
+  Z,
   Bspline,
   comp_dat_all,
   theta_pred,
@@ -39,13 +39,13 @@ pl_theta(
 
 \item{Y_unval}{Column with the unvalidated outcome (can be name or numeric index)}
 
-\item{Y_val}{Column with the validated outcome (can be name or numeric index)}
+\item{Y}{Column with the validated outcome (can be name or numeric index)}
 
 \item{X_unval}{Column(s) with the unvalidated predictors (can be name or numeric index)}
 
-\item{X_val}{Column(s) with the validated predictors (can be name or numeric index)}
+\item{X}{Column(s) with the validated predictors (can be name or numeric index)}
 
-\item{C}{(Optional) Column(s) with additional error-free covariates (can be name or numeric index)}
+\item{Z}{(Optional) Column(s) with additional error-free covariates (can be name or numeric index)}
 
 \item{Bspline}{Vector of columns containing the B-spline basis functions (can be name or numeric index)}
 
@@ -70,5 +70,5 @@ Profile likelihood for \code{theta} after perturbing element \code{k} by \code{h
 }
 \description{
 This function returns the value of the profile log-likelihood for parameters \code{theta} of the
-analysis model P(Y|X,C) after perturbing element \code{k} of \code{theta} by some small amount \code{h_N}.
+analysis model P(Y|X,Z) after perturbing element \code{k} of \code{theta} by some small amount \code{h_N}.
 }

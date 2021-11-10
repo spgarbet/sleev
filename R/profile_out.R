@@ -1,6 +1,6 @@
 #' Profiles out nuisance parameters from the observed-data log-likelihood for a given value of theta
 #'
-#' For a given vector `theta` to parameterize P(Y|X,C), this function repeats the EM algorithm to find
+#' For a given vector `theta` to parameterize P(Y|X,Z), this function repeats the EM algorithm to find
 #' the values of `gamma` and `p` at convergence. The resulting parameters are used to find the profile
 #' log-likelihood for `theta` by plugging them into the observed-data log-likelihood.
 #' This function is used by `pl_theta()`.
@@ -9,10 +9,10 @@
 #' @param N Phase I sample size
 #' @param n Phase II sample size
 #' @param Y_unval Column with the unvalidated outcome (can be name or numeric index)
-#' @param Y_val Column with the validated outcome (can be name or numeric index)
+#' @param Y Column with the validated outcome (can be name or numeric index)
 #' @param X_unval Column(s) with the unvalidated predictors (can be name or numeric index)
-#' @param X_val Column(s) with the validated predictors (can be name or numeric index)
-#' @param C (Optional) Column(s) with additional error-free covariates (can be name or numeric index)
+#' @param X Column(s) with the validated predictors (can be name or numeric index)
+#' @param Z (Optional) Column(s) with additional error-free covariates (can be name or numeric index)
 #' @param Bspline Vector of columns containing the B-spline basis functions (can be name or numeric index)
 #' @param comp_dat_all Augmented dataset containing rows for each combination of unvalidated subjects' data with values from Phase II (a matrix)
 #' @param theta_pred Vector of columns in \code{data} that pertain to the predictors in the analysis model.
@@ -24,13 +24,13 @@
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
 #' @return Profile likelihood for `theta`: the value of the observed-data log-likelihood after profiling out other parameters.
 
-profile_out <- function(theta, n, N, Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL, C = NULL, Bspline = NULL,
+profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL,
                            comp_dat_all, theta_pred, gamma_pred, gamma0, p0, p_val_num, TOL, MAX_ITER) {
   # Determine error setting -----------------------------------------
   ## If unvalidated variable was left blank, assume error-free ------
   errorsY <- errorsX <- TRUE
   if (is.null(Y_unval)) {errorsY <- FALSE}
-  if (is.null(X_unval) & is.null(X_val)) {errorsX <- FALSE}
+  if (is.null(X_unval) & is.null(X)) {errorsX <- FALSE}
   ## ------ If unvalidated variable was left blank, assume error-free
   # ----------------------------------------- Determine error setting
 
@@ -44,7 +44,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y_val = NULL, X_unval = NUL
 
 
   # For the E-step, save static P(Y|X) for unvalidated --------------
-  pY_X <- pYstarCalc(theta_design_mat, n, 0, theta, comp_dat_all, match(Y_val, colnames(comp_dat_all))-1, vector("numeric",nrow(theta_design_mat)), vector("numeric",nrow(theta_design_mat)))
+  pY_X <- pYstarCalc(theta_design_mat, n, 0, theta, comp_dat_all, match(Y, colnames(comp_dat_all))-1, vector("numeric",nrow(theta_design_mat)), vector("numeric",nrow(theta_design_mat)))
   if (errorsY)
   {
     gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
@@ -113,7 +113,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y_val = NULL, X_unval = NUL
 
     if (errorsY & errorsX) {
 
-      ### P(Y|X,C)P(Y*|X*,Y,X,C)p_kjB(X*) -----------------------------
+      ### P(Y|X,Z)P(Y*|X*,Y,X,Z)p_kjB(X*) -----------------------------
       psi_num <- c(pY_X * pYstar) * pX
       ### Update denominator ------------------------------------------
       #### Sum up all rows per id (e.g. sum over xk/y) ----------------
@@ -134,7 +134,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y_val = NULL, X_unval = NUL
 
     } else if (!errorsY && errorsX) {
 
-      ### P(Y|X,C)p_kjB(X*) -------------------------------------------
+      ### P(Y|X,Z)p_kjB(X*) -------------------------------------------
       psi_num <- c(pY_X) * pX
       ### Update denominator ------------------------------------------
       #### Sum up all rows per id (e.g. sum over xk) ------------------
@@ -151,7 +151,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y_val = NULL, X_unval = NUL
 
     } else if (!errorsX && errorsY) {
 
-      ### P(Y|X,C)P(Y*|Y,X,C) -----------------------------------------
+      ### P(Y|X,Z)P(Y*|Y,X,Z) -----------------------------------------
       psi_num <- matrix(c(pY_X * pYstar), ncol = 1)
       #### Sum up all rows per id (e.g. sum over y) -------------------
       psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = 2))

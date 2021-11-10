@@ -7,10 +7,10 @@
 #' @param N Phase I sample size
 #' @param n Phase II sample size
 #' @param Y_unval Column with the unvalidated outcome (can be name or numeric index)
-#' @param Y_val Column with the validated outcome (can be name or numeric index)
+#' @param Y Column with the validated outcome (can be name or numeric index)
 #' @param X_unval Column(s) with the unvalidated predictors (can be name or numeric index)
-#' @param X_val Column(s) with the validated predictors (can be name or numeric index)
-#' @param C (Optional) Column(s) with additional error-free covariates (can be name or numeric index)
+#' @param X Column(s) with the validated predictors (can be name or numeric index)
+#' @param Z (Optional) Column(s) with additional error-free covariates (can be name or numeric index)
 #' @param Bspline Vector of columns containing the B-spline basis functions (can be name or numeric index)
 #' @param comp_dat_all Augmented dataset containing rows for each combination of unvalidated subjects' data with values from Phase II (a matrix)
 #' @param theta_pred Vector of columns in \code{data} that pertain to the predictors in the analysis model.
@@ -20,13 +20,13 @@
 #' @param p B-spline coefficients for the approximated covariate error model (a matrix)
 #' @return Scalar value of the function
 
-observed_data_loglik <- function(N, n, Y_unval = NULL, Y_val = NULL, X_unval = NULL, X_val = NULL, C = NULL,
+observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
                                  Bspline = NULL, comp_dat_all, theta_pred, gamma_pred, theta, gamma, p) {
   # Determine error setting -----------------------------------------
   ## If unvalidated variable was left blank, assume error-free ------
   errorsY <- errorsX <- TRUE
   if (is.null(Y_unval)) {errorsY <- FALSE}
-  if (is.null(X_unval) & is.null(X_val)) {errorsX <- FALSE}
+  if (is.null(X_unval) & is.null(X)) {errorsX <- FALSE}
   ## ------ If unvalidated variable was left blank, assume error-free
   # ----------------------------------------- Determine error setting
 
@@ -40,7 +40,7 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y_val = NULL, X_unval = N
   #################################################################################
   ## Sum over log[P_theta(Yi|Xi)] -------------------------------------------------
   pY_X <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[c(1:n), theta_pred]) %*% theta))))
-  pY_X <- ifelse(as.vector(comp_dat_all[c(1:n), c(Y_val)]) == 0, 1 - pY_X, pY_X)
+  pY_X <- ifelse(as.vector(comp_dat_all[c(1:n), c(Y)]) == 0, 1 - pY_X, pY_X)
   return_loglik <- sum(log(pY_X))
   ## ------------------------------------------------- Sum over log[P_theta(Yi|Xi)]
   #################################################################################
@@ -68,7 +68,7 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y_val = NULL, X_unval = N
   # For unvalidated subjects ------------------------------------------------------
   ## Calculate P_theta(y|x) for all (y,xk) ----------------------------------------
   pY_X <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[-c(1:n), theta_pred]) %*% theta))))
-  pY_X[which(comp_dat_all[-c(1:n), Y_val] == 0)] <- 1 - pY_X[which(comp_dat_all[-c(1:n), Y_val] == 0)]
+  pY_X[which(comp_dat_all[-c(1:n), Y] == 0)] <- 1 - pY_X[which(comp_dat_all[-c(1:n), Y] == 0)]
   ## ---------------------------------------- Calculate P_theta(y|x) for all (y,xk)
   ################################################################################
   if (errorsY) 

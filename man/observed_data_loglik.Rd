@@ -8,10 +8,10 @@ observed_data_loglik(
   N,
   n,
   Y_unval = NULL,
-  Y_val = NULL,
+  Y = NULL,
   X_unval = NULL,
-  X_val = NULL,
-  C = NULL,
+  X = NULL,
+  Z = NULL,
   Bspline = NULL,
   comp_dat_all,
   theta_pred,
@@ -28,13 +28,13 @@ observed_data_loglik(
 
 \item{Y_unval}{Column with the unvalidated outcome (can be name or numeric index)}
 
-\item{Y_val}{Column with the validated outcome (can be name or numeric index)}
+\item{Y}{Column with the validated outcome (can be name or numeric index)}
 
 \item{X_unval}{Column(s) with the unvalidated predictors (can be name or numeric index)}
 
-\item{X_val}{Column(s) with the validated predictors (can be name or numeric index)}
+\item{X}{Column(s) with the validated predictors (can be name or numeric index)}
 
-\item{C}{(Optional) Column(s) with additional error-free covariates (can be name or numeric index)}
+\item{Z}{(Optional) Column(s) with additional error-free covariates (can be name or numeric index)}
 
 \item{Bspline}{Vector of columns containing the B-spline basis functions (can be name or numeric index)}
 

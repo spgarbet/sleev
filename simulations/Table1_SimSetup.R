@@ -135,11 +135,11 @@ B[which(Xa == 1 & Xbstar == 0), 3] <- 1
 B[which(Xa == 1 & Xbstar == 1), 4] <- 1
 colnames(B) <- paste0("bs", seq(1, nsieve))
 sdat <- cbind(sdat, B)
-smle <- logreg2ph(mod_Y_unvalidated = "Ystar",
-                  mod_Y_validated = "Y",
-                  mod_X_unvalidated = "Xbstar",
-                  mod_X_validated  = "Xb",
-                  true_covariates = "Xa",
+smle <- logreg2ph(Y_unval = "Ystar",
+                  Y = "Y",
+                  X_unval = "Xbstar",
+                  X  = "Xb",
+                  Z = "Xa",
                   Validated = "V",
                   Bspline = colnames(B),
                   data = sdat,

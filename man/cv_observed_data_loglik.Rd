@@ -7,11 +7,11 @@ This function returns the value of the observed-data log-likelihood based on cro
 \usage{
 cv_observed_data_loglik(
   fold,
-  mod_Y_unvalidated = NULL,
-  mod_Y_validated = NULL,
-  mod_X_unvalidated = NULL,
-  mod_X_validated = NULL,
-  true_covariates = NULL,
+  Y_unval = NULL,
+  Y = NULL,
+  X_unval = NULL,
+  X = NULL,
+  Z = NULL,
   Validated = NULL,
   Bspline = NULL,
   data,
@@ -24,21 +24,21 @@ cv_observed_data_loglik(
 \arguments{
 \item{fold}{Column name with the assigned fold for cross-validation.}
 
-\item{mod_Y_unvalidated}{Column name with the unvalidated outcome. If \code{mod_Y_unvalidated} is null, the outcome is assumed to be error-free.}
+\item{Y_unval}{Column name with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.}
 
-\item{mod_Y_validated}{Column name with the validated outcome.}
+\item{Y}{Column name with the validated outcome.}
 
-\item{mod_X_unvalidated}{Column name(s) with the unvalidated predictors.  If \code{mod_X_unvalidated} and \code{mod_X_validated} are \code{null}, all precictors are assumed to be error-free.}
+\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
-\item{mod_X_validated}{Column name(s) with the validated predictors. If \code{mod_X_unvalidated} and \code{mod_X_validated} are \code{null}, all precictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
-\item{true_covariates}{(Optional) Column name(s) with additional error-free covariates.}
+\item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
 \item{Validated}{Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.}
 
 \item{Bspline}{Vector of column names containing the B-spline basis functions.}
 
-\item{data}{A dataframe with one row per subject containing columns: \code{mod_Y_unvalidated}, \code{mod_Y_validated}, \code{mod_X_unvalidated}, \code{mod_X_validated}, \code{true_covariates}, \code{Validated}, and \code{Bspline}.}
+\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, \code{Validated}, and \code{Bspline}.}
 
 \item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
 
