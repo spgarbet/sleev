@@ -152,7 +152,7 @@ arma::vec lengthenWT(
   if (!modifyW_T)
     return w_t_original;
 
-// Put n 1's in front of w_t
+  // Put n 1's in front of w_t
   arma::vec w_t(n + w_t_original.n_elem);
 
   w_t = join_vert(arma::ones<arma::vec>(n), w_t_original);

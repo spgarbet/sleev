@@ -23,5 +23,6 @@ LinkingTo:
 Suggests: 
     knitr,
     rmarkdown,
-    splines
+    splines,
+    testthat
 VignetteBuilder: knitr

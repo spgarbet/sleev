@@ -6,10 +6,10 @@
 This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)}
 \usage{
 logreg2ph(
-  mod_Y_unvalidated = NULL,
-  mod_Y_validated = NULL,
-  mod_X_unvalidated = NULL,
-  mod_X_validated = NULL,
+  Y_unval = NULL,
+  Y = NULL,
+  X_unval = NULL,
+  X = NULL,
   true_covariates = NULL,
   Validated = NULL,
   Bspline = NULL,
@@ -17,20 +17,20 @@ logreg2ph(
   theta_pred = NULL,
   gamma_pred = NULL,
   initial_lr_params = "Zeros",
-  se_scale = 1,
+  hn_scale = 1,
   noSE = FALSE,
   TOL = 1e-04,
   MAX_ITER = 1000
 )
 }
 \arguments{
-\item{mod_Y_unvalidated}{Column name with the unvalidated outcome. If \code{mod_Y_unvalidated} is null, the outcome is assumed to be error-free.}
+\item{Y_unval}{Column name with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.}
 
-\item{mod_Y_validated}{Column name with the validated outcome.}
+\item{Y}{Column name with the validated outcome.}
 
-\item{mod_X_unvalidated}{Column name(s) with the unvalidated predictors.  If \code{mod_X_unvalidated} and \code{mod_X_validated} are \code{null}, all precictors are assumed to be error-free.}
+\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
-\item{mod_X_validated}{Column name(s) with the validated predictors. If \code{mod_X_unvalidated} and \code{mod_X_validated} are \code{null}, all precictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
 \item{true_covariates}{(Optional) Column name(s) with additional error-free covariates.}
 
@@ -38,7 +38,7 @@ logreg2ph(
 
 \item{Bspline}{Vector of column names containing the B-spline basis functions.}
 
-\item{data}{A dataframe with one row per subject containing columns: \code{mod_Y_unvalidated}, \code{mod_Y_validated}, \code{mod_X_unvalidated}, \code{mod_X_validated}, \code{true_covariates}, \code{Validated}, and \code{Bspline}.}
+\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{true_covariates}, \code{Validated}, and \code{Bspline}.}
 
 \item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
 
@@ -46,7 +46,7 @@ logreg2ph(
 
 \item{initial_lr_params}{Initial values for parametric model parameters. Choices include (1) \code{"Zeros"} (non-informative starting values) or (2) \code{"Complete-data"} (estimated based on validated subjects only)}
 
-\item{se_scale}{Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is \code{se_scale = 1}.}
+\item{hn_scale}{Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is \code{hn_scale = 1}.}
 
 \item{noSE}{Indicator for whether standard errors are desired. Defaults to \code{noSE = FALSE}.}
 

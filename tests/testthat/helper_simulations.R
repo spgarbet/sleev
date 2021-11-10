@@ -84,21 +84,3 @@ colnames(naive_infl) <- paste0("if", 1:3)
 
 # Add naive influence functions to sdat -----------------------------------------------
 sdat <- cbind(id = 1:N, sdat, naive_infl)
-library(survey)
-if (audit == "SRS") {
-  sstudy <- twophase(id = list(~id, ~id),
-                     data = data.frame(sdat),
-                     subset = ~V)
-} else if (audit == "Naive case-control") {
-  sstudy <- twophase(id = list(~id, ~id),
-                     data = data.frame(sdat),
-                     strat = list(NULL, ~Ystar),
-                     subset = ~V)
-}
-
-# Calibrate raking weights to the sum of the naive influence functions ----------------
-scal <- calibrate(sstudy, ~ if1 + if2 + if3, phase = 2, calfun = "raking")
-# Fit analysis model using calibrated weights -----------------------------------------
-rake <- svyglm(Y ~ Xb + Xa, family = "binomial", design = scal)
-beta_rake <- rake$coefficients[2]
-se_rake <- sqrt(diag(vcov(rake)))[2]
