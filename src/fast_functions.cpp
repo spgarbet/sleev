@@ -154,8 +154,8 @@ arma::vec lengthenWT(
     return w_t_original;
 
   // If w_t_original is empty, return the ones vector of length n
-  if (w_t_original.n_elem == 0)
-    return arma::ones<arma::vec>(n);
+  if (w_t_original.is_empty())
+      return arma::ones<arma::vec>(n);
 
   // Put n 1's in front of w_t_original
   arma::vec w_t(n + w_t_original.n_elem);   // Initialize vector
