@@ -113,10 +113,10 @@ fit_Tang <- nlm(f = Tang_twophase_loglik,
                 hessian = TRUE,
                 Val = "V",
                 Y_unval = "Ystar",
-                Y_val="Y",
+                Y="Y",
                 X_unval = "Xbstar",
-                X_val = "Xb",
-                C = "Xa",
+                X = "Xb",
+                Z = "Xa",
                 data = sdat)
 beta_mle <- fit_Tang$estimate[10]
 se_mle <- sqrt(diag(solve(fit_Tang$hessian)))[10]

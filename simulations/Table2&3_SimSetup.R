@@ -29,7 +29,7 @@ sensY <- 0.95; specY <- 0.90
 theta0 <- - log(specY / (1 - specY))
 theta1 <- - theta0 - log((1 - sensY) / sensY)
 Ystar <- rbinom(n = N, size = 1,
-                prob = (1 + exp(- (theta0 + Xbstar + theta1 * Y + Xb - 0.5 * Xa))) ^ (- 1))
+  prob = (1 + exp(- (theta0 + Xbstar + theta1 * Y + Xb - 0.5 * Xa))) ^ (- 1))
 
 # Choose audit design: SRS or -----------------------------
 ## Unvalidated case-control: case-control based on Y^* ----
@@ -45,7 +45,7 @@ if(audit == "SRS")
 if(audit == "Unvalidated case-control")
 {
   V <- seq(1, N) %in% c(sample(x = which(Ystar == 0), size = 0.5 * n, replace = FALSE),
-                        sample(x = which(Ystar == 1), size = 0.5 * n, replace = FALSE))
+    sample(x = which(Ystar == 1), size = 0.5 * n, replace = FALSE))
 }
 
 # Build dataset --------------------------------------------
@@ -66,7 +66,7 @@ if (audit == "Unvalidated case-control") {
   library(sandwich)
   sample_wts <- ifelse(Ystar[V] == 0, 1 / ((0.5 * n) / (table(Ystar)[1])), 1 / ((0.5 * n) / (table(Ystar)[2])))
   ht <- glm(Y[V] ~ Xb[V] + Xa[V], family = "binomial",
-            weights = sample_wts)
+    weights = sample_wts)
   beta_ht <- ht$coefficients[2]
   se_ht <- sqrt(diag(sandwich(ht)))[2]
 }
@@ -90,14 +90,14 @@ sdat <- cbind(id = 1:N, sdat, naive_infl)
 library(survey)
 if (audit == "SRS") {
   sstudy <- twophase(id = list(~id, ~id),
-                     data = data.frame(sdat),
-                     subset = ~V)
-} else if (audit == "Unvalidated case-control") {
-  sstudy <- twophase(id = list(~id, ~id),
-                     data = data.frame(sdat),
-                     strat = list(NULL, ~Ystar),
-                     subset = ~V)
-}
+   data = data.frame(sdat),
+   subset = ~V)
+  } else if (audit == "Unvalidated case-control") {
+    sstudy <- twophase(id = list(~id, ~id),
+     data = data.frame(sdat),
+     strat = list(NULL, ~Ystar),
+     subset = ~V)
+  }
 
 # Calibrate raking weights to the sum of the naive influence functions ----------------
 scal <- calibrate(sstudy, ~ if1 + if2 + if3, phase = 2, calfun = "raking")
@@ -117,8 +117,17 @@ B[which(Xa == 1),(0.75 * nsieve + 1):nsieve] <- splines::bs(x = Xbstar[which(Xa 
 colnames(B) <- paste0("bs", seq(1, nsieve))
 sdat <- cbind(sdat, B)
 
-smle <- logreg2ph(Y_unval = "Ystar", Y = "Y", X_unval = "Xbstar", X = "Xb", Z = "Xa", Validated = "V", Bspline = colnames(B),
-                   data = sdat, noSE = FALSE, MAX_ITER = 1000, TOL = 1E-4)
+smle <- logreg2ph(Y_unval = "Ystar",
+ Y = "Y",
+ X_unval = "Xbstar",
+ X = "Xb",
+ Z = "Xa",
+ Validated = "V",
+ Bspline = colnames(B), 
+ data = sdat,
+ noSE = FALSE,
+ MAX_ITER = 1000,
+ TOL = 1E-4)
 beta_smle <- smle$Coefficients$Coefficient[2]
 se_smle <- smle$Coefficients$SE[2]
 

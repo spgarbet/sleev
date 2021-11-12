@@ -113,10 +113,10 @@ fit_Tang <- nlm(f = Tang_twophase_loglik,
                 hessian = TRUE,
                 Val = "V",
                 Y_unval = "Ystar",
-                Y_val="Y",
+                Y="Y",
                 X_unval = "Xbstar",
-                X_val = "Xb",
-                C = "Xa",
+                X = "Xb",
+                Z = "Xa",
                 data = sdat)
 beta_mle <- fit_Tang$estimate[10]
 se_mle <- sqrt(diag(solve(fit_Tang$hessian)))[10]
@@ -139,10 +139,10 @@ sdat <- cbind(sdat, B)
 ### To download the package, run: devtools::install_github("sarahlotspeich/logreg2ph")
 library("logreg2ph")
 smle <- logreg2ph(Y_unval = "Ystar",
-                  Y_val = "Y",
+                  Y = "Y",
                   X_unval = "Xbstar",
-                  X_val = "Xb",
-                  C = "Xa",
+                  X = "Xb",
+                  Z = "Xa",
                   Validated = "V",
                   Bspline = colnames(B),
                   data = sdat,

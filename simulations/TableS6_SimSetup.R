@@ -96,10 +96,10 @@ colnames(B) <- paste0("bs", seq(1, nsieve))
 sdat <- cbind(sdat, B)
 library("logreg2ph")
 smle <- logreg2ph(Y_unval = "Ystar",
-                  Y_val = "Y",
+                  Y = "Y",
                   X_unval = "Xbstar",
-                  X_val = "Xb",
-                  C = "Xa",
+                  X = "Xb",
+                  Z = "Xa",
                   Validated = "V",
                   Bspline = colnames(B),
                   data = sdat,
