@@ -2,38 +2,38 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 matTimesVec <- function(mat, v) {
-    .Call('_CombinedReg_matTimesVec', PACKAGE = 'CombinedReg', mat, v)
+    .Call(`_CombinedReg_matTimesVec`, mat, v)
 }
 
 matDivideVec <- function(mat, v) {
-    .Call('_CombinedReg_matDivideVec', PACKAGE = 'CombinedReg', mat, v)
+    .Call(`_CombinedReg_matDivideVec`, mat, v)
 }
 
 lengthenWT <- function(w_t_original, n, modifyW_T = TRUE) {
-    .Call('_CombinedReg_lengthenWT', PACKAGE = 'CombinedReg', w_t_original, n, modifyW_T)
+    .Call(`_CombinedReg_lengthenWT`, w_t_original, n, modifyW_T)
 }
 
 calculateMu <- function(design_mat, prev) {
-    .Call('_CombinedReg_calculateMu', PACKAGE = 'CombinedReg', design_mat, prev)
+    .Call(`_CombinedReg_calculateMu`, design_mat, prev)
 }
 
 calculateGradient <- function(w_t, n, design_mat, Y_col, muVector, modifyW_T = FALSE) {
-    .Call('_CombinedReg_calculateGradient', PACKAGE = 'CombinedReg', w_t, n, design_mat, Y_col, muVector, modifyW_T)
+    .Call(`_CombinedReg_calculateGradient`, w_t, n, design_mat, Y_col, muVector, modifyW_T)
 }
 
 calculateHessian <- function(design_mat, w_t, muVector, n, mus, modifyW_T = FALSE) {
-    .Call('_CombinedReg_calculateHessian', PACKAGE = 'CombinedReg', design_mat, w_t, muVector, n, mus, modifyW_T)
+    .Call(`_CombinedReg_calculateHessian`, design_mat, w_t, muVector, n, mus, modifyW_T)
 }
 
 pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma) {
-    .Call('_CombinedReg_pYstarCalc', PACKAGE = 'CombinedReg', gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
+    .Call(`_CombinedReg_pYstarCalc`, gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
 }
 
 pXCalc <- function(n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows) {
-    .Call('_CombinedReg_pXCalc', PACKAGE = 'CombinedReg', n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows)
+    .Call(`_CombinedReg_pXCalc`, n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows)
 }
 
 TwoPhase_MLE0_MEXY <- function(Y_tilde, X_tilde, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
-    .Call('_CombinedReg_TwoPhase_MLE0_MEXY', PACKAGE = 'CombinedReg', Y_tilde, X_tilde, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
+    .Call(`_CombinedReg_TwoPhase_MLE0_MEXY`, Y_tilde, X_tilde, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
 }
 

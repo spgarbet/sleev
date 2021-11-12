@@ -1,4 +1,7 @@
-Tang_twophase_loglik <- function(params, Val, Y_unval, Y_val, X_unval, X_val, C, data)
+## TODO: Should we really include this function in the CombinedReg package?
+
+
+Tang_twophase_loglik <- function(params, Val, Y_unval, Y, X_unval, X, Z, data)
 {
   theta0 <- params[1]
   theta1 <- params[2]
@@ -17,11 +20,11 @@ Tang_twophase_loglik <- function(params, Val, Y_unval, Y_val, X_unval, X_val, C,
   data_val <- data[which(data[,Val] == 1),]
   
   # Main study 
-  ## P(Y*|y, x, X*, C)
-  eta1_y0x0 <- theta0 + theta1*0 + theta2*0 + theta3*data_unval[,X_unval] + theta4*data_unval[,C]
-  eta1_y0x1 <- theta0 + theta1*0 + theta2*1 + theta3*data_unval[,X_unval] + theta4*data_unval[,C]
-  eta1_y1x0 <- theta0 + theta1*1 + theta2*0 + theta3*data_unval[,X_unval] + theta4*data_unval[,C]
-  eta1_y1x1 <- theta0 + theta1*1 + theta2*1 + theta3*data_unval[,X_unval] + theta4*data_unval[,C]
+  ## P(Y*|y, x, X*, Z)
+  eta1_y0x0 <- theta0 + theta1*0 + theta2*0 + theta3*data_unval[,X_unval] + theta4*data_unval[,Z]
+  eta1_y0x1 <- theta0 + theta1*0 + theta2*1 + theta3*data_unval[,X_unval] + theta4*data_unval[,Z]
+  eta1_y1x0 <- theta0 + theta1*1 + theta2*0 + theta3*data_unval[,X_unval] + theta4*data_unval[,Z]
+  eta1_y1x1 <- theta0 + theta1*1 + theta2*1 + theta3*data_unval[,X_unval] + theta4*data_unval[,Z]
   
   pYstar_y0x0 <- ifelse(data_unval[,Y_unval] == 1, (1 + exp(-eta1_y0x0))^(-1), 1-(1 + exp(-eta1_y0x0))^(-1))
   pYstar_y0x1 <- ifelse(data_unval[,Y_unval] == 1, (1 + exp(-eta1_y0x1))^(-1), 1-(1 + exp(-eta1_y0x1))^(-1))
@@ -31,11 +34,11 @@ Tang_twophase_loglik <- function(params, Val, Y_unval, Y_val, X_unval, X_val, C,
   pYstar <- data.frame(pYstar_y0x0, pYstar_y1x0, pYstar_y0x1, pYstar_y1x1)
   ### -----------------------------------------------------------------
   
-  ## P(X*|x, C)
-  eta2_x0y0 <- delta0 + delta1*0 + delta3*data_unval[,C]
-  eta2_x0y1 <- delta0 + delta1*0 + delta3*data_unval[,C]
-  eta2_x1y0 <- delta0 + delta1*1 + delta3*data_unval[,C]
-  eta2_x1y1 <- delta0 + delta1*1 + delta3*data_unval[,C]
+  ## P(X*|x, Z)
+  eta2_x0y0 <- delta0 + delta1*0 + delta3*data_unval[,Z]
+  eta2_x0y1 <- delta0 + delta1*0 + delta3*data_unval[,Z]
+  eta2_x1y0 <- delta0 + delta1*1 + delta3*data_unval[,Z]
+  eta2_x1y1 <- delta0 + delta1*1 + delta3*data_unval[,Z]
   
   pXstar_x0y0 <- ifelse(data_unval[,X_unval] == 1, (1 + exp(-eta2_x0y0))^(-1), 1-(1 + exp(-eta2_x0y0))^(-1))
   pXstar_x0y1 <- ifelse(data_unval[,X_unval] == 1, (1 + exp(-eta2_x0y1))^(-1), 1-(1 + exp(-eta2_x0y1))^(-1))
@@ -46,8 +49,8 @@ Tang_twophase_loglik <- function(params, Val, Y_unval, Y_val, X_unval, X_val, C,
   ### ------------------------------------------------------------------
   
   ## P(y|x)
-  eta3_x0 <- beta0 + beta1*0 + beta2*data_unval[,C]
-  eta3_x1 <- beta0 + beta1*1 + beta2*data_unval[,C]
+  eta3_x0 <- beta0 + beta1*0 + beta2*data_unval[,Z]
+  eta3_x1 <- beta0 + beta1*1 + beta2*data_unval[,Z]
   
   Py0_x0 <- 1-(1 + exp(-eta3_x0))^(-1)
   Py1_x0 <- (1 + exp(-eta3_x0))^(-1)
@@ -72,19 +75,19 @@ Tang_twophase_loglik <- function(params, Val, Y_unval, Y_val, X_unval, X_val, C,
   
   # Validation subsample (Phase II)
   ## P(Y*|Y)
-  eta1 <- theta0 + theta1*data_val[,Y_val] + theta2*data_val[,X_val] + theta3*data_val[,X_unval] + theta4*data_val[,C]
+  eta1 <- theta0 + theta1*data_val[,Y] + theta2*data_val[,X] + theta3*data_val[,X_unval] + theta4*data_val[,Z]
   pYstar <- ifelse(data_val[,Y_unval] == 1, (1 + exp(-eta1))^(-1), 1-(1 + exp(-eta1))^(-1))
   
   ## P(X*|X)
-  eta2 <- delta0 + delta1*data_val[,X_val] + delta3*data_val[,C]
+  eta2 <- delta0 + delta1*data_val[,X] + delta3*data_val[,Z]
   pXstar <- ifelse(data_val[,X_unval] == 1, (1 + exp(-eta2))^(-1), 1-(1 + exp(-eta2))^(-1))
   
   ## P(Y|X)
-  eta3 <- beta0 + beta1*data_val[,X_val] + beta2*data_val[,C]
-  pY <- ifelse(data_val[,Y_val] == 1, (1 + exp(-eta3))^(-1), 1-(1 + exp(-eta3))^(-1))
+  eta3 <- beta0 + beta1*data_val[,X] + beta2*data_val[,Z]
+  pY <- ifelse(data_val[,Y] == 1, (1 + exp(-eta3))^(-1), 1-(1 + exp(-eta3))^(-1))
   
   ## P(X)
-  pX <- ifelse(data_val[,X_val] == 1, (1 + exp(-gamma0))^(-1), 1 - (1 + exp(-gamma0))^(-1))
+  pX <- ifelse(data_val[,X] == 1, (1 + exp(-gamma0))^(-1), 1 - (1 + exp(-gamma0))^(-1))
   
   # Multiply P(Y*|y,x,X*) x P(X*|x,y) x P(y|x) x P(x)
   like_val <- pYstar * pXstar * pY * pX

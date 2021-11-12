@@ -149,13 +149,17 @@ arma::vec lengthenWT(
   const int& n,
   const bool& modifyW_T = true)
 {
+  // If we don't modify w_t_original, return it immediately
   if (!modifyW_T)
     return w_t_original;
 
-  // Put n 1's in front of w_t
-  arma::vec w_t(n + w_t_original.n_elem);
+  // If w_t_original is empty, return the ones vector of length n
+  if (w_t_original.n_elem == 0)
+    return arma::ones<arma::vec>(n);
 
-  w_t = join_vert(arma::ones<arma::vec>(n), w_t_original);
+  // Put n 1's in front of w_t_original
+  arma::vec w_t(n + w_t_original.n_elem);   // Initialize vector
+  w_t = join_vert(arma::ones<arma::vec>(n), w_t_original);  // Join vector of 1's with w_t_original
 
 
   return w_t;

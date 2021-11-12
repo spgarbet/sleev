@@ -1,6 +1,9 @@
 library(testthat)
 library(CombinedReg)
 
+
+set.seed(918)
+
 	# Set sample sizes ----------------------------------------
 N <- 1000 # Phase-I = N
 n <- 250 # Phase-II/audit size = n
