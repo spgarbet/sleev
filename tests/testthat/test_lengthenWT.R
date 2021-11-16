@@ -41,12 +41,12 @@ test_that("don't modify", {
   w_t <- c(1,2,3)
   result <- lengthenWT(w_t, 4, FALSE)
 
-  expect_equal(result, c(1,2,3))
+  expect_equal(as.vector(result), c(1,2,3))
 })
 
 test_that("n = 0",{
   w_t <- c(1,2,3)
-  result <- lengthen(w_t, 0)
+  result <- lengthenWT(w_t, 0)
 
-  expect_equal(result, c(1,2,3))
+  expect_equal(as.vector(result), c(1,2,3))
 })
