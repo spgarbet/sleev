@@ -6,7 +6,7 @@
 #' @param X_unval Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.
 #' @param X Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.
 #' @param Z (Optional) Column name(s) with additional error-free covariates.
-#' @param Validated Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.
+# ' @param Validated Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.
 #' @param Bspline Vector of column names containing the B-spline basis functions.
 #' @param data A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, \code{Validated}, and \code{Bspline}.
 #' @param theta_pred Vector of columns in \code{data} that pertain to the predictors in the analysis model.
@@ -29,14 +29,23 @@
 #' @export
 
 logreg2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
-  Validated = NULL, Bspline = NULL, data, theta_pred = NULL, gamma_pred = NULL,
+  Bspline = NULL, data, theta_pred = NULL, gamma_pred = NULL,
   initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000)
 {
   N <- nrow(data)
-  n <- sum(data[, Validated])
 
+  # Calculate the validated subjects
+  Validated <- logical(N) # initialize a logical vector of length N
+  for (i in 1:N)
+  {
+    Validated[i] <- !(is.na(data[i,X]) || is.na(data[i,Y]))
+  }
+  
+  # n is how many validated subjects there are in data
+  n <- sum(Validated)
+  
   # Reorder so that the n validated subjects are first ------------
-  data <- data[order(as.numeric(data[, Validated]), decreasing = TRUE), ]
+  data <- data[order(as.numeric(Validated), decreasing = TRUE), ]
 
   # Determine error setting -----------------------------------------
   ## If unvalidated variable was left blank, assume error-free ------

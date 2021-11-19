@@ -35,7 +35,7 @@ test_that("logreg2ph Simulation 1", {
 
 
 	# Build dataset --------------------------------------------
-	sdat <- cbind(Y, Xb, Ystar, Xbstar, Xa, V)
+	sdat <- cbind(Y, Xb, Ystar, Xbstar, Xa)
 	# Make Phase-II variables Y, Xb NA for unaudited subjects ---
 	sdat[!V, c("Y", "Xb")] <- NA
 
@@ -60,7 +60,6 @@ test_that("logreg2ph Simulation 1", {
 	# Add naive influence functions to sdat -----------------------------------------------
 	sdat <- cbind(id = 1:N, sdat, naive_infl)
 
-
 	### Construct B-spline basis -------------------------------
 	### Since Xb* and Xa are both binary, reduces to indicators --
 	nsieve <- 4
@@ -76,7 +75,6 @@ test_that("logreg2ph Simulation 1", {
 		X_unval = "Xbstar",
 		X = "Xb",
 		Z = "Xa",
-		Validated = "V",
 		Bspline = colnames(B),
 		data = sdat,
 		noSE = FALSE,
@@ -140,9 +138,9 @@ test_that("logreg2ph simulation 4", {
 	Ystar <- rbinom(n = N, size = 1,
 	                prob = (1 + exp(- (theta0 + theta1 * Y + theta2 * Xb + theta3 * Xbstar + theta4 * Xa))) ^ (- 1))
 
-	
+
 	V <- seq(1, N) %in% sample(x = seq(1, N), size = n, replace = FALSE)
-	
+
 	# Build dataset --------------------------------------------
 	sdat <- data.frame(cbind(Y, Xb, Ystar, Xbstar, Xa, V))
 	# Make Phase-II variables Y, Xb NA for unaudited subjects ---
@@ -163,7 +161,6 @@ test_that("logreg2ph simulation 4", {
 	                  X_unval = "Xbstar",
 	                  X = "Xb",
 	                  Z = "Xa",
-	                  Validated = "V",
 	                  Bspline = colnames(B),
 	                  data = sdat,
 	                  noSE = FALSE,
