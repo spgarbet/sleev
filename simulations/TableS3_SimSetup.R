@@ -137,13 +137,11 @@ sdat <- cbind(sdat, B)
 
 ### R package: implementation of proposed SMLE approach ----
 ### To download the package, run: devtools::install_github("sarahlotspeich/logreg2ph")
-library("logreg2ph")
 smle <- logreg2ph(Y_unval = "Ystar",
                   Y = "Y",
                   X_unval = "Xbstar",
                   X = "Xb",
                   Z = "Xa",
-                  Validated = "V",
                   Bspline = colnames(B),
                   data = sdat,
                   noSE = FALSE,
