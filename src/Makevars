@@ -15,7 +15,8 @@ CC = clang
 CXX = clang++
 
 ## Allowing larger memory allocations to arrays in Rcpp Armadillo
-PKG_CXXFLAGS = -DARMA_64BIT_WORD=1
+## Remove stupid warnings from Rcpp Eigen (warning: pragma diagnostic pop could not pop, no matching push [-Wunknown-pragmas]    #pragma clang diagnostic pop)
+PKG_CXXFLAGS = -DARMA_64BIT_WORD=1 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
 
 ## Compilation
 PKG_LIBS =  $(shell $(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()" ) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) 
