@@ -75,14 +75,14 @@ test_that("MEXY", {
 	    data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
 	    ### generate data
 
-	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE)
 
 	    if (sum(is.na(res$coefficients)) == 0) {
 	        results[nsim,] = res$coefficients[2,1:2]
 	        nsim = nsim+1
-	        # if (nsim%%10 == 0) {
-	        #     print(paste(nsim, "replicates done."))
-	        # }
+	        if (nsim%%10 == 0) {
+	            print(paste(nsim, "replicates done."))
+	        }
 	    }
 	}
 
