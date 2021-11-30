@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string>
 #include "utility.h"
+#include "CombinedReg_types.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 
