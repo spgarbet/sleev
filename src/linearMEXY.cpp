@@ -1,3 +1,6 @@
+// [[Rcpp::depends(RcppEigen)]]
+
+
 #include <RcppEigen.h>
 #include <iostream>
 #include <ctime>
@@ -5,7 +8,6 @@
 #include <string>
 #include "utility.h"
 
-// [[Rcpp::depends(RcppEigen)]]
 
 using namespace Rcpp;
 

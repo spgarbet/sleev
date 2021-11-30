@@ -1,3 +1,5 @@
+// [[Rcpp::depends(RcppEigen)]]
+
 #include <string>
 #include <iostream>
 #include <ctime>
