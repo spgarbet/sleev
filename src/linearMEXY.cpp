@@ -7,11 +7,9 @@
 #include <cmath>
 #include <string>
 #include "utility.h"
-#include "CombinedReg_types.h"
-
 
 using namespace Rcpp;
-
+using namespace Eigen;
 
 
 double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
@@ -178,12 +176,12 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 } // WaldLinearMEXYGeneralSplineProfile
 
 // [[Rcpp::export]]
-List TwoPhase_MLE0_MEXY (const MapVecd& Y_tilde,
- const MapMatd& X_tilde,
- const MapVecd& Y,
- const MapMatd& X,
- const MapMatd& Z,
- const MapMatd& Bspline,
+List TwoPhase_MLE0_MEXY (const VectorXd& Y_tilde,
+ const MatrixXd& X_tilde,
+ const VectorXd& Y,
+ const MatrixXd& X,
+ const MatrixXd& Z,
+ const MatrixXd& Bspline,
  const double& hn,
  const int& MAX_ITER,
  const double& TOL,
