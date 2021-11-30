@@ -33,7 +33,7 @@ cv_observed_data_loglik <- function(fold, Y_unval = NULL, Y = NULL, X_unval = NU
     train <- data[which(data[, fold] == f), ]
     suppressMessages(
       train_fit <- logreg2ph(Y_unval = Y_unval, Y = Y, X_unval = X_unval, X = X, Z = Z,
-                                        Validated = Validated, Bspline = Bspline, data = train,
+                                        Bspline = Bspline, data = train,
                                         theta_pred = theta_pred, gamma_pred = gamma_pred,
                                         noSE = TRUE, TOL = TOL, MAX_ITER = MAX_ITER)
     )
