@@ -11,7 +11,6 @@ logreg2ph(
   X_unval = NULL,
   X = NULL,
   Z = NULL,
-  Validated = NULL,
   Bspline = NULL,
   data,
   theta_pred = NULL,
@@ -33,8 +32,6 @@ logreg2ph(
 \item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
 
 \item{Z}{(Optional) Column name(s) with additional error-free covariates.}
-
-\item{Validated}{Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.}
 
 \item{Bspline}{Vector of column names containing the B-spline basis functions.}
 
