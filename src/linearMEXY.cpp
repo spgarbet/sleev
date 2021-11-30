@@ -177,6 +177,7 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	}
 } // WaldLinearMEXYGeneralSplineProfile
 
+// [[Rcpp::export]]
 List TwoPhase_MLE0_MEXY (const MapVecd& Y_tilde,
  const MapMatd& X_tilde,
  const MapVecd& Y,

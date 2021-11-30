@@ -54,6 +54,7 @@ arma::mat matDivideVec(arma::mat mat, arma::vec v)
 
 // TRANSLATING PACKAGE FUNCTIONS TO CPP FOR SPEED BOOST
 
+// [[Rcpp::export]]
 arma::vec lengthenWT(
   const arma::vec& w_t_original,
   const int& n,
@@ -75,6 +76,7 @@ arma::vec lengthenWT(
   return w_t;
 }
 
+// [[Rcpp::export]]
 arma::vec calculateMu(
   const arma::mat& design_mat,
   const arma::mat& prev)
@@ -84,6 +86,7 @@ arma::vec calculateMu(
   return mu1 / (1 + mu1);
 }
 
+// [[Rcpp::export]]
 arma::vec calculateGradient(
   arma::vec& w_t,
   const int& n,
@@ -110,7 +113,7 @@ arma::vec calculateGradient(
 
 }
 
-
+// [[Rcpp::export]]
 arma::mat calculateHessian(
   const arma::mat& design_mat,
   arma::vec& w_t,
@@ -129,6 +132,7 @@ arma::mat calculateHessian(
 
 }
 
+// [[Rcpp::export]]
 arma::vec pYstarCalc(
   const arma::mat& gamma_design_mat,
   const int& n,
@@ -160,6 +164,7 @@ arma::vec pYstarCalc(
   return pYstar;
 }
 
+// [[Rcpp::export]]
 arma::mat pXCalc(
   const int& n,
   const arma::mat& comp_dat_all_cropped,
