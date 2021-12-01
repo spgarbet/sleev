@@ -12,7 +12,11 @@ using namespace Rcpp;
 using namespace std;
 
 
-
+//' Multiplies each column of a matrix by a vector
+//' 
+//' @param mat The matrix
+//' @param v The vector
+//' @return mat * v
 arma::mat matTimesVec(arma::mat mat, arma::vec v)
 {
   // Ensure the vector is the right length
@@ -33,6 +37,11 @@ arma::mat matTimesVec(arma::mat mat, arma::vec v)
   return mat;
 }
 
+//' Divides each column of a matrix by a vector
+//' 
+//' @param mat The matrix
+//' @param v The vector divisor
+//' @return mat / v, or mat * v^-1
 arma::mat matDivideVec(arma::mat mat, arma::vec v)
 {
   // Ensure the vector is the right length
@@ -54,6 +63,11 @@ arma::mat matDivideVec(arma::mat mat, arma::vec v)
 
 // TRANSLATING PACKAGE FUNCTIONS TO CPP FOR SPEED BOOST
 
+//' Lengthens a vector by prepending n ones
+//' 
+//' @param w_t_original The original vector
+//' @param n The number of ones to add to the front of the vector
+//' @param modifyW_T If false, instantly returns w_t_original
 // [[Rcpp::export]]
 arma::vec lengthenWT(
   const arma::vec& w_t_original,
@@ -76,6 +90,11 @@ arma::vec lengthenWT(
   return w_t;
 }
 
+//' Calculates the value of mu according to two variables
+//' Small helper function
+//' 
+//' @param design_mat The design matrix
+//' @param prev The previous iteration of the design matrix
 // [[Rcpp::export]]
 arma::vec calculateMu(
   const arma::mat& design_mat,
@@ -86,6 +105,15 @@ arma::vec calculateMu(
   return mu1 / (1 + mu1);
 }
 
+//' Calculates a gradient given w_t and a design matrix
+//' 
+//' TODO
+//' @param w_t A vector indicating ??
+//' @param n The number of ones to prepend to w_t
+//' @param design_mat The design matrix
+//' @param Y_col The column of validated Y values from the complete data matrix
+//' @param muVector The vector calculated by calculateMu
+//' @param modifyW_T Whether to add ones to the beginning of w_t
 // [[Rcpp::export]]
 arma::vec calculateGradient(
   arma::vec& w_t,
@@ -113,6 +141,15 @@ arma::vec calculateGradient(
 
 }
 
+//' Calculate the Hessian Matrix
+//' Also lengthens w_t by n
+//' 
+//' @param design_mat The design matrix
+//' @param w_t The vector ??
+//' @param muVector The vector returned by calculateMu
+//' @param n The number of ones to prepend to w_t
+//' @param mus An empty, pre-allocated vector of the same length as muVector, pre-allocated memory saves time
+//' @param modifyW_T Whether to add ones to the beginning of w_t
 // [[Rcpp::export]]
 arma::mat calculateHessian(
   const arma::mat& design_mat,
@@ -132,6 +169,16 @@ arma::mat calculateHessian(
 
 }
 
+//' Calculates pYstar
+//' 
+//' @param gamma_design_mat The gamma design matrix
+//' @param n The starting row index to consider
+//' @param excludeRows The number of rows to exclude from the first section of gamma_design_mat
+//' @param prev_gamma The previous iteration of gamma_design_mat
+//' @param comp_dat_all The complete dataset
+//' @param Y_unval_index Which column of comp_dat_all houses the unvalidated Y variable
+//' @param pYstar An empty, pre-allocated vector
+//' @param mu_gamma An empty, pre-allocated vector
 // [[Rcpp::export]]
 arma::vec pYstarCalc(
   const arma::mat& gamma_design_mat,
@@ -164,6 +211,14 @@ arma::vec pYstarCalc(
   return pYstar;
 }
 
+//' Calculates pX
+//'
+//' @param n
+//' @param comp_dat_all_cropped
+//' @param errorsX If the X variable is unvalidated or could contain errors
+//' @param errorsY If the Y variable is unvalidated or could contain errors
+//' @param pX An empty, pre-allocated matrix
+//' @param prevRows An empty, pre-allocated matrix
 // [[Rcpp::export]]
 arma::mat pXCalc(
   const int& n,
