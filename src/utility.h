@@ -5,7 +5,6 @@
 
 #include <string>
 #include <RcppEigen.h>
-#include "CombinedReg_types.h"
 
 // Packages and function alias for speed testing
 // #include <chrono>
