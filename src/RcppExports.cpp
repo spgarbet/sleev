@@ -6,7 +6,6 @@
 #include <Rcpp.h>
 
 using namespace Rcpp;
-using namespace Eigen;
 
 #ifdef RCPP_USE_GLOBAL_ROSTREAM
 Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
@@ -105,17 +104,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // TwoPhase_MLE0_MEXY
-List TwoPhase_MLE0_MEXY(const VectorXd& Y_tilde, const MatrixXd& X_tilde, const VectorXd& Y, const MatrixXd& X, const MatrixXd& Z, const MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
+List TwoPhase_MLE0_MEXY(const Eigen::VectorXd& Y_tilde, const Eigen::MatrixXd& X_tilde, const Eigen::VectorXd& Y, const Eigen::MatrixXd& X, const Eigen::MatrixXd& Z, const Eigen::MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
 RcppExport SEXP _CombinedReg_TwoPhase_MLE0_MEXY(SEXP Y_tildeSEXP, SEXP X_tildeSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y_tilde(Y_tildeSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X_tilde(X_tildeSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Bspline(BsplineSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y_tilde(Y_tildeSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X_tilde(X_tildeSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Bspline(BsplineSEXP);
     Rcpp::traits::input_parameter< const double& >::type hn(hnSEXP);
     Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
     Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
