@@ -3,6 +3,8 @@ library(CombinedReg)
 
 test_that("MEXY", {
 	skip_on_cran()
+	skip_if(SKIP_CRAN_TESTS)
+	
 	args = commandArgs(TRUE)
 	njob = 0
 	rho = -.3

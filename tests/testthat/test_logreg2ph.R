@@ -106,7 +106,8 @@ test_that("logreg2ph Simulation 1", {
 
 test_that("logreg2ph simulation 4", {
 	skip_on_cran()
-
+	skip_if(SKIP_CRAN_TESTS)
+	
 	set.seed(918)
 
 	# Set sample sizes ----------------------------------------
