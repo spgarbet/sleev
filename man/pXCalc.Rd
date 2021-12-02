@@ -16,5 +16,5 @@ pXCalc(n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows)
 \item{prevRows}{An empty, pre-allocated matrix}
 }
 \description{
-Calculates pX
+TODO
 }

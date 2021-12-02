@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{calculateGradient}
 \alias{calculateGradient}
-\title{Calculates a gradient given w_t and a design matrix}
+\title{Calculate gradient}
 \usage{
 calculateGradient(w_t, n, design_mat, Y_col, muVector, modifyW_T = FALSE)
 }
@@ -20,5 +20,6 @@ calculateGradient(w_t, n, design_mat, Y_col, muVector, modifyW_T = FALSE)
 \item{modifyW_T}{Whether to add ones to the beginning of w_t}
 }
 \description{
+Calculates a gradient given w_t and a design matrix
 TODO
 }

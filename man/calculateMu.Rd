@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{calculateMu}
 \alias{calculateMu}
-\title{Calculates the value of mu according to two variables
-Small helper function}
+\title{Calculate Mu}
 \usage{
 calculateMu(design_mat, prev)
 }

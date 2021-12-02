@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{pYstarCalc}
 \alias{pYstarCalc}
-\title{Calculates pYstar}
+\title{Calculate pYstar}
 \usage{
 pYstarCalc(
   gamma_design_mat,
@@ -33,5 +33,5 @@ pYstarCalc(
 \item{mu_gamma}{An empty, pre-allocated vector}
 }
 \description{
-Calculates pYstar
+TODO
 }

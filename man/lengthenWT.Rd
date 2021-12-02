@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{lengthenWT}
 \alias{lengthenWT}
-\title{Lengthens a vector by prepending n ones}
+\title{Prepend ones to a w_t}
 \usage{
 lengthenWT(w_t_original, n, modifyW_T = TRUE)
 }

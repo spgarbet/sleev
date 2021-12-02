@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{calculateHessian}
 \alias{calculateHessian}
-\title{Calculate the Hessian Matrix
-Also lengthens w_t by n}
+\title{Calculate Hessian Matrix}
 \usage{
 calculateHessian(design_mat, w_t, muVector, n, mus, modifyW_T = FALSE)
 }
@@ -21,6 +20,5 @@ calculateHessian(design_mat, w_t, muVector, n, mus, modifyW_T = FALSE)
 \item{modifyW_T}{Whether to add ones to the beginning of w_t}
 }
 \description{
-Calculate the Hessian Matrix
-Also lengthens w_t by n
+Calculates the Hessian Matrix and lengthens w_t by n
 }
