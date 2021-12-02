@@ -11,7 +11,8 @@
 using namespace Rcpp;
 using namespace std;
 
-
+//' Multiply matrix by vector
+//' 
 //' Multiplies each column of a matrix by a vector
 //' 
 //' @param mat The matrix
@@ -37,6 +38,8 @@ arma::mat matTimesVec(arma::mat mat, arma::vec v)
   return mat;
 }
 
+//' Divide matrix by vector
+//' 
 //' Divides each column of a matrix by a vector
 //' 
 //' @param mat The matrix
@@ -63,6 +66,8 @@ arma::mat matDivideVec(arma::mat mat, arma::vec v)
 
 // TRANSLATING PACKAGE FUNCTIONS TO CPP FOR SPEED BOOST
 
+//' Prepend ones to a w_t
+//' 
 //' Lengthens a vector by prepending n ones
 //' 
 //' @param w_t_original The original vector
@@ -90,6 +95,8 @@ arma::vec lengthenWT(
   return w_t;
 }
 
+//' Calculate Mu
+//' 
 //' Calculates the value of mu according to two variables
 //' Small helper function
 //' 
@@ -105,9 +112,11 @@ arma::vec calculateMu(
   return mu1 / (1 + mu1);
 }
 
-//' Calculates a gradient given w_t and a design matrix
+//' Calculate gradient
 //' 
+//' Calculates a gradient given w_t and a design matrix
 //' TODO
+//' 
 //' @param w_t A vector indicating ??
 //' @param n The number of ones to prepend to w_t
 //' @param design_mat The design matrix
@@ -141,8 +150,9 @@ arma::vec calculateGradient(
 
 }
 
-//' Calculate the Hessian Matrix
-//' Also lengthens w_t by n
+//' Calculate Hessian Matrix
+//' 
+//' Calculates the Hessian Matrix and lengthens w_t by n
 //' 
 //' @param design_mat The design matrix
 //' @param w_t The vector ??
@@ -169,7 +179,9 @@ arma::mat calculateHessian(
 
 }
 
-//' Calculates pYstar
+//' Calculate pYstar
+//' 
+//' TODO
 //' 
 //' @param gamma_design_mat The gamma design matrix
 //' @param n The starting row index to consider
@@ -212,6 +224,8 @@ arma::vec pYstarCalc(
 }
 
 //' Calculates pX
+//' 
+//' TODO
 //'
 //' @param n
 //' @param comp_dat_all_cropped
