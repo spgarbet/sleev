@@ -292,7 +292,7 @@ VectorXi indexx_Vector (const VectorXd& vec)
 int Num_Distinct_Events (const VectorXd& Y, const VectorXi& Y_index, const VectorXi& Delta)
 {
 	double event_prev;
-	int n_event;
+	int n_event = -1;
 
 	if (Delta.sum() <= 0)
 	{
