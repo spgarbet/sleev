@@ -19,6 +19,17 @@ NULL
 #' @return mat / v, or mat * v^-1
 NULL
 
+#' Calculates pX
+#' 
+#' TODO
+#'
+#' @param comp_dat_all_cropped
+#' @param errorsX If the X variable is unvalidated or could contain errors
+#' @param errorsY If the Y variable is unvalidated or could contain errors
+#' @param pX An empty, pre-allocated matrix
+#' @param prevRows An empty, pre-allocated matrix
+NULL
+
 #' Prepend ones to a w_t
 #' 
 #' Lengthens a vector by prepending n ones
@@ -86,21 +97,21 @@ pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_al
     .Call(`_CombinedReg_pYstarCalc`, gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
 }
 
-#' Calculates pX
+#' Two Phase MLE0 MEXY
 #' 
 #' TODO
-#'
-#' @param n
-#' @param comp_dat_all_cropped
-#' @param errorsX If the X variable is unvalidated or could contain errors
-#' @param errorsY If the Y variable is unvalidated or could contain errors
-#' @param pX An empty, pre-allocated matrix
-#' @param prevRows An empty, pre-allocated matrix
-pXCalc <- function(n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows) {
-    .Call(`_CombinedReg_pXCalc`, n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows)
-}
-
-TwoPhase_MLE0_MEXY <- function(Y_tilde, X_tilde, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
-    .Call(`_CombinedReg_TwoPhase_MLE0_MEXY`, Y_tilde, X_tilde, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
+#' 
+#' @param Y_unval Unvalidated Y variables
+#' @param X_unval Unvalidated X variables
+#' @param Y Validated Y variables
+#' @param X Validated X variables
+#' @param Z True covariates
+#' @param Bspline Matrix of B splines
+#' @param hn Scaling of hn
+#' @param MAX_ITER Max iterations to perform when calculating convergence
+#' @param TOL Maximum difference between iteration that satisfies convergence requirements
+#' @param noSE Skips general spline profiling if converged
+TwoPhase_MLE0_MEXY <- function(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
+    .Call(`_CombinedReg_TwoPhase_MLE0_MEXY`, Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
 }
 

@@ -4,7 +4,7 @@ library(CombinedReg)
 test_that("MEXY", {
 	skip_on_cran()
 	skip_if(SKIP_CRAN_TESTS)
-	
+
 	args = commandArgs(TRUE)
 	njob = 0
 	rho = -.3
@@ -13,7 +13,6 @@ test_that("MEXY", {
 	nsieve = 20
 	# wd = args[6]
 
-	library(MASS)
 	library(splines)
 
 	NSIM = 20

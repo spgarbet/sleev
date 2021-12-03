@@ -10,6 +10,10 @@
 ## support within Armadillo prefers / requires it
 CXX_STD = CXX11
 
+## Use clang instead of gcc
+CC = clang
+CXX = clang++
+
 ## Allowing larger memory allocations to arrays in Rcpp Armadillo
 ## Remove stupid warnings from Rcpp Eigen (warning: pragma diagnostic pop could not pop, no matching push [-Wunknown-pragmas]    #pragma clang diagnostic pop)
 PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -DARMA_64BIT_WORD=1 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS 

@@ -13,7 +13,7 @@ using namespace Rcpp;
 
 double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	VectorXd q_row_sum, MatrixXd p, MatrixXd p0, MatrixXd P_theta, MatrixXd q, VectorXd resi_n, MatrixXd logp,
-	const VectorXd& theta, const VectorXd& Y_tilde, const VectorXd& Y, const MatrixXd& X_tilde, 
+	const VectorXd& theta, const VectorXd& Y_unval, const VectorXd& Y, const MatrixXd& X_unval, 
 	const MatrixXd& X, const MatrixXd& Bspline_uni, const MatrixXd& Z, const MatrixXd& WU_uni, 
 	const VectorXi& WU_uni_ind, const VectorXi& Bspline_uni_ind, const MatrixXd& p_static, const double sigma_sq, 
 	const int n, const int n2, const int m, const int s, const int n_minus_n2, const int X_nc, const int Z_nc, const int MAX_ITER, const double TOL) 
@@ -25,8 +25,8 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	/**** temporary variables **********************************************************************************************************************/
 	
 	/**** update P_theta ***************************************************************************************************************************/	
-	P_theta.col(0) = Y_tilde.tail(n_minus_n2) - 
-		X_tilde.bottomRows(n_minus_n2)*theta.head(X_nc) -
+	P_theta.col(0) = Y_unval.tail(n_minus_n2) - 
+		X_unval.bottomRows(n_minus_n2)*theta.head(X_nc) -
 	 	Z.bottomRows(n_minus_n2)*theta.tail(Z_nc);
 		
 	const VectorXd pThetaColZero = P_theta.col(0);
@@ -174,10 +174,24 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	}
 } // WaldLinearMEXYGeneralSplineProfile
 
+//' Two Phase MLE0 MEXY
+//' 
+//' TODO
+//' 
+//' @param Y_unval Unvalidated Y variables
+//' @param X_unval Unvalidated X variables
+//' @param Y Validated Y variables
+//' @param X Validated X variables
+//' @param Z True covariates
+//' @param Bspline Matrix of B splines
+//' @param hn Scaling of hn
+//' @param MAX_ITER Max iterations to perform when calculating convergence
+//' @param TOL Maximum difference between iteration that satisfies convergence requirements
+//' @param noSE Skips general spline profiling if converged
 // [[Rcpp::export]]
 List TwoPhase_MLE0_MEXY (
- const Eigen::VectorXd& Y_tilde,
- const Eigen::MatrixXd& X_tilde,
+ const Eigen::VectorXd& Y_unval,
+ const Eigen::MatrixXd& X_unval,
  const Eigen::VectorXd& Y,
  const Eigen::MatrixXd& X,
  const Eigen::MatrixXd& Z,
@@ -190,7 +204,7 @@ List TwoPhase_MLE0_MEXY (
 	
 	/*#############################################################################################################################################*/
 	/**** some useful constants ********************************************************************************************************************/
-	const int n = Y_tilde.size();  // number of subjects in the first phase
+	const int n = Y_unval.size();  // number of subjects in the first phase
 	const int n2 = Y.size(); // number of subjects in the second phase
 	const int n_minus_n2 = n-n2; // number of subjects not selected in the second phase
 	const int Z_nc = Z.cols(); // number of inexpensive covariates
@@ -206,8 +220,8 @@ List TwoPhase_MLE0_MEXY (
 	/**** error terms W+U **************************************************************************************************************************/
 	const int WU_nc = 1+X_nc;
 	MatrixXd WU(n2, WU_nc);
-	WU.col(0) = Y_tilde.head(n2)-Y;
-	WU.rightCols(X_nc) = X_tilde.topRows(n2)-X;
+	WU.col(0) = Y_unval.head(n2)-Y;
+	WU.rightCols(X_nc) = X_unval.topRows(n2)-X;
 	/**** error terms W+U **************************************************************************************************************************/
 	/*#############################################################################################################################################*/	
 	
@@ -251,21 +265,21 @@ List TwoPhase_MLE0_MEXY (
 	/**** some fixed quantities in the EM algorithm ************************************************************************************************/	
 	// t(Y)*Y
 	double LS_YtY_static = Y.squaredNorm();
-	LS_YtY_static += Y_tilde.tail(n_minus_n2).squaredNorm(); 
+	LS_YtY_static += Y_unval.tail(n_minus_n2).squaredNorm(); 
 	
 	// t(X,Z)*Y
 	VectorXd LS_XtY_static(ncov); 
 	LS_XtY_static.head(X_nc) = X.transpose()*Y;
-	LS_XtY_static.head(X_nc).noalias() += X_tilde.bottomRows(n_minus_n2).transpose()*Y_tilde.tail(n_minus_n2);
+	LS_XtY_static.head(X_nc).noalias() += X_unval.bottomRows(n_minus_n2).transpose()*Y_unval.tail(n_minus_n2);
 	LS_XtY_static.tail(Z_nc) = Z.topRows(n2).transpose()*Y;
-	LS_XtY_static.tail(Z_nc).noalias() += Z.bottomRows(n_minus_n2).transpose()*Y_tilde.tail(n_minus_n2);
+	LS_XtY_static.tail(Z_nc).noalias() += Z.bottomRows(n_minus_n2).transpose()*Y_unval.tail(n_minus_n2);
 	
 	// t(X,Z)*(X,Z)
 	MatrixXd LS_XtX_static(ncov, ncov); 
 	LS_XtX_static.topLeftCorner(X_nc,X_nc) = X.transpose()*X;
-	LS_XtX_static.topLeftCorner(X_nc,X_nc).noalias() += X_tilde.bottomRows(n_minus_n2).transpose()*X_tilde.bottomRows(n_minus_n2);	
+	LS_XtX_static.topLeftCorner(X_nc,X_nc).noalias() += X_unval.bottomRows(n_minus_n2).transpose()*X_unval.bottomRows(n_minus_n2);	
 	LS_XtX_static.topRightCorner(X_nc,Z_nc) = X.transpose()*Z.topRows(n2);
-	LS_XtX_static.topRightCorner(X_nc,Z_nc).noalias() += X_tilde.bottomRows(n_minus_n2).transpose()*Z.bottomRows(n_minus_n2);
+	LS_XtX_static.topRightCorner(X_nc,Z_nc).noalias() += X_unval.bottomRows(n_minus_n2).transpose()*Z.bottomRows(n_minus_n2);
 	LS_XtX_static.bottomRightCorner(Z_nc,Z_nc) = Z.transpose()*Z;	
 	
 	// p
@@ -321,7 +335,7 @@ List TwoPhase_MLE0_MEXY (
 	/**** parameter initialization *****************************************************************************************************************/
 	theta.setZero();
 	theta0.setZero();
-	sigma_sq = sigma_sq0 = Var(Y_tilde);
+	sigma_sq = sigma_sq0 = Var(Y_unval);
 
 	p_col_sum = p_static.colwise().sum();
 	for (int j=0; j<s; ++j) 
@@ -345,8 +359,8 @@ List TwoPhase_MLE0_MEXY (
 		/**** update pB ****************************************************************************************************************************/
 						
 		/**** update P_theta ***********************************************************************************************************************/
-		P_theta.col(0) = Y_tilde.tail(n_minus_n2) - 
-			X_tilde.bottomRows(n_minus_n2)*theta.head(X_nc) - 
+		P_theta.col(0) = Y_unval.tail(n_minus_n2) - 
+			X_unval.bottomRows(n_minus_n2)*theta.head(X_nc) - 
 			Z.bottomRows(n_minus_n2)*theta.tail(Z_nc);
 		
 		const VectorXd pThetaColZero = P_theta.col(0);
@@ -397,10 +411,10 @@ List TwoPhase_MLE0_MEXY (
 			idx = i+n2;
 			for (int k=0; k<m; ++k) 
 			{
-				LS_YtY -= 2.*q(i,k)*Y_tilde(idx)*WU_uni(k,0);
-				LS_XtX.topLeftCorner(X_nc,X_nc).noalias() -= q(i,k)*(WU_uni.block(k,1,1,X_nc).transpose()*X_tilde.row(idx)+X_tilde.row(idx).transpose()*WU_uni.block(k,1,1,X_nc));
+				LS_YtY -= 2.*q(i,k)*Y_unval(idx)*WU_uni(k,0);
+				LS_XtX.topLeftCorner(X_nc,X_nc).noalias() -= q(i,k)*(WU_uni.block(k,1,1,X_nc).transpose()*X_unval.row(idx)+X_unval.row(idx).transpose()*WU_uni.block(k,1,1,X_nc));
 				LS_XtX.topRightCorner(X_nc,Z_nc).noalias() -= q(i,k)*WU_uni.block(k,1,1,X_nc).transpose()*Z.row(idx);
-				LS_XtY.head(X_nc).noalias() -= q(i,k)*(WU_uni.block(k,1,1,X_nc).transpose()*Y_tilde(idx)+X_tilde.row(idx).transpose()*WU_uni(k,0));
+				LS_XtY.head(X_nc).noalias() -= q(i,k)*(WU_uni.block(k,1,1,X_nc).transpose()*Y_unval(idx)+X_unval.row(idx).transpose()*WU_uni(k,0));
 				LS_XtY.tail(Z_nc).noalias() -= q(i,k)*Z.row(idx).transpose()*WU_uni(k,0);
 			}
 		}
@@ -487,7 +501,7 @@ List TwoPhase_MLE0_MEXY (
 		profile_mat.setZero();
 		profile_vec.setZero();
 		
-		loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta, Y_tilde, Y, X_tilde, X, Bspline_uni,
+		loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta, Y_unval, Y, X_unval, X, Bspline_uni,
 			Z, WU_uni, WU_uni_ind, Bspline_uni_ind, p_static, sigma_sq, n, n2, m, s, n_minus_n2, X_nc, Z_nc, MAX_ITER, TOL);
 		if (loglik == -999.) 
 		{
@@ -500,12 +514,12 @@ List TwoPhase_MLE0_MEXY (
 			theta0 = theta;
 			theta0(i) += hn;
 			sigma_sq0 = sigma_sq;
-			profile_vec(i) = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_tilde, Y, X_tilde, X, Bspline_uni,
+			profile_vec(i) = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_unval, Y, X_unval, X, Bspline_uni,
 				Z, WU_uni, WU_uni_ind, Bspline_uni_ind, p_static, sigma_sq0, n, n2, m, s, n_minus_n2, X_nc, Z_nc, MAX_ITER, TOL);
 		}
 		theta0 = theta;
 		sigma_sq0 = sigma_sq+hn;	
-		profile_vec(ncov) = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_tilde, Y, X_tilde, X, Bspline_uni,
+		profile_vec(ncov) = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_unval, Y, X_unval, X, Bspline_uni,
 			Z, WU_uni, WU_uni_ind, Bspline_uni_ind, p_static, sigma_sq0, n, n2, m, s, n_minus_n2, X_nc, Z_nc, MAX_ITER, TOL);
 
 		flag_nonconvergence_cov = (profile_vec.array() == -999.).any();
@@ -514,7 +528,7 @@ List TwoPhase_MLE0_MEXY (
 			theta0 = theta;
 			theta0(i) += hn;
 			sigma_sq0 = sigma_sq+hn;
-			loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_tilde, Y, X_tilde, X, Bspline_uni,
+			loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_unval, Y, X_unval, X, Bspline_uni,
 				Z, WU_uni, WU_uni_ind, Bspline_uni_ind, p_static, sigma_sq0, n, n2, m, s, n_minus_n2, X_nc, Z_nc, MAX_ITER, TOL);
 			if (loglik == -999.) 
 			{
@@ -528,7 +542,7 @@ List TwoPhase_MLE0_MEXY (
 				theta0(i) += hn;
 				theta0(j) += hn;
 				sigma_sq0 = sigma_sq;
-				loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_tilde, Y, X_tilde, X, Bspline_uni,
+				loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_unval, Y, X_unval, X, Bspline_uni,
 					Z, WU_uni, WU_uni_ind, Bspline_uni_ind, p_static, sigma_sq0, n, n2, m, s, n_minus_n2, X_nc, Z_nc, MAX_ITER, TOL);
 				if (loglik == -999.) 
 				{
@@ -540,7 +554,7 @@ List TwoPhase_MLE0_MEXY (
 		}
 		theta0 = theta;
 		sigma_sq0 = sigma_sq+2.*hn;
-		loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_tilde, Y, X_tilde, X, Bspline_uni,
+		loglik = WaldLinearMEXYGeneralSplineProfile (pB, p_col_sum, q_row_sum, p, p0, P_theta, q, resi_n, logp, theta0, Y_unval, Y, X_unval, X, Bspline_uni,
 			Z, WU_uni, WU_uni_ind, Bspline_uni_ind, p_static, sigma_sq0, n, n2, m, s, n_minus_n2, X_nc, Z_nc, MAX_ITER, TOL);
 		if (loglik == -999.) 
 		{

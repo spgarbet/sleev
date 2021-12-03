@@ -87,30 +87,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// pXCalc
-arma::mat pXCalc(const int& n, const arma::mat& comp_dat_all_cropped, const bool& errorsX, const bool& errorsY, arma::mat& pX, arma::mat& prevRows);
-RcppExport SEXP _CombinedReg_pXCalc(SEXP nSEXP, SEXP comp_dat_all_croppedSEXP, SEXP errorsXSEXP, SEXP errorsYSEXP, SEXP pXSEXP, SEXP prevRowsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_all_cropped(comp_dat_all_croppedSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type errorsX(errorsXSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type errorsY(errorsYSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type pX(pXSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type prevRows(prevRowsSEXP);
-    rcpp_result_gen = Rcpp::wrap(pXCalc(n, comp_dat_all_cropped, errorsX, errorsY, pX, prevRows));
-    return rcpp_result_gen;
-END_RCPP
-}
 // TwoPhase_MLE0_MEXY
-List TwoPhase_MLE0_MEXY(const Eigen::VectorXd& Y_tilde, const Eigen::MatrixXd& X_tilde, const Eigen::VectorXd& Y, const Eigen::MatrixXd& X, const Eigen::MatrixXd& Z, const Eigen::MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_MLE0_MEXY(SEXP Y_tildeSEXP, SEXP X_tildeSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
+List TwoPhase_MLE0_MEXY(const Eigen::VectorXd& Y_unval, const Eigen::MatrixXd& X_unval, const Eigen::VectorXd& Y, const Eigen::MatrixXd& X, const Eigen::MatrixXd& Z, const Eigen::MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
+RcppExport SEXP _CombinedReg_TwoPhase_MLE0_MEXY(SEXP Y_unvalSEXP, SEXP X_unvalSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y_tilde(Y_tildeSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X_tilde(X_tildeSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y_unval(Y_unvalSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X_unval(X_unvalSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y(YSEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Z(ZSEXP);
@@ -119,7 +103,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
     Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
     Rcpp::traits::input_parameter< const int& >::type noSE(noSESEXP);
-    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0_MEXY(Y_tilde, X_tilde, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE));
+    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0_MEXY(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -130,7 +114,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CombinedReg_calculateGradient", (DL_FUNC) &_CombinedReg_calculateGradient, 6},
     {"_CombinedReg_calculateHessian", (DL_FUNC) &_CombinedReg_calculateHessian, 6},
     {"_CombinedReg_pYstarCalc", (DL_FUNC) &_CombinedReg_pYstarCalc, 8},
-    {"_CombinedReg_pXCalc", (DL_FUNC) &_CombinedReg_pXCalc, 6},
     {"_CombinedReg_TwoPhase_MLE0_MEXY", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0_MEXY, 10},
     {NULL, NULL, 0}
 };

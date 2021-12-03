@@ -227,41 +227,39 @@ arma::vec pYstarCalc(
 //' 
 //' TODO
 //'
-//' @param n
 //' @param comp_dat_all_cropped
 //' @param errorsX If the X variable is unvalidated or could contain errors
 //' @param errorsY If the Y variable is unvalidated or could contain errors
 //' @param pX An empty, pre-allocated matrix
 //' @param prevRows An empty, pre-allocated matrix
-// [[Rcpp::export]]
-arma::mat pXCalc(
-  const int& n,
-  const arma::mat& comp_dat_all_cropped,
-  const bool& errorsX,
-  const bool& errorsY,
-  arma::mat& pX,
-  arma::mat& prevRows)
-{
-  // pX and prevRows are pre-allocated
-  // arma::mat prevRows = prev_p.rows(indices);
 
-  if (errorsX and errorsY)
-  {
-    // need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
-    // multiply by the B-spline terms
+// arma::mat pXCalc(
+//   const arma::mat& comp_dat_all_cropped,
+//   const bool& errorsX,
+//   const bool& errorsY,
+//   arma::mat& pX,
+//   arma::mat& prevRows)
+// {
+//   // pX and prevRows are pre-allocated
+//   // arma::mat prevRows = prev_p.rows(indices);
 
-    // these indices need to be repeated 2x
-    arma::mat joinedPrevP = join_vert(prevRows, prevRows);
+//   if (errorsX and errorsY)
+//   {
+//     // need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
+//     // multiply by the B-spline terms
 
-    // element-wise multiplication
-    pX = joinedPrevP % comp_dat_all_cropped;
-  }
-  else if (errorsX)
-  {
-    // need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
-    // multiply by the B-spline terms
-    pX = prevRows % comp_dat_all_cropped;
-  }
+//     // these indices need to be repeated 2x
+//     arma::mat joinedPrevP = join_vert(prevRows, prevRows);
 
-  return pX;
-}
+//     // element-wise multiplication
+//     pX = joinedPrevP % comp_dat_all_cropped;
+//   }
+//   else if (errorsX)
+//   {
+//     // need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
+//     // multiply by the B-spline terms
+//     pX = prevRows % comp_dat_all_cropped;
+//   }
+
+//   return pX;
+// }

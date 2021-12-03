@@ -262,7 +262,7 @@ logreg2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NU
     ### -------------------------------------------------- P(Y*|X*,Y,X)
     ###################################################################
     ### P(X|X*) -------------------------------------------------------
-    # cpppX <- pXCalc(n, comp_dat_unval, errorsX, errorsY, prev_p, rep(seq(1, m), each = (N - n))-1, match(Bspline, colnames(comp_dat_unval))-1, seq(1, nrow(comp_dat_unval))-1)
+    # cpppX <- pXCalc(comp_dat_unval, errorsX, errorsY, prev_p, rep(seq(1, m), each = (N - n))-1, match(Bspline, colnames(comp_dat_unval))-1, seq(1, nrow(comp_dat_unval))-1)
     if (errorsX & errorsY)
     {
       ### p_kj ------------------------------------------------------
