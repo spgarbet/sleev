@@ -7,7 +7,9 @@
 hessian_row(x, pm)
 }
 \arguments{
-\item{x}{}
+\item{x}{matrix}
+
+\item{pm}{post multiply}
 }
 \description{
 Multiply two variables and return colsums
