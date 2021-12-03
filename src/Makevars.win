@@ -14,11 +14,10 @@ CXX_STD = CXX11
 CC = clang
 CXX = clang++
 
-## Allowing larger memory allocations to arrays in Rcpp Armadillo
-## Remove stupid warnings from Rcpp Eigen (warning: pragma diagnostic pop could not pop, no matching push [-Wunknown-pragmas]    #pragma clang diagnostic pop)
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -DARMA_64BIT_WORD=1 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS 
-PKG_CXXFLAGS = -DNDEBUG
-
+## -DARMA_64BIT_WORD=1 : Allowing larger memory allocations to arrays in Rcpp Armadillo
+## -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS : Remove stupid warnings from Rcpp Eigen (warning: pragma diagnostic pop could not pop, no matching push [-Wunknown-pragmas]    #pragma clang diagnostic pop)
+## -DNDEBUG : Remove warnings about assert
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -DARMA_64BIT_WORD=1 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS -DNDEBUG
 
 ## Hide unnecessary warnings from Rcpp Eigen
 #CXXFLAGS = -Wno-ignored-attributes
