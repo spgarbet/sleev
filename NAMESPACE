@@ -3,7 +3,7 @@
 export(complete_data)
 export(cv_observed_data_loglik)
 export(logreg2ph)
-exportPattern("^[[:alpha:]]+")
+export(smle_MEXY)
 importFrom(Rcpp,evalCpp)
 importFrom(Rcpp,sourceCpp)
 importFrom(stats,pchisq)

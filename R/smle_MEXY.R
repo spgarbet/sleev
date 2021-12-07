@@ -20,7 +20,7 @@
 #' \item{converge2}{In variance estimation, if the EM algorithm converges, then \code{converge2 = TRUE}. Otherwise, \code{converge2 = FALSE}.}
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
-#' @exportPattern "^[[:alpha:]]+"
+#' @export
 smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
 
 ### linear2ph
