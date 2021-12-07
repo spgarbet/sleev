@@ -1,5 +1,5 @@
 library(testthat)
-library(CombinedReg)
+library(sleev)
 
 test_that("MEXY", {
 	skip_on_cran()

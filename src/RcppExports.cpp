@@ -14,7 +14,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // lengthenWT
 arma::vec lengthenWT(const arma::vec& w_t_original, const int& n, const bool& modifyW_T);
-RcppExport SEXP _CombinedReg_lengthenWT(SEXP w_t_originalSEXP, SEXP nSEXP, SEXP modifyW_TSEXP) {
+RcppExport SEXP _sleev_lengthenWT(SEXP w_t_originalSEXP, SEXP nSEXP, SEXP modifyW_TSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,7 +27,7 @@ END_RCPP
 }
 // calculateMu
 arma::vec calculateMu(const arma::mat& design_mat, const arma::mat& prev);
-RcppExport SEXP _CombinedReg_calculateMu(SEXP design_matSEXP, SEXP prevSEXP) {
+RcppExport SEXP _sleev_calculateMu(SEXP design_matSEXP, SEXP prevSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,7 @@ END_RCPP
 }
 // calculateGradient
 arma::vec calculateGradient(arma::vec& w_t, const int& n, const arma::mat& design_mat, const arma::vec& Y_col, const arma::vec& muVector, const bool& modifyW_T);
-RcppExport SEXP _CombinedReg_calculateGradient(SEXP w_tSEXP, SEXP nSEXP, SEXP design_matSEXP, SEXP Y_colSEXP, SEXP muVectorSEXP, SEXP modifyW_TSEXP) {
+RcppExport SEXP _sleev_calculateGradient(SEXP w_tSEXP, SEXP nSEXP, SEXP design_matSEXP, SEXP Y_colSEXP, SEXP muVectorSEXP, SEXP modifyW_TSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,7 +55,7 @@ END_RCPP
 }
 // calculateHessian
 arma::mat calculateHessian(const arma::mat& design_mat, arma::vec& w_t, const arma::vec& muVector, const int& n, arma::vec& mus, const bool& modifyW_T);
-RcppExport SEXP _CombinedReg_calculateHessian(SEXP design_matSEXP, SEXP w_tSEXP, SEXP muVectorSEXP, SEXP nSEXP, SEXP musSEXP, SEXP modifyW_TSEXP) {
+RcppExport SEXP _sleev_calculateHessian(SEXP design_matSEXP, SEXP w_tSEXP, SEXP muVectorSEXP, SEXP nSEXP, SEXP musSEXP, SEXP modifyW_TSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -71,7 +71,7 @@ END_RCPP
 }
 // pYstarCalc
 arma::vec pYstarCalc(const arma::mat& gamma_design_mat, const int& n, const int& excludeRows, const arma::mat& prev_gamma, const arma::mat& comp_dat_all, const int& Y_unval_index, arma::vec& pYstar, arma::vec& mu_gamma);
-RcppExport SEXP _CombinedReg_pYstarCalc(SEXP gamma_design_matSEXP, SEXP nSEXP, SEXP excludeRowsSEXP, SEXP prev_gammaSEXP, SEXP comp_dat_allSEXP, SEXP Y_unval_indexSEXP, SEXP pYstarSEXP, SEXP mu_gammaSEXP) {
+RcppExport SEXP _sleev_pYstarCalc(SEXP gamma_design_matSEXP, SEXP nSEXP, SEXP excludeRowsSEXP, SEXP prev_gammaSEXP, SEXP comp_dat_allSEXP, SEXP Y_unval_indexSEXP, SEXP pYstarSEXP, SEXP mu_gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -88,17 +88,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // TwoPhase_MLE0_MEXY
-List TwoPhase_MLE0_MEXY(const Eigen::VectorXd& Y_unval, const Eigen::MatrixXd& X_unval, const Eigen::VectorXd& Y, const Eigen::MatrixXd& X, const Eigen::MatrixXd& Z, const Eigen::MatrixXd& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
-RcppExport SEXP _CombinedReg_TwoPhase_MLE0_MEXY(SEXP Y_unvalSEXP, SEXP X_unvalSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
+List TwoPhase_MLE0_MEXY(const Eigen::Map<Eigen::VectorXd>& Y_unval, const Eigen::Map<Eigen::MatrixXd>& X_unval, const Eigen::Map<Eigen::VectorXd>& Y, const Eigen::Map<Eigen::MatrixXd>& X, const Eigen::Map<Eigen::MatrixXd>& Z, const Eigen::Map<Eigen::MatrixXd>& Bspline, const double& hn, const int& MAX_ITER, const double& TOL, const int& noSE);
+RcppExport SEXP _sleev_TwoPhase_MLE0_MEXY(SEXP Y_unvalSEXP, SEXP X_unvalSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP hnSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP noSESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y_unval(Y_unvalSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X_unval(X_unvalSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Bspline(BsplineSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type Y_unval(Y_unvalSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type X_unval(X_unvalSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type Bspline(BsplineSEXP);
     Rcpp::traits::input_parameter< const double& >::type hn(hnSEXP);
     Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
     Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
@@ -109,16 +109,16 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CombinedReg_lengthenWT", (DL_FUNC) &_CombinedReg_lengthenWT, 3},
-    {"_CombinedReg_calculateMu", (DL_FUNC) &_CombinedReg_calculateMu, 2},
-    {"_CombinedReg_calculateGradient", (DL_FUNC) &_CombinedReg_calculateGradient, 6},
-    {"_CombinedReg_calculateHessian", (DL_FUNC) &_CombinedReg_calculateHessian, 6},
-    {"_CombinedReg_pYstarCalc", (DL_FUNC) &_CombinedReg_pYstarCalc, 8},
-    {"_CombinedReg_TwoPhase_MLE0_MEXY", (DL_FUNC) &_CombinedReg_TwoPhase_MLE0_MEXY, 10},
+    {"_sleev_lengthenWT", (DL_FUNC) &_sleev_lengthenWT, 3},
+    {"_sleev_calculateMu", (DL_FUNC) &_sleev_calculateMu, 2},
+    {"_sleev_calculateGradient", (DL_FUNC) &_sleev_calculateGradient, 6},
+    {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
+    {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 8},
+    {"_sleev_TwoPhase_MLE0_MEXY", (DL_FUNC) &_sleev_TwoPhase_MLE0_MEXY, 10},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_CombinedReg(DllInfo *dll) {
+RcppExport void R_init_sleev(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

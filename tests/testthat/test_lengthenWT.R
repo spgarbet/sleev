@@ -1,5 +1,5 @@
 library(testthat)
-library(CombinedReg)
+library(sleev)
 
 test_that("0 vector", {
 	w_t <- c(0,0,0)

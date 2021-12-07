@@ -1,12 +1,13 @@
-Package: CombinedReg
+Package: sleev
 Type: Package
-Title: Implements Sieve Maximum Likelihood Estimation (SMLE) Approach for Two-Phase Logistic Regression
+Title: Semiparametric Likelihood Estimation with Errors in Variables
 Version: 0.0.0.1000
 Authors@R: c(person(given = "Sarah",
            family = "Lotspeich",
            role = c("aut", "cre"),
            email = "sarah.c.lotspeich@vanderbilt.edu"),
-    person(given = "Ran", family = "Tao", role="aut", email = "r.tao@vanderbilt.edu"))
+    person(given = "Ran", family = "Tao", role="aut", email = "r.tao@vanderbilt.edu"),
+    person(given = "Joey", family = "Sherrill", role = "ctb"))
 Description: Efficient regression analysis under general two-phase, outcome-dependent sampling.
 License: GPL (>= 2)
 Encoding: UTF-8
