@@ -100,8 +100,8 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
 	###############################################################################################################
 	#### prepare analysis #########################################################################################	
-    mod_Y_unvalidated_vec = c(as.vector(data[-id_phase1,Y_unval]), as.vector(data[id_phase1,Y_unval]))
-	storage.mode(mod_Y_unvalidated_vec) = "double"
+    Y_unval_vec = c(as.vector(data[-id_phase1,Y_unval]), as.vector(data[id_phase1,Y_unval]))
+	storage.mode(Y_unval_vec) = "double"
 	
 	X_tilde_mat = rbind(as.matrix(data[-id_phase1,X_unval]), as.matrix(data[id_phase1,X_unval]))
 	storage.mode(X_tilde_mat) = "double"
@@ -157,7 +157,7 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
 	###############################################################################################################
 	#### analysis #################################################################################################
-	res = TwoPhase_MLE0_MEXY(mod_Y_unvalidated_vec, X_tilde_mat, Y_vec, X_mat, Z_mat, Bspline_mat, hn, MAX_ITER, TOL, noSE)
+	res = TwoPhase_MLE0_MEXY(Y_unval_vec, X_tilde_mat, Y_vec, X_mat, Z_mat, Bspline_mat, hn, MAX_ITER, TOL, noSE)
     #### analysis #################################################################################################
 	###############################################################################################################
 	

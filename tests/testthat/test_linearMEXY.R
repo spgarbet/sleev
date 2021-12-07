@@ -36,7 +36,7 @@ test_that("MEXY", {
 	    simX = rnorm(n)
 	    epsilon = rnorm(n)
 	    simY = alpha+beta*simX+epsilon
-	    error = mvrnorm(n, mu=c(0,0), Sigma=matrix(c(1, rho, rho, 1), nrow=2))
+	    error = MASS::mvrnorm(n, mu=c(0,0), Sigma=matrix(c(1, rho, rho, 1), nrow=2))
 
 	    simS = rbinom(n, 1, p)
 	    simU = simS*error[,2]

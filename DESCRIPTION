@@ -23,6 +23,7 @@ LinkingTo:
 Suggests: 
     knitr,
     lme4,
+    MASS,
     rmarkdown,
     splines,
     testthat
