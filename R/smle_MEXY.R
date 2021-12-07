@@ -153,12 +153,32 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	if (verbose)
 	{
 		print("Calling C++ function TwoPhase_MLE0_MEXY")
-		print(is.matrix(Y_unval_vec))
-		print(is.matrix(X_tilde_mat))
-		print(is.matrix(Y_vec))
-		print(is.matrix(X_mat))
-		print(is.matrix(Z_mat))
-		print(is.matrix(Bspline_mat))
+	}
+
+	## Ensure every variable is the correct type
+	if (!is.vector(Y_unval_vec))
+	{
+		warning("Y_unval_vec is not a vector!")
+	}
+	if (!is.matrix(X_tilde_mat))
+	{
+		warning("X_tilde_mat is not a matrix!")
+	}
+	if (!is.vector(Y_vec))
+	{
+		warning("Y_vec is not a vector!")
+	}
+	if (!is.matrix(X_mat))
+	{
+		warning("X_mat is not a matrix!")
+	}
+	if (!is.matrix(Z_mat))
+	{
+		warning("Z_mat is not a matrix!")
+	}
+	if (!is.matrix(Bspline_mat))
+	{
+		warning("Bspline_mat is not a matrix!")
 	}
 	
 	###############################################################################################################
