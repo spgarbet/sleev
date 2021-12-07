@@ -136,7 +136,7 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	rownames(res_cov) = cov_names
 	
 	if (is.null(Z)) {
-		Z_mat = rep(1., n)
+		Z_mat = as.matrix(rep(1., n))
 		rowmap[1] = ncov
 		rowmap[2:ncov] = 1:X_nc
 	} else {
