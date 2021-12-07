@@ -357,12 +357,12 @@ logreg2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NU
     ###################################################################
     ## Update theta using weighted logistic regression ----------------
     ### Gradient ------------------------------------------------------
-    w_t <- lengthenWT(w_t, n)
+    w_t <- .lengthenWT(w_t, n)
 
     # calculateMu returns exp(-mu) / (1 + exp(-mu))
-    muVector <- calculateMu(theta_design_mat, prev_theta)
-    gradient_theta <- calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, Y], muVector)
-    hessian_theta <- calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
+    muVector <- .calculateMu(theta_design_mat, prev_theta)
+    gradient_theta <- .calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, Y], muVector)
+    hessian_theta <- .calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
 
 
     # tic("m-step R")
@@ -403,9 +403,9 @@ logreg2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NU
       # w_t is already the proper size
 
       ## Update gamma using weighted logistic regression ----------------
-      muVector <- calculateMu(gamma_design_mat, prev_gamma)
-      gradient_gamma <- calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
-      hessian_gamma <- calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
+      muVector <- .calculateMu(gamma_design_mat, prev_gamma)
+      gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
+      hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
 
       # mu <- gamma_design_mat %*% prev_gamma
       # gradient_gamma_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, c(Y_unval)] - 1 + exp(- mu) / (1 + exp(- mu)))) * gamma_design_mat)), ncol = 1)

@@ -19,17 +19,6 @@ NULL
 #' @return mat / v, or mat * v^-1
 NULL
 
-#' Calculates pX
-#' 
-#' TODO
-#'
-#' @param comp_dat_all_cropped
-#' @param errorsX If the X variable is unvalidated or could contain errors
-#' @param errorsY If the Y variable is unvalidated or could contain errors
-#' @param pX An empty, pre-allocated matrix
-#' @param prevRows An empty, pre-allocated matrix
-NULL
-
 #' Prepend ones to a w_t
 #' 
 #' Lengthens a vector by prepending n ones
@@ -37,7 +26,7 @@ NULL
 #' @param w_t_original The original vector
 #' @param n The number of ones to add to the front of the vector
 #' @param modifyW_T If false, instantly returns w_t_original
-lengthenWT <- function(w_t_original, n, modifyW_T = TRUE) {
+.lengthenWT <- function(w_t_original, n, modifyW_T = TRUE) {
     .Call(`_sleev_lengthenWT`, w_t_original, n, modifyW_T)
 }
 
@@ -48,7 +37,7 @@ lengthenWT <- function(w_t_original, n, modifyW_T = TRUE) {
 #' 
 #' @param design_mat The design matrix
 #' @param prev The previous iteration of the design matrix
-calculateMu <- function(design_mat, prev) {
+.calculateMu <- function(design_mat, prev) {
     .Call(`_sleev_calculateMu`, design_mat, prev)
 }
 
@@ -63,7 +52,7 @@ calculateMu <- function(design_mat, prev) {
 #' @param Y_col The column of validated Y values from the complete data matrix
 #' @param muVector The vector calculated by calculateMu
 #' @param modifyW_T Whether to add ones to the beginning of w_t
-calculateGradient <- function(w_t, n, design_mat, Y_col, muVector, modifyW_T = FALSE) {
+.calculateGradient <- function(w_t, n, design_mat, Y_col, muVector, modifyW_T = FALSE) {
     .Call(`_sleev_calculateGradient`, w_t, n, design_mat, Y_col, muVector, modifyW_T)
 }
 
@@ -77,7 +66,7 @@ calculateGradient <- function(w_t, n, design_mat, Y_col, muVector, modifyW_T = F
 #' @param n The number of ones to prepend to w_t
 #' @param mus An empty, pre-allocated vector of the same length as muVector, pre-allocated memory saves time
 #' @param modifyW_T Whether to add ones to the beginning of w_t
-calculateHessian <- function(design_mat, w_t, muVector, n, mus, modifyW_T = FALSE) {
+.calculateHessian <- function(design_mat, w_t, muVector, n, mus, modifyW_T = FALSE) {
     .Call(`_sleev_calculateHessian`, design_mat, w_t, muVector, n, mus, modifyW_T)
 }
 
@@ -93,7 +82,7 @@ calculateHessian <- function(design_mat, w_t, muVector, n, mus, modifyW_T = FALS
 #' @param Y_unval_index Which column of comp_dat_all houses the unvalidated Y variable
 #' @param pYstar An empty, pre-allocated vector
 #' @param mu_gamma An empty, pre-allocated vector
-pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma) {
+.pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma) {
     .Call(`_sleev_pYstarCalc`, gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
 }
 
@@ -111,7 +100,7 @@ pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_al
 #' @param MAX_ITER Max iterations to perform when calculating convergence
 #' @param TOL Maximum difference between iteration that satisfies convergence requirements
 #' @param noSE Skips general spline profiling if converged
-TwoPhase_MLE0_MEXY <- function(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
+.TwoPhase_MLE0_MEXY <- function(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
     .Call(`_sleev_TwoPhase_MLE0_MEXY`, Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
 }
 

@@ -73,7 +73,7 @@ arma::mat matDivideVec(arma::mat mat, arma::vec v)
 //' @param w_t_original The original vector
 //' @param n The number of ones to add to the front of the vector
 //' @param modifyW_T If false, instantly returns w_t_original
-// [[Rcpp::export]]
+// [[Rcpp::export(.lengthenWT)]]
 arma::vec lengthenWT(
   const arma::vec& w_t_original,
   const int& n,
@@ -102,7 +102,7 @@ arma::vec lengthenWT(
 //' 
 //' @param design_mat The design matrix
 //' @param prev The previous iteration of the design matrix
-// [[Rcpp::export]]
+// [[Rcpp::export(.calculateMu)]]
 arma::vec calculateMu(
   const arma::mat& design_mat,
   const arma::mat& prev)
@@ -123,7 +123,7 @@ arma::vec calculateMu(
 //' @param Y_col The column of validated Y values from the complete data matrix
 //' @param muVector The vector calculated by calculateMu
 //' @param modifyW_T Whether to add ones to the beginning of w_t
-// [[Rcpp::export]]
+// [[Rcpp::export(.calculateGradient)]]
 arma::vec calculateGradient(
   arma::vec& w_t,
   const int& n,
@@ -160,7 +160,7 @@ arma::vec calculateGradient(
 //' @param n The number of ones to prepend to w_t
 //' @param mus An empty, pre-allocated vector of the same length as muVector, pre-allocated memory saves time
 //' @param modifyW_T Whether to add ones to the beginning of w_t
-// [[Rcpp::export]]
+// [[Rcpp::export(.calculateHessian)]]
 arma::mat calculateHessian(
   const arma::mat& design_mat,
   arma::vec& w_t,
@@ -191,7 +191,7 @@ arma::mat calculateHessian(
 //' @param Y_unval_index Which column of comp_dat_all houses the unvalidated Y variable
 //' @param pYstar An empty, pre-allocated vector
 //' @param mu_gamma An empty, pre-allocated vector
-// [[Rcpp::export]]
+// [[Rcpp::export(.pYstarCalc)]]
 arma::vec pYstarCalc(
   const arma::mat& gamma_design_mat,
   const int& n,
@@ -223,43 +223,3 @@ arma::vec pYstarCalc(
   return pYstar;
 }
 
-//' Calculates pX
-//' 
-//' TODO
-//'
-//' @param comp_dat_all_cropped
-//' @param errorsX If the X variable is unvalidated or could contain errors
-//' @param errorsY If the Y variable is unvalidated or could contain errors
-//' @param pX An empty, pre-allocated matrix
-//' @param prevRows An empty, pre-allocated matrix
-
-// arma::mat pXCalc(
-//   const arma::mat& comp_dat_all_cropped,
-//   const bool& errorsX,
-//   const bool& errorsY,
-//   arma::mat& pX,
-//   arma::mat& prevRows)
-// {
-//   // pX and prevRows are pre-allocated
-//   // arma::mat prevRows = prev_p.rows(indices);
-
-//   if (errorsX and errorsY)
-//   {
-//     // need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
-//     // multiply by the B-spline terms
-
-//     // these indices need to be repeated 2x
-//     arma::mat joinedPrevP = join_vert(prevRows, prevRows);
-
-//     // element-wise multiplication
-//     pX = joinedPrevP % comp_dat_all_cropped;
-//   }
-//   else if (errorsX)
-//   {
-//     // need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
-//     // multiply by the B-spline terms
-//     pX = prevRows % comp_dat_all_cropped;
-//   }
-
-//   return pX;
-// }

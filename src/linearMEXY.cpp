@@ -188,7 +188,7 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 //' @param MAX_ITER Max iterations to perform when calculating convergence
 //' @param TOL Maximum difference between iteration that satisfies convergence requirements
 //' @param noSE Skips general spline profiling if converged
-// [[Rcpp::export]]
+// [[Rcpp::export(.TwoPhase_MLE0_MEXY)]]
 List TwoPhase_MLE0_MEXY (
  const Eigen::Map<Eigen::VectorXd>& Y_unval,
  const Eigen::Map<Eigen::MatrixXd>& X_unval,

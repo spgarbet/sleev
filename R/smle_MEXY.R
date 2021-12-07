@@ -183,7 +183,7 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
 	###############################################################################################################
 	#### analysis #################################################################################################
-	res = TwoPhase_MLE0_MEXY(Y_unval_vec, X_tilde_mat, Y_vec, X_mat, Z_mat, Bspline_mat, hn, MAX_ITER, TOL, noSE)
+	res = .TwoPhase_MLE0_MEXY(Y_unval_vec, X_tilde_mat, Y_vec, X_mat, Z_mat, Bspline_mat, hn, MAX_ITER, TOL, noSE)
     #### analysis #################################################################################################
 	###############################################################################################################
 	
