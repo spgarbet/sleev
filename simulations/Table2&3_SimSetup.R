@@ -5,7 +5,6 @@
 # Varied covariate error variance -------------------------
 ###########################################################
 
-library(CombinedReg)
 set.seed(918)
 
 # Set sample sizes ----------------------------------------

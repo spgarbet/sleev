@@ -1,4 +1,4 @@
-## TODO: Should we really include this function in the CombinedReg package?
+## TODO: Should we really include this function in the sleev package?
 
 
 Tang_twophase_loglik <- function(params, Val, Y_unval, Y, X_unval, X, Z, data)
