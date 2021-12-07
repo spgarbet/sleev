@@ -8,7 +8,6 @@
 
 #define NSTACK 50 // indexx, indexx_Matrix_Row
 #define M 7 // indexx, indexx_Matrix_Row
-#define M_PI 3.14159265358979323846 // Wald_Linear_Kernel_Loglike
 
 void stdError (const string reason)
 {
