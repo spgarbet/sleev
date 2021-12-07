@@ -153,6 +153,12 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	if (verbose)
 	{
 		print("Calling C++ function TwoPhase_MLE0_MEXY")
+		print(typeof(Y_unval_vec))
+		print(typeof(X_tilde_mat))
+		print(typeof(Y_vec))
+		print(typeof(X_mat))
+		print(typeof(Z_mat))
+		print(typeof(Bspline_mat))
 	}
 	
 	###############################################################################################################
@@ -190,7 +196,8 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 		covariance=res_cov, 
 		converge=!res$flag_nonconvergence, 
 		converge_cov=!res$flag_nonconvergence_cov)
-	res_final
+
+	return(res_final)
     #### return results ###########################################################################################
     ###############################################################################################################
 }

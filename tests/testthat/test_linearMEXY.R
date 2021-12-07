@@ -75,6 +75,11 @@ test_that("MEXY", {
 
 	    data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
 	    ### generate data
+	    expect_vector(data["Y"])
+	    expect_vector(data["X"])
+	    expect_vector(data["Y_tilde"])
+	    expect_vector(data["X_tilde"])
+	    expect_vector(data[colnames(Bspline)])
 
 	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE)
 
