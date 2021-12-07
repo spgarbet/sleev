@@ -1,4 +1,4 @@
-# Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort
+# SLEEV: Semiparametric Likelihood Estimation with Errors in Variables
 ## Lotspeich, Shepherd, Amorim, Shaw, and Tao
 The complete R package `logreg2ph` and code for the simulation settings included in the paper (https://doi.org/10.1111/biom.13512). 
 
@@ -8,7 +8,7 @@ This package combines elements of the R packages [`logreg2ph`](https://github.co
 To install the package, run the following in your `R` console: 
 
 ```{r}
-devtools::install_github("Epic-Doughnut/Combined-Reg")
+devtools::install_github("Epic-Doughnut/sleev")
 ```
 
 ### Simulation settings 
