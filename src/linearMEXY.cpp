@@ -190,12 +190,12 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 //' @param noSE Skips general spline profiling if converged
 // [[Rcpp::export]]
 List TwoPhase_MLE0_MEXY (
- const Eigen::VectorXd& Y_unval,
- const Eigen::MatrixXd& X_unval,
- const Eigen::VectorXd& Y,
- const Eigen::MatrixXd& X,
- const Eigen::MatrixXd& Z,
- const Eigen::MatrixXd& Bspline,
+ const Eigen::Map<Eigen::VectorXd>& Y_unval,
+ const Eigen::Map<Eigen::MatrixXd>& X_unval,
+ const Eigen::Map<Eigen::VectorXd>& Y,
+ const Eigen::Map<Eigen::MatrixXd>& X,
+ const Eigen::Map<Eigen::MatrixXd>& Z,
+ const Eigen::Map<Eigen::MatrixXd>& Bspline,
  const double& hn,
  const int& MAX_ITER,
  const double& TOL,
