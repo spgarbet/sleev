@@ -2,8 +2,8 @@
 % Please edit documentation in R/complete_data.R
 \name{complete_data}
 \alias{complete_data}
-\title{Create complete dataset
-This function returns the complete dataset trying all validated values for each unvalidated subject}
+\title{Create complete dataset.
+This function returns the complete dataset trying all validated values for each unvalidated subject.}
 \usage{
 complete_data(
   Y_unval = NULL,
@@ -43,6 +43,6 @@ complete_data(
 dataframe
 }
 \description{
-Create complete dataset
-This function returns the complete dataset trying all validated values for each unvalidated subject
+Create complete dataset.
+This function returns the complete dataset trying all validated values for each unvalidated subject.
 }

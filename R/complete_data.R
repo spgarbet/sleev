@@ -1,5 +1,5 @@
-#' Create complete dataset
-#' This function returns the complete dataset trying all validated values for each unvalidated subject
+#' Create complete dataset.
+#' This function returns the complete dataset trying all validated values for each unvalidated subject.
 #'
 #' @param Y_unval Column names with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.
 #' @param Y Column names with the validated outcome.

@@ -23,6 +23,7 @@
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
 #' @return Profile likelihood for `theta` after perturbing element `k` by `h_N`.
+#' @noRd
 
 pl_theta <- function(k, theta, h_N, n, N, Y_unval, Y, X_unval, X, Z, Bspline, comp_dat_all,
                         theta_pred, gamma_pred, gamma0 = NULL, p0 = NULL, p_val_num = NULL, TOL, MAX_ITER) {

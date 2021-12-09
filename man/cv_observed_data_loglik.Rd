@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv_observed_data_loglik.R
 \name{cv_observed_data_loglik}
 \alias{cv_observed_data_loglik}
-\title{Cross-validated observed-data log-likelihood
+\title{Cross-validated observed-data log-likelihood.
 This function returns the value of the observed-data log-likelihood based on cross-validation.}
 \usage{
 cv_observed_data_loglik(
@@ -28,9 +28,9 @@ cv_observed_data_loglik(
 
 \item{Y}{Column name with the validated outcome.}
 
-\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
+\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
 
-\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
 
 \item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
@@ -52,6 +52,6 @@ cv_observed_data_loglik(
 scalar value of the function
 }
 \description{
-Cross-validated observed-data log-likelihood
+Cross-validated observed-data log-likelihood.
 This function returns the value of the observed-data log-likelihood based on cross-validation.
 }

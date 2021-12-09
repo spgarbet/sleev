@@ -1,11 +1,11 @@
-#' Cross-validated observed-data log-likelihood
+#' Cross-validated observed-data log-likelihood.
 #' This function returns the value of the observed-data log-likelihood based on cross-validation.
 #'
 #' @param fold Column name with the assigned fold for cross-validation.
 #' @param Y_unval Column name with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.
 #' @param Y Column name with the validated outcome.
-#' @param X_unval Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.
-#' @param X Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.
+#' @param X_unval Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.
+#' @param X Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.
 #' @param Z (Optional) Column name(s) with additional error-free covariates.
 #' @param Validated Column name with the validation indicator. The validation indicator can be defined as \code{Validated = 1} or \code{TRUE} if the subject was validated and \code{Validated = 0} or \code{FALSE} otherwise.
 #' @param Bspline Vector of column names containing the B-spline basis functions.
