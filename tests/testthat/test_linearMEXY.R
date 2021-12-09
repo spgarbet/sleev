@@ -1,25 +1,27 @@
 library(testthat)
 library(sleev)
 
+
+test_that("check use_default_values", {
+
+
+	expect_equal(rho , -.3)
+	expect_equal(p , 0.3)
+	expect_equal(hn_scale , 1)
+	expect_equal(nsieve , 20)
+	expect_equal(NSIM , 20)
+	expect_equal(n , 1000)
+	expect_equal(n2 , 400)
+	expect_equal(alpha , 0.3)
+	expect_equal(beta , 0.4)
+	})
+
+
+
 test_that("MEXY", {
 	skip_on_cran()
 	skip_if(SKIP_CRAN_TESTS)
 
-	args = commandArgs(TRUE)
-	njob = 0
-	rho = -.3
-	p = 0.3
-	hn_scale = 1
-	nsieve = 20
-	# wd = args[6]
-
-	library(splines)
-
-	NSIM = 20
-	n = 1000
-	n2 = 400
-	alpha = 0.3
-	beta = 0.4
 
 	# setwd(wd)
 	# fn_out = paste0(njob, ".Rdata")
@@ -33,55 +35,18 @@ test_that("MEXY", {
 	while (nsim <= NSIM) {
 
 	    ### generate data
-	    simX = rnorm(n)
-	    epsilon = rnorm(n)
-	    simY = alpha+beta*simX+epsilon
-	    error = MASS::mvrnorm(n, mu=c(0,0), Sigma=matrix(c(1, rho, rho, 1), nrow=2))
+	    dat <- generate_data()
+		data <- dat$data
+		Bspline <- dat$Bspline
 
-	    simS = rbinom(n, 1, p)
-	    simU = simS*error[,2]
-	    simW = simS*error[,1]
-	    simY_tilde = simY+simW
-	    simX_tilde = simX+simU
-
-	    id_phase2 = sample(n, n2)
-
-	    simY[-id_phase2] = NA
-	    simX[-id_phase2] = NA
-
-	    # # histogram basis
-	    # Bspline = matrix(NA, nrow=n, ncol=nsieve)
-	    # cut_x_tilde = cut(simX_tilde, breaks=quantile(simX_tilde, probs=seq(0, 1, 1/nsieve)), include.lowest = TRUE)
-	    # for (i in 1:nsieve) {
-	    #     Bspline[,i] = as.numeric(cut_x_tilde == names(table(cut_x_tilde))[i])
-	    # }
-	    # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-	    # # histogram basis
-
-	    # # linear basis
-	    # Bspline = bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
-	    # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-	    # # linear basis
-
-	    # # quadratic basis
-	    # Bspline = bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
-	    # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-	    # # quadratic basis
-
-	    # cubic basis
-	    Bspline = bs(simX_tilde, df=nsieve, degree=3, Boundary.knots=range(simX_tilde), intercept=TRUE)
-	    colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-	    # cubic basis
-
-	    data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
-	    ### generate data
+	    ### verify data
 	    expect_vector(data["Y"])
 	    expect_vector(data["X"])
 	    expect_vector(data["Y_tilde"])
 	    expect_vector(data["X_tilde"])
 	    expect_vector(data[colnames(Bspline)])
 
-	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE)
+	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=FALSE)
 
 	    if (sum(is.na(res$coefficients)) == 0) {
 	        results[nsim,] = res$coefficients[2,1:2]
@@ -91,6 +56,8 @@ test_that("MEXY", {
 	        }
 	    }
 	}
+
+
 
 	# Sep 22: 125 sec elapsed
 	# $coefficients
@@ -106,9 +73,75 @@ test_that("MEXY", {
 	# [1,]  1.322948e-03 -3.398867e-05
 	# [2,] -3.398867e-05  1.266875e-03
 
+	## test all results
+	expect_equal(as.vector(results), c(0.416922224791497,0.421737071865375,0.449369990588884,0.404940432955734,0.441158248372993,0.420228349283308,0.408144639683189,0.353816560047355,0.374311184655038,0.35189760767373,0.364188118169361,0.430859513855779,0.475390564039591,0.466674129567292,0.390630455867759,0.400706508262216,0.385259563151863,0.413198746826857,0.408625387823128,0.381171236418505,0.0374935035224319,0.0400514928365967,0.0375980846931493,0.0365689812070292,0.0344668558168398,0.0386203865132133,0.0393329246575616,0.0407566656906075,0.0368147916449737,0.0386479005173487,0.0379292995598047,0.03914357919284,0.0366241801208748,0.0405623820990424,0.0358255980316633,0.0403228646102295,0.0372884327822953,0.0373447475585087,0.0388191019382307,0.0355931871009512))
+
+	## tests last res
 	expect_equal(as.vector(res[["coefficients"]]), c(0.256648214727935,0.381171236418505,0.0363723532152385,0.0355931871009512,7.05613445490269,10.7091066427237,1.71196390397199e-12,0))
 	expect_equal(res[["sigma"]], 0.986954535271583)
 	expect_equal(as.vector( res[["covariance"]]), c(0.00132294807841407,-3.39886726125453e-05,-3.39886726125453e-05,0.00126687496800332))
 	expect_true(res[["converge"]])
 	expect_true(res[["converge_cov"]])
 	})
+
+
+test_that("single iteration", {
+
+
+	set.seed(12345)
+
+    ### generate data
+    dat <- generate_data()
+	data <- dat$data
+	Bspline <- dat$Bspline
+
+    ### verify data
+    expect_false(is.null(data))
+    expect_false(is.null(Bspline))
+    expect_vector(data["Y"])
+    expect_vector(data["X"])
+    expect_vector(data["Y_tilde"])
+    expect_vector(data["X_tilde"])
+    expect_vector(data[colnames(Bspline)])
+
+    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=FALSE)
+
+    expect_equal(as.vector(res[["coefficients"]]), c(0.288000325625334,0.416922224791497,0.036445693699495,0.0374935035213232,7.90217708572041,11.1198523913452,2.77555756156289e-15,0))
+	expect_equal(res[["sigma"]], 1.01304717554374)
+	expect_equal(as.vector( res[["covariance"]]), c(0.00132828858923741,-0.000111130454918251,-0.000111130454918251,0.00140576280630348))
+	expect_true(res[["converge"]])
+	expect_true(res[["converge_cov"]])
+})
+
+test_that("missing values", {
+
+	set.seed(12345)
+
+    ### generate data
+    dat <- generate_data()
+	data <- dat$data
+	Bspline <- dat$Bspline
+
+
+	# missing data
+    expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), hn_scale=0.1), "No dataset is provided!")
+
+    # missing Y_unval
+    expect_error(smle_MEXY(Y="Y", X="X", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone response Y_unval is not specified!")
+
+    # missing X_unval
+    expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone covariates X_unval is not specified!")
+
+    # missing Bspline
+    expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", data=data, hn_scale=0.1), "The B-spline basis is not specified!")
+
+    # missing Y
+    expect_error(smle_MEXY(X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The accurately measured response Y is not specified!")
+
+    # missing X
+    expect_error(smle_MEXY(Y="Y", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The validated covariates in the second-phase are not specified!")
+
+	})
+
+
+
