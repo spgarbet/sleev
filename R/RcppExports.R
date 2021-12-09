@@ -8,6 +8,7 @@
 #' @param mat The matrix
 #' @param v The vector
 #' @return mat * v
+#' @noRd
 NULL
 
 #' Divide matrix by vector
@@ -17,6 +18,7 @@ NULL
 #' @param mat The matrix
 #' @param v The vector divisor
 #' @return mat / v, or mat * v^-1
+#' @noRd
 NULL
 
 #' Prepend ones to a w_t
@@ -26,6 +28,7 @@ NULL
 #' @param w_t_original The original vector
 #' @param n The number of ones to add to the front of the vector
 #' @param modifyW_T If false, instantly returns w_t_original
+#' @noRd
 .lengthenWT <- function(w_t_original, n, modifyW_T = TRUE) {
     .Call(`_sleev_lengthenWT`, w_t_original, n, modifyW_T)
 }
@@ -37,6 +40,7 @@ NULL
 #' 
 #' @param design_mat The design matrix
 #' @param prev The previous iteration of the design matrix
+#' @noRd
 .calculateMu <- function(design_mat, prev) {
     .Call(`_sleev_calculateMu`, design_mat, prev)
 }
@@ -52,6 +56,7 @@ NULL
 #' @param Y_col The column of validated Y values from the complete data matrix
 #' @param muVector The vector calculated by calculateMu
 #' @param modifyW_T Whether to add ones to the beginning of w_t
+#' @noRd
 .calculateGradient <- function(w_t, n, design_mat, Y_col, muVector, modifyW_T = FALSE) {
     .Call(`_sleev_calculateGradient`, w_t, n, design_mat, Y_col, muVector, modifyW_T)
 }
@@ -66,6 +71,7 @@ NULL
 #' @param n The number of ones to prepend to w_t
 #' @param mus An empty, pre-allocated vector of the same length as muVector, pre-allocated memory saves time
 #' @param modifyW_T Whether to add ones to the beginning of w_t
+#' @noRd
 .calculateHessian <- function(design_mat, w_t, muVector, n, mus, modifyW_T = FALSE) {
     .Call(`_sleev_calculateHessian`, design_mat, w_t, muVector, n, mus, modifyW_T)
 }
@@ -82,6 +88,7 @@ NULL
 #' @param Y_unval_index Which column of comp_dat_all houses the unvalidated Y variable
 #' @param pYstar An empty, pre-allocated vector
 #' @param mu_gamma An empty, pre-allocated vector
+#' @noRd
 .pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma) {
     .Call(`_sleev_pYstarCalc`, gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
 }
@@ -100,6 +107,7 @@ NULL
 #' @param MAX_ITER Max iterations to perform when calculating convergence
 #' @param TOL Maximum difference between iteration that satisfies convergence requirements
 #' @param noSE Skips general spline profiling if converged
+#' @noRd
 .TwoPhase_MLE0_MEXY <- function(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
     .Call(`_sleev_TwoPhase_MLE0_MEXY`, Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
 }

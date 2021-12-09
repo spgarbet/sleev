@@ -18,6 +18,7 @@ using namespace std;
 //' @param mat The matrix
 //' @param v The vector
 //' @return mat * v
+//' @noRd
 arma::mat matTimesVec(arma::mat mat, arma::vec v)
 {
   // Ensure the vector is the right length
@@ -45,6 +46,7 @@ arma::mat matTimesVec(arma::mat mat, arma::vec v)
 //' @param mat The matrix
 //' @param v The vector divisor
 //' @return mat / v, or mat * v^-1
+//' @noRd
 arma::mat matDivideVec(arma::mat mat, arma::vec v)
 {
   // Ensure the vector is the right length
@@ -73,6 +75,7 @@ arma::mat matDivideVec(arma::mat mat, arma::vec v)
 //' @param w_t_original The original vector
 //' @param n The number of ones to add to the front of the vector
 //' @param modifyW_T If false, instantly returns w_t_original
+//' @noRd
 // [[Rcpp::export(.lengthenWT)]]
 arma::vec lengthenWT(
   const arma::vec& w_t_original,
@@ -102,6 +105,7 @@ arma::vec lengthenWT(
 //' 
 //' @param design_mat The design matrix
 //' @param prev The previous iteration of the design matrix
+//' @noRd
 // [[Rcpp::export(.calculateMu)]]
 arma::vec calculateMu(
   const arma::mat& design_mat,
@@ -123,6 +127,7 @@ arma::vec calculateMu(
 //' @param Y_col The column of validated Y values from the complete data matrix
 //' @param muVector The vector calculated by calculateMu
 //' @param modifyW_T Whether to add ones to the beginning of w_t
+//' @noRd
 // [[Rcpp::export(.calculateGradient)]]
 arma::vec calculateGradient(
   arma::vec& w_t,
@@ -160,6 +165,7 @@ arma::vec calculateGradient(
 //' @param n The number of ones to prepend to w_t
 //' @param mus An empty, pre-allocated vector of the same length as muVector, pre-allocated memory saves time
 //' @param modifyW_T Whether to add ones to the beginning of w_t
+//' @noRd
 // [[Rcpp::export(.calculateHessian)]]
 arma::mat calculateHessian(
   const arma::mat& design_mat,
@@ -191,6 +197,7 @@ arma::mat calculateHessian(
 //' @param Y_unval_index Which column of comp_dat_all houses the unvalidated Y variable
 //' @param pYstar An empty, pre-allocated vector
 //' @param mu_gamma An empty, pre-allocated vector
+//' @noRd
 // [[Rcpp::export(.pYstarCalc)]]
 arma::vec pYstarCalc(
   const arma::mat& gamma_design_mat,
