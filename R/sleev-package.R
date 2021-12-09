@@ -6,5 +6,6 @@
 #'
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib sleev, .registration=TRUE
+#' @noRd
 ## usethis namespace: end
 NULL
