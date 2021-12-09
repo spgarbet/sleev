@@ -1,25 +1,30 @@
 #' Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
 #'
-#' @param Y_unval Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.
-#' @param Y Specifies the column that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
+#' @param Y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.
+#' @param Y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
 #' @param X_unval Specifies the columns of the error-prone covariates. Subjects with missing values of \code{X_unval} are omitted from the analysis. This argument is required.
 #' @param X Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.
 #' @param Bspline Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required. 
 #' @param Z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional. 
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param hn_scale Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.
-#' @param MAX_ITER Specifies the maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
+#' @param MAX_ITER Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
 #' @param TOL Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
 #' @param noSE If \code{TRUE}, then the variances of the parameter estimators will not be estimated. The default value is \code{FALSE}. This argument is optional.
 #' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
+#' 
 #' @return
 #' \item{coefficients}{Stores the analysis results.}
 #' \item{sigma}{Stores the residual standard error.}
 #' \item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
 #' \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
-#' \item{converge2}{In variance estimation, if the EM algorithm converges, then \code{converge2 = TRUE}. Otherwise, \code{converge2 = FALSE}.}
+#' \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
+#' 
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
+#' 
+#' @examples
+#' 
 #' @export
 smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
 
@@ -30,33 +35,33 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	storage.mode(TOL) = "double"
 	storage.mode(noSE) = "integer"
 	
-	if (is.null(data)) {
+	if (missing(data)) {
 	    stop("No dataset is provided!")
 	}
 
-	if (is.null(Y_unval)) {
+	if (missing(Y_unval)) {
 		stop("The error-prone response Y_unval is not specified!")
 	} else {
 		vars_ph1 = Y_unval
 	}
 
-	if (is.null(X_unval)) {
+	if (missing(X_unval)) {
 		stop("The error-prone covariates X_unval is not specified!")
 	} else {
 		vars_ph1 = c(vars_ph1, X_unval)
 	}
 
-	if (is.null(Bspline)) {
+	if (missing(Bspline)) {
 	    stop("The B-spline basis is not specified!")
 	} else {
 	    vars_ph1 = c(vars_ph1, Bspline)
 	}
 
-	if (is.null(Y)) {
+	if (missing(Y)) {
 		stop("The accurately measured response Y is not specified!")
 	}
 	
-	if (is.null(X)) {
+	if (missing(X)) {
 		stop("The validated covariates in the second-phase are not specified!")
 	}
 	
@@ -64,7 +69,7 @@ smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	    stop("The number of columns in X_unval and X is different!")
 	}
 
-	if (!is.null(Z)) {
+	if (!missing(Z)) {
 		vars_ph1 = c(vars_ph1, Z)
 	}
 	

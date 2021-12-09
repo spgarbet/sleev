@@ -21,7 +21,7 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	/**** temporary variables **********************************************************************************************************************/	
 	double tol;
 	int iter;
-	// time_t t1, t2;
+	// auto time = tic();
 	/**** temporary variables **********************************************************************************************************************/
 	
 	/**** update P_theta ***************************************************************************************************************************/	
@@ -54,7 +54,9 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	
 	for (iter=0; iter<MAX_ITER; ++iter) 
 	{
-		// time(&t1);
+		/* test code */
+		// auto loop = tic();
+		/* test code end */
 		
 		/**** E-step *******************************************************************************************************************************/
 		
@@ -115,9 +117,8 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 		}
 		/**** check convergence ********************************************************************************************************************/
 		
-		// time(&t2);
 		/* test code */
-		// Rcpp::Rcout << iter << '\t' << difftime(t2, t1) << '\t' << tol << endl;
+		// Rcout << iter << '\t' << chrono::duration<double>(tic() - loop).count() << "\ttol = " << tol << endl;
 		/* test code end */
 	}
 	
@@ -170,6 +171,10 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 		loglik -= tmp;
 		/**** calculate the likelihood *************************************************************************************************************/
 		
+		/* test code */
+		// Rcout << "WaldLinearMEXYGeneralSplineProfile\t" << chrono::duration<double>(tic() - time).count() << "\tloglik = " << loglik << endl;
+		/* test code end*/
+
 		return loglik;	
 	}
 } // WaldLinearMEXYGeneralSplineProfile

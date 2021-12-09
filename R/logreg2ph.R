@@ -1,10 +1,10 @@
 #' Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 #' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)
 #'
-#' @param Y_unval Column name with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.
-#' @param Y Column name with the validated outcome.
+#' @param Y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. If \code{Y_unval} is null, the outcome is assumed to be error-free.
+#' @param Y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
 #' @param X_unval Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.
-#' @param X Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.
+#' @param X Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are `NULL`, all predictors are assumed to be error-free.
 #' @param Z (Optional) Column name(s) with additional error-free covariates.
 #' @param Bspline Vector of column names containing the B-spline basis functions.
 #' @param data A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, and \code{Bspline}.
@@ -14,7 +14,8 @@
 #' @param hn_scale Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is `hn_scale = 1`.
 #' @param noSE Indicator for whether standard errors are desired. Defaults to \code{noSE = FALSE}.
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
-#' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
+#' @param MAX_ITER Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
+#' 
 #' @return
 #' \item{coeff}{dataframe with final coefficient and standard error estimates (where applicable) for the analysis model.}
 #' \item{outcome_err_coeff}{dataframe with final coefficient estimates for the outcome error model.}
@@ -25,8 +26,13 @@
 #' \item{converged_msg}{(where applicable) description of non-convergence.}
 #' \item{iterations}{number of iterations completed by EM algorithm to find parameter estimates.}
 #' \item{od_loglik_at_conv}{value of the observed-data log-likelihood at convergence.}
+#' 
 #' @references
 #' Lotspeich, SC, Shepherd, BE, Amorim, GC, Shaw, PA, Tao, R. Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. *Biometrics*. 2021; 1– 12. https://doi.org/10.1111/biom.13512
+#' 
+#' @importFrom stats as.formula
+#' @importFrom stats glm
+#' 
 #' @export
 
 logreg2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,

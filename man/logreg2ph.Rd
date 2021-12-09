@@ -23,13 +23,13 @@ logreg2ph(
 )
 }
 \arguments{
-\item{Y_unval}{Column name with the unvalidated outcome. If \code{Y_unval} is null, the outcome is assumed to be error-free.}
+\item{Y_unval}{Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. If \code{Y_unval} is null, the outcome is assumed to be error-free.}
 
-\item{Y}{Column name with the validated outcome.}
+\item{Y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
 
 \item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
 
-\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{NULL}, all predictors are assumed to be error-free.}
 
 \item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
@@ -49,7 +49,7 @@ logreg2ph(
 
 \item{TOL}{Tolerance between iterations in the EM algorithm used to define convergence.}
 
-\item{MAX_ITER}{Maximum number of iterations allowed in the EM algorithm.}
+\item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 }
 \value{
 \item{coeff}{dataframe with final coefficient and standard error estimates (where applicable) for the analysis model.}

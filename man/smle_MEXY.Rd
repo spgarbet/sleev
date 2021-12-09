@@ -20,9 +20,9 @@ smle_MEXY(
 )
 }
 \arguments{
-\item{Y_unval}{Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.}
+\item{Y_unval}{Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.}
 
-\item{Y}{Specifies the column that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
+\item{Y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
 
 \item{X_unval}{Specifies the columns of the error-prone covariates. Subjects with missing values of \code{X_unval} are omitted from the analysis. This argument is required.}
 
@@ -36,7 +36,7 @@ smle_MEXY(
 
 \item{hn_scale}{Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.}
 
-\item{MAX_ITER}{Specifies the maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
+\item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 
 \item{TOL}{Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.}
 
@@ -49,8 +49,11 @@ smle_MEXY(
 \item{sigma}{Stores the residual standard error.}
 \item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
 \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
-\item{converge2}{In variance estimation, if the EM algorithm converges, then \code{converge2 = TRUE}. Otherwise, \code{converge2 = FALSE}.}
+\item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
 }
 \description{
 Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
+}
+\examples{
+
 }

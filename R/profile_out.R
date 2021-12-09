@@ -22,7 +22,12 @@
 #' @param p_val_num Contributions of validated subjects to the numerator for `p`, which are fixed (a matrix)
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
+#'
 #' @return Profile likelihood for `theta`: the value of the observed-data log-likelihood after profiling out other parameters.
+#' 
+#' @importFrom stats as.formula
+#' @importFrom stats glm
+#' 
 #' @noRd
 
 profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL,
@@ -176,10 +181,10 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
     {
 
       ## Update gamma using weighted logistic regression ----------------
-      w_t <- lengthenWT(w_t, n)
-      muVector <- calculateMu(gamma_design_mat, prev_gamma)
-      gradient_gamma <- calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[,c(Y_unval)], muVector)
-      hessian_gamma <- calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
+      w_t <- .lengthenWT(w_t, n)
+      muVector <- .calculateMu(gamma_design_mat, prev_gamma)
+      gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[,c(Y_unval)], muVector)
+      hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
 
       new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
                             error = function(err) {
