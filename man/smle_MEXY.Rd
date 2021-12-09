@@ -49,7 +49,7 @@ smle_MEXY(
 \item{sigma}{Stores the residual standard error.}
 \item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
 \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
-\item{converge2}{In variance estimation, if the EM algorithm converges, then \code{converge2 = TRUE}. Otherwise, \code{converge2 = FALSE}.}
+\item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge2 = FALSE}.}
 }
 \description{
 Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
