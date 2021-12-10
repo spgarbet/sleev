@@ -66,6 +66,85 @@ logreg2ph(
 Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)
 }
+\examples{
+ set.seed(918)
+ 
+ # Set sample sizes ----------------------------------------
+ N <- 1000 # Phase-I = N
+ n <- 250 # Phase-II/audit size = n
+ 
+ # Generate true values Y, Xb, Xa --------------------------
+ Xa <- rbinom(n = N, size = 1, prob = 0.25)
+ Xb <- rbinom(n = N, size = 1, prob = 0.5)
+ Y <- rbinom(n = N, size = 1,prob = (1 + exp(-(- 0.65 - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
+ 
+ # Generate error-prone Xb* from error model P(Xb*|Xb,Xa) --
+ sensX <- specX <- 0.75
+ delta0 <- - log(specX / (1 - specX))
+ delta1 <- - delta0 - log((1 - sensX) / sensX)
+ Xbstar <- rbinom(n = N, size = 1,
+                  prob = (1 + exp(- (delta0 + delta1 * Xb + 0.5 * Xa))) ^ (- 1))
+ 
+ # Generate error-prone Y* from error model P(Y*|Xb*,Y,Xb,Xa)
+ sensY <- 0.95
+ specY <- 0.90
+ theta0 <- - log(specY / (1 - specY))
+ theta1 <- - theta0 - log((1 - sensY) / sensY)
+ Ystar <- rbinom(n = N, size = 1,
+                 prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
+ 
+ 
+ ## V is a TRUE/FALSE vector where TRUE = validated --------
+ V <- seq(1, N) \%in\% sample(x = seq(1, N), size = n, replace = FALSE)
+ 
+ 
+ # Build dataset --------------------------------------------
+ sdat <- cbind(Y, Xb, Ystar, Xbstar, Xa)
+ # Make Phase-II variables Y, Xb NA for unaudited subjects ---
+ sdat[!V, c("Y", "Xb")] <- NA
+ 
+ # Fit models -----------------------------------------------
+ ## (1) Naive model -----------------------------------------
+ naive <- glm(Ystar ~ Xbstar + Xa, family = "binomial", data = data.frame(sdat))
+ 
+ 
+ ## (4) Generalized raking ----------------------------------
+ ### Influence function for logistic regression
+ ### Taken from: https://github.com/T0ngChen/multiwave/blob/master/sim.r
+ inf.fun <- function(fit) {
+   dm <- model.matrix(fit)
+   Ihat <- (t(dm) \%*\% (dm * fit$fitted.values * (1 - fit$fitted.values))) / nrow(dm)
+   ## influence function
+   infl <- (dm * resid(fit, type = "response")) \%*\% solve(Ihat)
+   infl
+ }
+ naive_infl <- inf.fun(naive) # error-prone influence functions based on naive model
+ colnames(naive_infl) <- paste0("if", 1:3)
+ 
+ # Add naive influence functions to sdat -----------------------------------------------
+ sdat <- cbind(id = 1:N, sdat, naive_infl)
+ 
+ ### Construct B-spline basis -------------------------------
+ ### Since Xb* and Xa are both binary, reduces to indicators --
+ nsieve <- 4
+ B <- matrix(0, nrow = N, ncol = nsieve)
+ B[which(Xa == 0 & Xbstar == 0), 1] <- 1
+ B[which(Xa == 0 & Xbstar == 1), 2] <- 1
+ B[which(Xa == 1 & Xbstar == 0), 3] <- 1
+ B[which(Xa == 1 & Xbstar == 1), 4] <- 1
+ colnames(B) <- paste0("bs", seq(1, nsieve))
+ sdat <- cbind(sdat, B)
+ smle <- logreg2ph(Y_unval = "Ystar",
+   Y = "Y",
+   X_unval = "Xbstar",
+   X = "Xb",
+   Z = "Xa",
+   Bspline = colnames(B),
+   data = sdat,
+   noSE = FALSE,
+   MAX_ITER = 1000,
+   TOL = 1E-4)
+}
 \references{
 Lotspeich, SC, Shepherd, BE, Amorim, GC, Shaw, PA, Tao, R. Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. \emph{Biometrics}. 2021; 1– 12. https://doi.org/10.1111/biom.13512
 }

@@ -104,7 +104,7 @@ test_that("single iteration", {
     expect_vector(data["X_tilde"])
     expect_vector(data[colnames(Bspline)])
 
-    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=FALSE)
+    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 
     expect_equal(as.vector(res[["coefficients"]]), c(0.288000325625334,0.416922224791497,0.036445693699495,0.0374935035213232,7.90217708572041,11.1198523913452,2.77555756156289e-15,0))
 	expect_equal(res[["sigma"]], 1.01304717554374)
