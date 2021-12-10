@@ -58,7 +58,7 @@
 #'  theta0 <- - log(specY / (1 - specY))
 #'  theta1 <- - theta0 - log((1 - sensY) / sensY)
 #'  Ystar <- rbinom(n = N, size = 1,
-#'                  prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
+#'    prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
 #'  
 #'  
 #'  ## V is a TRUE/FALSE vector where TRUE = validated --------

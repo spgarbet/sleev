@@ -85,7 +85,8 @@ Performs efficient semiparametric estimation for general two-phase measurement e
  
  # # histogram basis
  # Bspline = matrix(NA, nrow=n, ncol=nsieve)
- # cut_x_tilde = cut(simX_tilde, breaks=quantile(simX_tilde, probs=seq(0, 1, 1/nsieve)), include.lowest = TRUE)
+ # cut_x_tilde = cut(simX_tilde, breaks=quantile(simX_tilde, probs=seq(0, 1, 1/nsieve)), 
+ #   include.lowest = TRUE)
  # for (i in 1:nsieve) {
  #     Bspline[,i] = as.numeric(cut_x_tilde == names(table(cut_x_tilde))[i])
  # }
@@ -103,11 +104,13 @@ Performs efficient semiparametric estimation for general two-phase measurement e
  # # quadratic basis
  
  # cubic basis
- Bspline = splines::bs(simX_tilde, df=nsieve, degree=3, Boundary.knots=range(simX_tilde), intercept=TRUE)
+ Bspline = splines::bs(simX_tilde, df=nsieve, degree=3, 
+   Boundary.knots=range(simX_tilde), intercept=TRUE)
  colnames(Bspline) = paste("bs", 1:nsieve, sep="")
  # cubic basis
  
  data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
 
- res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+ res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
+   Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 }
