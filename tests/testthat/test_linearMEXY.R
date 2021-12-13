@@ -18,7 +18,7 @@ test_that("check use_default_values", {
 
 
 
-test_that("MEXY", {
+test_that("MEXY loop", {
 	skip_on_cran()
 	skip_if(SKIP_CRAN_TESTS)
 
@@ -36,8 +36,8 @@ test_that("MEXY", {
 
 	    ### generate data
 	    dat <- generate_data()
-		data <- dat$data
-		Bspline <- dat$Bspline
+	    data <- dat$data
+	    Bspline <- dat$Bspline
 
 	    ### verify data
 	    expect_vector(data["Y"])
@@ -49,11 +49,11 @@ test_that("MEXY", {
 	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=FALSE)
 
 	    if (sum(is.na(res$coefficients)) == 0) {
-	        results[nsim,] = res$coefficients[2,1:2]
-	        nsim = nsim+1
-	        if (nsim%%10 == 0) {
-	            print(paste(nsim, "replicates done."))
-	        }
+	    	results[nsim,] = res$coefficients[2,1:2]
+	    	nsim = nsim+1
+	    	if (nsim%%10 == 0) {
+	    		print(paste(nsim, "replicates done."))
+	    	}
 	    }
 	}
 
@@ -85,15 +85,15 @@ test_that("MEXY", {
 	})
 
 
-test_that("single iteration", {
+test_that("single iteration cubic", {
 
 
 	set.seed(12345)
 
     ### generate data
     dat <- generate_data()
-	data <- dat$data
-	Bspline <- dat$Bspline
+    data <- dat$data
+    Bspline <- dat$Bspline
 
     ### verify data
     expect_false(is.null(data))
@@ -107,11 +107,95 @@ test_that("single iteration", {
     res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 
     expect_equal(as.vector(res[["coefficients"]]), c(0.288000325625334,0.416922224791497,0.036445693699495,0.0374935035213232,7.90217708572041,11.1198523913452,2.77555756156289e-15,0))
-	expect_equal(res[["sigma"]], 1.01304717554374)
-	expect_equal(as.vector( res[["covariance"]]), c(0.00132828858923741,-0.000111130454918251,-0.000111130454918251,0.00140576280630348))
-	expect_true(res[["converge"]])
-	expect_true(res[["converge_cov"]])
-})
+    expect_equal(res[["sigma"]], 1.01304717554374)
+    expect_equal(as.vector( res[["covariance"]]), c(0.00132828858923741,-0.000111130454918251,-0.000111130454918251,0.00140576280630348))
+    expect_true(res[["converge"]])
+    expect_true(res[["converge_cov"]])
+    })
+
+test_that("single iteration histogram", {
+
+
+	set.seed(12345)
+
+    ### generate data
+    dat <- generate_data("histogram")
+    data <- dat$data
+    Bspline <- dat$Bspline
+
+    ### verify data
+    expect_false(is.null(data))
+    expect_false(is.null(Bspline))
+    expect_vector(data["Y"])
+    expect_vector(data["X"])
+    expect_vector(data["Y_tilde"])
+    expect_vector(data["X_tilde"])
+    expect_vector(data[colnames(Bspline)])
+
+    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+
+    expect_equal(as.vector(res[["coefficients"]]), c(0.282663936031731,0.414875913181448,0.0359350685141081,0.0374334492112151,7.86596346465173,11.0830265958273,3.66373598126302e-15,0))
+    expect_equal(res[["sigma"]], 1.02778853831618)
+    expect_equal(as.vector( res[["covariance"]]), c(0.00129132914911364,-8.59902916973147e-05,-8.59902916973147e-05,0.00140126311984862))
+    expect_true(res[["converge"]])
+    expect_true(res[["converge_cov"]])
+    })
+
+test_that("single iteration quadratic", {
+
+
+	set.seed(12345)
+
+    ### generate data
+    dat <- generate_data("quadratic")
+    data <- dat$data
+    Bspline <- dat$Bspline
+
+    ### verify data
+    expect_false(is.null(data))
+    expect_false(is.null(Bspline))
+    expect_vector(data["Y"])
+    expect_vector(data["X"])
+    expect_vector(data["Y_tilde"])
+    expect_vector(data["X_tilde"])
+    expect_vector(data[colnames(Bspline)])
+
+    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+
+    expect_equal(as.vector(res[["coefficients"]]), c(0.285986700184186,0.415752239593525,0.0363612977093676,0.0377064792460855,7.8651400857596,11.0260158971667,3.66373598126302e-15,0))
+    expect_equal(res[["sigma"]], 1.01656868034353)
+    expect_equal(as.vector( res[["covariance"]]), c(0.00132214397110926,-0.000108858715432434,-0.000108858715432434,0.00142177857713548))
+    expect_true(res[["converge"]])
+    expect_true(res[["converge_cov"]])
+    })
+
+test_that("single iteration linear", {
+
+
+	set.seed(12345)
+
+    ### generate data
+    dat <- generate_data("linear")
+    data <- dat$data
+    Bspline <- dat$Bspline
+
+    ### verify data
+    expect_false(is.null(data))
+    expect_false(is.null(Bspline))
+    expect_vector(data["Y"])
+    expect_vector(data["X"])
+    expect_vector(data["Y_tilde"])
+    expect_vector(data["X_tilde"])
+    expect_vector(data[colnames(Bspline)])
+
+    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+
+    expect_equal(as.vector(res[["coefficients"]]), c(0.283549671920374,0.419193942728094,0.036188096643911,0.0377345448037876,7.83544033029666,11.1090234401348,4.66293670342566e-15,0))
+    expect_equal(res[["sigma"]], 1.01921044143961)
+    expect_equal(as.vector( res[["covariance"]]), c(0.00130957833870905,-0.000102885082209359,-0.000102885082209359,0.00142389587154905))
+    expect_true(res[["converge"]])
+    expect_true(res[["converge_cov"]])
+    })
 
 test_that("missing values", {
 
@@ -119,12 +203,12 @@ test_that("missing values", {
 
     ### generate data
     dat <- generate_data()
-	data <- dat$data
-	Bspline <- dat$Bspline
+    data <- dat$data
+    Bspline <- dat$Bspline
 
 
 	# missing data
-    expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), hn_scale=0.1), "No dataset is provided!")
+	expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), hn_scale=0.1), "No dataset is provided!")
 
     # missing Y_unval
     expect_error(smle_MEXY(Y="Y", X="X", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone response Y_unval is not specified!")
@@ -141,7 +225,7 @@ test_that("missing values", {
     # missing X
     expect_error(smle_MEXY(Y="Y", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The validated covariates in the second-phase are not specified!")
 
-	})
+    })
 
 
 

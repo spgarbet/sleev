@@ -19,7 +19,7 @@ SKIP_CRAN_TESTS <- TRUE
 }
 
 # generate an instance of data from default values for linearMEXY
-generate_data <- function()
+generate_data <- function(basis = "cubic")
 {
 	simX = rnorm(n)
     epsilon = rnorm(n)
@@ -37,28 +37,40 @@ generate_data <- function()
     simY[-id_phase2] = NA
     simX[-id_phase2] = NA
 
-    # # histogram basis
-    # Bspline = matrix(NA, nrow=n, ncol=nsieve)
-    # cut_x_tilde = cut(simX_tilde, breaks=quantile(simX_tilde, probs=seq(0, 1, 1/nsieve)), include.lowest = TRUE)
-    # for (i in 1:nsieve) {
-    #     Bspline[,i] = as.numeric(cut_x_tilde == names(table(cut_x_tilde))[i])
-    # }
-    # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-    # # histogram basis
+    # histogram basis
+    if (basis == "histogram")
+    {
+        Bspline = matrix(NA, nrow=n, ncol=nsieve)
+        cut_x_tilde = cut(simX_tilde, breaks=quantile(simX_tilde, probs=seq(0, 1, 1/nsieve)), include.lowest = TRUE)
+        for (i in 1:nsieve) {
+            Bspline[,i] = as.numeric(cut_x_tilde == names(table(cut_x_tilde))[i])
+        }
+        colnames(Bspline) = paste("bs", 1:nsieve, sep="")
+    }
+    # histogram basis
 
-    # # linear basis
-    # Bspline = bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
-    # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-    # # linear basis
+    # linear basis
+    if (basis == "linear")
+    {
+        Bspline = splines::bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
+        colnames(Bspline) = paste("bs", 1:nsieve, sep="")
+    }
+    # linear basis
 
-    # # quadratic basis
-    # Bspline = bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
-    # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-    # # quadratic basis
+    # quadratic basis
+    if (basis == "quadratic")
+    {
+        Bspline = splines::bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
+        colnames(Bspline) = paste("bs", 1:nsieve, sep="")
+    }
+    # quadratic basis
 
     # cubic basis
-    Bspline = splines::bs(simX_tilde, df=nsieve, degree=3, Boundary.knots=range(simX_tilde), intercept=TRUE)
-    colnames(Bspline) = paste("bs", 1:nsieve, sep="")
+    if (basis == "cubic")
+    {
+        Bspline = splines::bs(simX_tilde, df=nsieve, degree=3, Boundary.knots=range(simX_tilde), intercept=TRUE)
+        colnames(Bspline) = paste("bs", 1:nsieve, sep="")
+    }
     # cubic basis
 
     data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
