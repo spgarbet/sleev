@@ -2,8 +2,7 @@
 % Please edit documentation in R/complete_data.R
 \name{complete_data}
 \alias{complete_data}
-\title{Create complete dataset.
-This function returns the complete dataset trying all validated values for each unvalidated subject.}
+\title{Create complete dataset}
 \usage{
 complete_data(
   Y_unval = NULL,
@@ -23,9 +22,9 @@ complete_data(
 
 \item{Y}{Column names with the validated outcome.}
 
-\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
+\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
 
-\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all precictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
 
 \item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
@@ -43,6 +42,5 @@ complete_data(
 dataframe
 }
 \description{
-Create complete dataset.
 This function returns the complete dataset trying all validated values for each unvalidated subject.
 }

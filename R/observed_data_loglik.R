@@ -1,5 +1,7 @@
+#' @title
 #' Observed-data log-likelihood
 #'
+#' @description
 #' This function returns the value of the observed-data log-likelihood (equation (2) in Lotspeich et al. (2020))
 #' for a given dataset and parameter values `theta`, `gamma`, and `p`.
 #

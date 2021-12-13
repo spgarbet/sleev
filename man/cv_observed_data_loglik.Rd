@@ -2,8 +2,7 @@
 % Please edit documentation in R/cv_observed_data_loglik.R
 \name{cv_observed_data_loglik}
 \alias{cv_observed_data_loglik}
-\title{Cross-validated observed-data log-likelihood.
-This function returns the value of the observed-data log-likelihood based on cross-validation.}
+\title{Cross-validated observed-data log-likelihood}
 \usage{
 cv_observed_data_loglik(
   fold,
@@ -52,6 +51,5 @@ cv_observed_data_loglik(
 scalar value of the function
 }
 \description{
-Cross-validated observed-data log-likelihood.
 This function returns the value of the observed-data log-likelihood based on cross-validation.
 }

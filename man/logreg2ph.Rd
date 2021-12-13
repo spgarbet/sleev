@@ -2,8 +2,7 @@
 % Please edit documentation in R/logreg2ph.R
 \name{logreg2ph}
 \alias{logreg2ph}
-\title{Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
-This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)}
+\title{Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems}
 \usage{
 logreg2ph(
   Y_unval = NULL,
@@ -63,7 +62,6 @@ logreg2ph(
 \item{od_loglik_at_conv}{value of the observed-data log-likelihood at convergence.}
 }
 \description{
-Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)
 }
 \examples{

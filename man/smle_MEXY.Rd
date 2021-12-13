@@ -94,12 +94,12 @@ Performs efficient semiparametric estimation for general two-phase measurement e
  # # histogram basis
  
  # # linear basis
- # Bspline = bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
+ # Bspline = splines::bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
  # # linear basis
  
  # # quadratic basis
- # Bspline = bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
+ # Bspline = splines::bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
  # # quadratic basis
  

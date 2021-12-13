@@ -1,4 +1,7 @@
-#' Cross-validated observed-data log-likelihood.
+#' @title
+#' Cross-validated observed-data log-likelihood
+#'
+#' @description
 #' This function returns the value of the observed-data log-likelihood based on cross-validation.
 #'
 #' @param fold Column name with the assigned fold for cross-validation.
