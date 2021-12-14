@@ -1,3 +1,5 @@
+#' Sieve maximum likelihood estimator (SMLE) for two-phase linear regression problems
+#'
 #' Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
 #'
 #' @param Y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.
@@ -80,11 +82,10 @@
 #'  
 #'  data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
 #'
-#'  res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
+#'  res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
 #'    Bspline=colnames(Bspline), data=data, hn_scale=0.1)
-
 #' @export
-smle_MEXY <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
+linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
 
 ### linear2ph
     ###############################################################################################################

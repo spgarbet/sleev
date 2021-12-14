@@ -227,5 +227,18 @@ test_that("missing values", {
 
     })
 
+test_that("verbose", {
+
+	set.seed(12345)
+
+    ### generate data
+    dat <- generate_data()
+    data <- dat$data
+    Bspline <- dat$Bspline
+
+
+	# expect printing message
+    expect_message(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY")
+	})
 
 

@@ -15,7 +15,6 @@
 #' @param theta_pred Vector of columns in \code{data} that pertain to the predictors in the analysis model.
 #' @param gamma_pred Vector of columns in \code{data} that pertain to the predictors in the outcome error model.
 #' @return dataframe
-#' @export
 
 complete_data <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
                           Validated = NULL, Bspline = NULL, data, theta_pred = NULL, gamma_pred = NULL) {

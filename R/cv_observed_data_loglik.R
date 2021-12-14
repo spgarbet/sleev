@@ -18,7 +18,6 @@
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
 #' @return scalar value of the function
-#' @export
 
 cv_observed_data_loglik <- function(fold, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
                         Validated = NULL, Bspline = NULL, data, theta_pred = NULL, gamma_pred = NULL,

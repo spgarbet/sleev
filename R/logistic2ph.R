@@ -1,6 +1,6 @@
 #' Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 #'
-#' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021)
+#' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021).
 #'
 #' @param Y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. If \code{Y_unval} is null, the outcome is assumed to be error-free.
 #' @param Y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
@@ -102,7 +102,7 @@
 #'  B[which(Xa == 1 & Xbstar == 1), 4] <- 1
 #'  colnames(B) <- paste0("bs", seq(1, nsieve))
 #'  sdat <- cbind(sdat, B)
-#'  smle <- logreg2ph(Y_unval = "Ystar",
+#'  smle <- logistic2ph(Y_unval = "Ystar",
 #'    Y = "Y",
 #'    X_unval = "Xbstar",
 #'    X = "Xb",
@@ -114,10 +114,38 @@
 #'    TOL = 1E-4)
 #' @export
 
-logreg2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
-  Bspline = NULL, data, theta_pred = NULL, gamma_pred = NULL,
+logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
+  Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL,
   initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000)
 {
+  if (missing(data)) {
+      stop("No dataset is provided!")
+  }
+
+  if (missing(Y_unval)) {
+    stop("The error-prone response Y_unval is not specified!")
+  } 
+
+  if (missing(X_unval)) {
+    stop("The error-prone covariates X_unval is not specified!")
+  }
+
+  if (missing(Bspline)) {
+      stop("The B-spline basis is not specified!")
+  } 
+
+  if (missing(Y)) {
+    stop("The accurately measured response Y is not specified!")
+  }
+  
+  if (missing(X)) {
+    stop("The validated covariates in the second-phase are not specified!")
+  }
+  
+  if (length(X_unval) != length(X)) {
+    stop("The number of columns in X_unval and X is different!")
+  }
+
   N <- nrow(data)
 
   # Calculate the validated subjects
