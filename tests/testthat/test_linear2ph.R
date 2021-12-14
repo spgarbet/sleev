@@ -238,7 +238,7 @@ test_that("verbose", {
 
 
 	# expect printing message
-    expect_message(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY")
+    expect_message(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY", fixed=TRUE)
 	})
 
 
