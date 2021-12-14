@@ -132,9 +132,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     stop("The accurately measured response Y is not specified!")
   }
   
-  if (missing(X)) 
+  if (xor(missing(X), missing(X_unval)))
   {
-    stop("The validated covariates in the second-phase are not specified!")
+    stop("If X_unval and X are NULL, all predictors are assumed to be error-free. You must define both variables or neither!")
   }
   
   if (length(data[,X_unval]) != length(data[,X])) 
@@ -352,7 +352,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # pre-allocate memory for loop variables
   mus_theta <- vector("numeric", nrow(theta_design_mat) * ncol(prev_theta))
-  mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
+  if (errorsY)
+  {
+    mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
+  }
 
   # Estimate theta using EM -------------------------------------------
   while(it <= MAX_ITER & !CONVERGED)
@@ -811,7 +814,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     {
       message(CONVERGED_MSG)
     }
-    
+
     return(list(coeff = data.frame(coeff = new_theta, se = se_theta),
       outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
       Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
