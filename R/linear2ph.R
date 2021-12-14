@@ -144,8 +144,8 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
     }
 	
 	if (verbose) {
-    	print(paste("There are", nrow(data), "observations in the dataset."))
-    	print(paste(length(id_exclude), "observations are excluded due to missing Y_unval, X_unval, or Z."))
+    	message("There are ", nrow(data), " observations in the dataset.")
+    	message(length(id_exclude), " observations are excluded due to missing Y_unval, X_unval, or Z.")
 	}
 	if (length(id_exclude) > 0) {
 		data = data[-id_exclude,]
@@ -153,7 +153,7 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
     n = nrow(data)
 	if (verbose) {
-    	print(paste("There are", n, "observations in the analysis."))
+    	message("There are ", n, " observations in the analysis.")
 	}
 
     id_phase1 = which(is.na(data[,Y]))
@@ -161,7 +161,7 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
         id_phase1 = union(id_phase1, which(is.na(data[,var])))
     }
 	if (verbose) {
-		print(paste("There are", n-length(id_phase1), "observations validated in the second phase."))
+		message("There are ", n-length(id_phase1), " observations validated in the second phase.")
 	}
     #### check data ###############################################################################################
 	###############################################################################################################
@@ -222,7 +222,7 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
 	if (verbose)
 	{
-		print("Calling C++ function TwoPhase_MLE0_MEXY")
+		message("Calling C++ function TwoPhase_MLE0_MEXY")
 	}
 
 	## Ensure every variable is the correct type

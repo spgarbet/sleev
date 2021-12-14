@@ -73,11 +73,11 @@
 #'  sdat[!V, c("Y", "Xb")] <- NA
 #'  
 #'  # Fit models -----------------------------------------------
-#'  ## (1) Naive model -----------------------------------------
+#'  ## Naive model -----------------------------------------
 #'  naive <- glm(Ystar ~ Xbstar + Xa, family = "binomial", data = data.frame(sdat))
 #'  
 #'  
-#'  ## (4) Generalized raking ----------------------------------
+#'  ## Generalized raking ----------------------------------
 #'  ### Influence function for logistic regression
 #'  ### Taken from: https://github.com/T0ngChen/multiwave/blob/master/sim.r
 #'  inf.fun <- function(fit) {
@@ -319,7 +319,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   ## theta, gamma ---------------------------------------------------
   if(!(initial_lr_params %in% c("Zeros", "Complete-data")))
   {
-    message("Invalid starting values provided. Non-informative zeros assumed.")
+    if (verbose)
+    {
+      message("Invalid starting values provided. Non-informative zeros assumed.")
+    }
     initial_lr_params <- "Zeros"
   }
 
@@ -621,7 +624,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       vcov = NA,  
       converged = FALSE,  
       se_converged = NA,  
-      converged_msg = "MAX_ITER reached", 
+      converged_msg = CONVERGED_MSG, 
       iterations = it,  
       od_loglik_at_conv = NA))
   }
@@ -804,6 +807,11 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       TRUE
     }
 
+    if (verbose)
+    {
+      message(CONVERGED_MSG)
+    }
+    
     return(list(coeff = data.frame(coeff = new_theta, se = se_theta),
       outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
       Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
