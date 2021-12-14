@@ -122,14 +122,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       stop("No dataset is provided!")
   }
 
-  if (missing(Y_unval)) {
-    stop("The error-prone response Y_unval is not specified!")
-  } 
-
-  if (missing(X_unval)) {
-    stop("The error-prone covariates X_unval is not specified!")
-  }
-
   if (missing(Bspline)) {
       stop("The B-spline basis is not specified!")
   } 
@@ -199,14 +191,20 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   if (is.null(theta_pred))
   {
     theta_pred <- c(X, Z)
-    message("Analysis model assumed main effects only.")
+    if (verbose)
+    {
+      message("Analysis model assumed main effects only.")
+    }
   }
 
 
   if (is.null(gamma_pred) & errorsY)
   {
     gamma_pred <- c(X_unval, Y, X, Z)
-    message("Outcome error model assumed main effects only.")
+    if (verbose)
+    {
+      message("Outcome error model assumed main effects only.")
+    }
   }
 
 
