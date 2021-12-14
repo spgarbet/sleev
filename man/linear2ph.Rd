@@ -13,9 +13,9 @@ linear2ph(
   Bspline = NULL,
   data = NULL,
   hn_scale = 1,
-  MAX_ITER = 1000,
-  TOL = 1e-04,
   noSE = FALSE,
+  TOL = 1e-04,
+  MAX_ITER = 1000,
   verbose = FALSE
 )
 }
@@ -36,11 +36,11 @@ linear2ph(
 
 \item{hn_scale}{Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.}
 
-\item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
+\item{noSE}{If \code{TRUE}, then the variances of the parameter estimators will not be estimated. The default value is \code{FALSE}. This argument is optional.}
 
 \item{TOL}{Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.}
 
-\item{noSE}{If \code{TRUE}, then the variances of the parameter estimators will not be estimated. The default value is \code{FALSE}. This argument is optional.}
+\item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 
 \item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
@@ -94,12 +94,14 @@ Performs efficient semiparametric estimation for general two-phase measurement e
  # # histogram basis
  
  # # linear basis
- # Bspline = splines::bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
+ # Bspline = splines::bs(simX_tilde, df=nsieve, degree=1,
+ #   Boundary.knots=range(simX_tilde), intercept=TRUE)
  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
  # # linear basis
  
  # # quadratic basis
- # Bspline = splines::bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
+ # Bspline = splines::bs(simX_tilde, df=nsieve, degree=2, 
+ #   Boundary.knots=range(simX_tilde), intercept=TRUE)
  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
  # # quadratic basis
  
@@ -113,4 +115,10 @@ Performs efficient semiparametric estimation for general two-phase measurement e
 
  res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
    Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+}
+\references{
+Tao, R., Mercaldo, N. D., Haneuse, S., Maronge, J. M., Rathouz, P. J., Heagerty, P. J., & Schildcrout, J. S. (2021). Two-wave two-phase outcome-dependent sampling designs, with applications to longitudinal binary data. \emph{Statistics in Medicine, 40}(8), 1863–1876. https://doi.org/10.1002/sim.8876
+}
+\seealso{
+\code{\link[=cv_linear2ph]{cv_linear2ph()}} to calculate the average predicted log likelihood of this function.
 }

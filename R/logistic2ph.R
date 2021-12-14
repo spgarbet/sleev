@@ -115,7 +115,7 @@
 #'    TOL = 1E-4)
 #' @export
 
-logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL,initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000, verbose = FALSE)
+logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL,initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000, verbose = FALSE)
 {
   if (missing(data)) 
   {
