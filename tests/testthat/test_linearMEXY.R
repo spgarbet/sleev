@@ -46,7 +46,7 @@ test_that("MEXY loop", {
 	    expect_vector(data["X_tilde"])
 	    expect_vector(data[colnames(Bspline)])
 
-	    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=FALSE)
+	    res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=FALSE)
 
 	    if (sum(is.na(res$coefficients)) == 0) {
 	    	results[nsim,] = res$coefficients[2,1:2]
@@ -104,7 +104,7 @@ test_that("single iteration cubic", {
     expect_vector(data["X_tilde"])
     expect_vector(data[colnames(Bspline)])
 
-    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+    res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 
     expect_equal(as.vector(res[["coefficients"]]), c(0.288000325625334,0.416922224791497,0.036445693699495,0.0374935035213232,7.90217708572041,11.1198523913452,2.77555756156289e-15,0))
     expect_equal(res[["sigma"]], 1.01304717554374)
@@ -132,7 +132,7 @@ test_that("single iteration histogram", {
     expect_vector(data["X_tilde"])
     expect_vector(data[colnames(Bspline)])
 
-    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+    res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 
     expect_equal(as.vector(res[["coefficients"]]), c(0.282663936031731,0.414875913181448,0.0359350685141081,0.0374334492112151,7.86596346465173,11.0830265958273,3.66373598126302e-15,0))
     expect_equal(res[["sigma"]], 1.02778853831618)
@@ -160,7 +160,7 @@ test_that("single iteration quadratic", {
     expect_vector(data["X_tilde"])
     expect_vector(data[colnames(Bspline)])
 
-    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+    res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 
     expect_equal(as.vector(res[["coefficients"]]), c(0.285986700184186,0.415752239593525,0.0363612977093676,0.0377064792460855,7.8651400857596,11.0260158971667,3.66373598126302e-15,0))
     expect_equal(res[["sigma"]], 1.01656868034353)
@@ -188,7 +188,7 @@ test_that("single iteration linear", {
     expect_vector(data["X_tilde"])
     expect_vector(data[colnames(Bspline)])
 
-    res = smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+    res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 
     expect_equal(as.vector(res[["coefficients"]]), c(0.283549671920374,0.419193942728094,0.036188096643911,0.0377345448037876,7.83544033029666,11.1090234401348,4.66293670342566e-15,0))
     expect_equal(res[["sigma"]], 1.01921044143961)
@@ -208,22 +208,22 @@ test_that("missing values", {
 
 
 	# missing data
-	expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), hn_scale=0.1), "No dataset is provided!")
+	expect_error(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), hn_scale=0.1), "No dataset is provided!")
 
     # missing Y_unval
-    expect_error(smle_MEXY(Y="Y", X="X", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone response Y_unval is not specified!")
+    expect_error(linear2ph(Y="Y", X="X", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone response Y_unval is not specified!")
 
     # missing X_unval
-    expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone covariates X_unval is not specified!")
+    expect_error(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The error-prone covariates X_unval is not specified!")
 
     # missing Bspline
-    expect_error(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", data=data, hn_scale=0.1), "The B-spline basis is not specified!")
+    expect_error(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", data=data, hn_scale=0.1), "The B-spline basis is not specified!")
 
     # missing Y
-    expect_error(smle_MEXY(X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The accurately measured response Y is not specified!")
+    expect_error(linear2ph(X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The accurately measured response Y is not specified!")
 
     # missing X
-    expect_error(smle_MEXY(Y="Y", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The validated covariates in the second-phase are not specified!")
+    expect_error(linear2ph(Y="Y", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1), "The validated covariates in the second-phase are not specified!")
 
     })
 
@@ -238,7 +238,7 @@ test_that("verbose", {
 
 
 	# expect printing message
-    expect_message(smle_MEXY(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY")
+    expect_message(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY")
 	})
 
 

@@ -16,6 +16,7 @@
 #' @param noSE Indicator for whether standard errors are desired. Defaults to \code{noSE = FALSE}.
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
+#' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
 #' 
 #' @return
 #' \item{coeff}{dataframe with final coefficient and standard error estimates (where applicable) for the analysis model.}
@@ -29,7 +30,7 @@
 #' \item{od_loglik_at_conv}{value of the observed-data log-likelihood at convergence.}
 #' 
 #' @references
-#' Lotspeich, SC, Shepherd, BE, Amorim, GC, Shaw, PA, Tao, R. Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. *Biometrics*. 2021; 1– 12. https://doi.org/10.1111/biom.13512
+#' Lotspeich, S. C., Shepherd, B. E., Amorim, G. G. C., Shaw, P. A., & Tao, R. (2021). Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. *Biometrics, biom.13512.* https://doi.org/10.1111/biom.13512
 #' 
 #' @importFrom stats as.formula
 #' @importFrom stats glm
@@ -114,27 +115,30 @@
 #'    TOL = 1E-4)
 #' @export
 
-logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
-  Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL,
-  initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000)
+logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL,initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000, verbose = FALSE)
 {
-  if (missing(data)) {
-      stop("No dataset is provided!")
+  if (missing(data)) 
+  {
+    stop("No dataset is provided!")
   }
 
-  if (missing(Bspline)) {
-      stop("The B-spline basis is not specified!")
+  if (missing(Bspline)) 
+  {
+    stop("The B-spline basis is not specified!")
   } 
 
-  if (missing(Y)) {
+  if (missing(Y)) 
+  {
     stop("The accurately measured response Y is not specified!")
   }
   
-  if (missing(X)) {
+  if (missing(X)) 
+  {
     stop("The validated covariates in the second-phase are not specified!")
   }
   
-  if (length(X_unval) != length(X)) {
+  if (length(data[,X_unval]) != length(data[,X])) 
+  {
     stop("The number of columns in X_unval and X is different!")
   }
 
@@ -174,14 +178,14 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       warning("Empty sieve in validated data. Reconstruct B-spline basis and try again.", call. = FALSE)
 
       return(list(coeff = data.frame(coeff = NA, se = NA),
-                  outcome_err_coeff = data.frame(coeff = NA, se = NA),
-                  Bspline_coeff = NA,
-                  vcov = NA,
-                  converged = NA,
-                  se_converged = NA,
-                  converged_msg = "B-spline error",
-                  iterations = 0,
-                  od_loglik_at_conv = NA))
+        outcome_err_coeff = data.frame(coeff = NA, se = NA),
+        Bspline_coeff = NA,
+        vcov = NA,
+        converged = NA,
+        se_converged = NA,
+        converged_msg = "B-spline error",
+        iterations = 0,
+        od_loglik_at_conv = NA))
     }
 
   }
@@ -612,14 +616,14 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
 
     return(list(coeff = data.frame(coeff = NA, se = NA),  
-                outcome_err_coeff = data.frame(coeff = NA, se = NA),  
-                Bspline_coeff = NA, 
-                vcov = NA,  
-                converged = FALSE,  
-                se_converged = NA,  
-                converged_msg = "MAX_ITER reached", 
-                iterations = it,  
-                od_loglik_at_conv = NA))
+      outcome_err_coeff = data.frame(coeff = NA, se = NA),  
+      Bspline_coeff = NA, 
+      vcov = NA,  
+      converged = FALSE,  
+      se_converged = NA,  
+      converged_msg = "MAX_ITER reached", 
+      iterations = it,  
+      od_loglik_at_conv = NA))
   }
 
   if(CONVERGED)
@@ -655,14 +659,14 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
      p = new_p)
 
     return(list(coeff = data.frame(coeff = new_theta, se = NA),
-                outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
-                Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
-                vcov = NA,
-                converged = CONVERGED,
-                se_converged = NA,
-                converged_msg = CONVERGED_MSG,
-                iterations = it,
-                od_loglik_at_conv = od_loglik_theta))
+      outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
+      Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
+      vcov = NA,
+      converged = CONVERGED,
+      se_converged = NA,
+      converged_msg = CONVERGED_MSG,
+      iterations = it,
+      od_loglik_at_conv = od_loglik_theta))
   }
   else
   {
@@ -707,7 +711,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       Y_unval = Y_unval,
       Y = Y,
       X_unval = X_unval,
-       X,
+      X,
       Z = Z,
       Bspline = Bspline,
       comp_dat_all = comp_dat_all,
@@ -747,7 +751,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
         Y_unval = Y_unval,
         Y = Y,
         X_unval = X_unval,
-         X,
+        X,
         Z = Z,
         Bspline = Bspline,
         comp_dat_all = comp_dat_all,
@@ -801,14 +805,14 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     }
 
     return(list(coeff = data.frame(coeff = new_theta, se = se_theta),
-                outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
-                Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
-                vcov = cov_theta,
-                converged = CONVERGED,
-                se_converged = SE_CONVERGED,
-                converged_msg = CONVERGED_MSG,
-                iterations = it,
-                od_loglik_at_conv = od_loglik_theta))
+      outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
+      Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
+      vcov = cov_theta,
+      converged = CONVERGED,
+      se_converged = SE_CONVERGED,
+      converged_msg = CONVERGED_MSG,
+      iterations = it,
+      od_loglik_at_conv = od_loglik_theta))
   }
 }
 

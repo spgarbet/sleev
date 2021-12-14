@@ -25,6 +25,11 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
 #' 
+#' @references
+#' Tao, R., Mercaldo, N. D., Haneuse, S., Maronge, J. M., Rathouz, P. J., Heagerty, P. J., & Schildcrout, J. S. (2021). Two-wave two-phase outcome-dependent sampling designs, with applications to longitudinal binary data. *Statistics in Medicine, 40*(8), 1863–1876. https://doi.org/10.1002/sim.8876
+#' 
+#' @seealso [cv_linear2ph()] to calculate the average predicted log likelihood of this function.
+#' 
 #' @examples
 #'  rho = -.3
 #'  p = 0.3
@@ -85,7 +90,8 @@
 #'  res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
 #'    Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 #' @export
-linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
+linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, noSE=FALSE, TOL=1E-4, MAX_ITER=1000, verbose=FALSE) 
+{
 
 ### linear2ph
     ###############################################################################################################

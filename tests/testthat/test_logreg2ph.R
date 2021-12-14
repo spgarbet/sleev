@@ -1,7 +1,7 @@
 library(testthat)
 library(sleev)
 
-test_that("logreg2ph Simulation 1", {
+test_that("logistic2ph Simulation 1", {
 
 	set.seed(918)
 
@@ -70,7 +70,7 @@ test_that("logreg2ph Simulation 1", {
 	B[which(Xa == 1 & Xbstar == 1), 4] <- 1
 	colnames(B) <- paste0("bs", seq(1, nsieve))
 	sdat <- cbind(sdat, B)
-	smle <- logreg2ph(Y_unval = "Ystar",
+	smle <- logistic2ph(Y_unval = "Ystar",
 		Y = "Y",
 		X_unval = "Xbstar",
 		X = "Xb",
@@ -104,7 +104,7 @@ test_that("logreg2ph Simulation 1", {
 	expect_true(smle[["se_converged"]])
 })
 
-test_that("logreg2ph simulation 4", {
+test_that("logistic2ph simulation 4", {
 	skip_on_cran()
 	skip_if(SKIP_CRAN_TESTS)
 	
@@ -157,7 +157,7 @@ test_that("logreg2ph simulation 4", {
 	B[which(Xa == 1),(0.75 * nsieve + 1):nsieve] <- splines::bs(x = Xbstar[which(Xa == 1)], df = 0.25 * nsieve, Boundary.knots = range(Xbstar[which(Xa == 1)]), intercept = TRUE)
 	colnames(B) <- paste0("bs", seq(1, nsieve))
 	sdat <- cbind(sdat, B)
-	smle <- logreg2ph(Y_unval = "Ystar",
+	smle <- logistic2ph(Y_unval = "Ystar",
 	                  Y = "Y",
 	                  X_unval = "Xbstar",
 	                  X = "Xb",

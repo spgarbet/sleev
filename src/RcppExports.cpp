@@ -12,6 +12,25 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// TwoPhase_MLE0_MEXY_CV_loglik
+List TwoPhase_MLE0_MEXY_CV_loglik(const Eigen::Map<Eigen::VectorXd>& Y_tilde, const Eigen::Map<Eigen::MatrixXd>& X_tilde, const Eigen::Map<Eigen::VectorXd>& Y, const Eigen::Map<Eigen::MatrixXd>& X, const Eigen::Map<Eigen::MatrixXd>& Z, const Eigen::Map<Eigen::MatrixXd>& Bspline, const int& MAX_ITER, const double& TOL, const Eigen::Map<Eigen::VectorXd>& Train);
+RcppExport SEXP _sleev_TwoPhase_MLE0_MEXY_CV_loglik(SEXP Y_tildeSEXP, SEXP X_tildeSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP TrainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type Y_tilde(Y_tildeSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type X_tilde(X_tildeSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type Bspline(BsplineSEXP);
+    Rcpp::traits::input_parameter< const int& >::type MAX_ITER(MAX_ITERSEXP);
+    Rcpp::traits::input_parameter< const double& >::type TOL(TOLSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type Train(TrainSEXP);
+    rcpp_result_gen = Rcpp::wrap(TwoPhase_MLE0_MEXY_CV_loglik(Y_tilde, X_tilde, Y, X, Z, Bspline, MAX_ITER, TOL, Train));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lengthenWT
 arma::vec lengthenWT(const arma::vec& w_t_original, const int& n, const bool& modifyW_T);
 RcppExport SEXP _sleev_lengthenWT(SEXP w_t_originalSEXP, SEXP nSEXP, SEXP modifyW_TSEXP) {
@@ -109,6 +128,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_sleev_TwoPhase_MLE0_MEXY_CV_loglik", (DL_FUNC) &_sleev_TwoPhase_MLE0_MEXY_CV_loglik, 9},
     {"_sleev_lengthenWT", (DL_FUNC) &_sleev_lengthenWT, 3},
     {"_sleev_calculateMu", (DL_FUNC) &_sleev_calculateMu, 2},
     {"_sleev_calculateGradient", (DL_FUNC) &_sleev_calculateGradient, 6},
