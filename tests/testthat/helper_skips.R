@@ -21,6 +21,10 @@ SKIP_CRAN_TESTS <- TRUE
 # generate an instance of data from default values for linearMEXY
 generate_data <- function(basis = "cubic")
 {
+    if (!require(splines) || !require(MASS))
+    {
+        return(list(data=NULL, Bspline= NULL))
+    }
 	simX = rnorm(n)
     epsilon = rnorm(n)
     simY = alpha+beta*simX+epsilon

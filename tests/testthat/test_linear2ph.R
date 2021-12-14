@@ -39,6 +39,9 @@ test_that("MEXY loop", {
 	    data <- dat$data
 	    Bspline <- dat$Bspline
 
+	    # user is missing either splines or MASS package
+	    skip_if(data == NULL || Bspline == NULL)
+
 	    ### verify data
 	    expect_vector(data["Y"])
 	    expect_vector(data["X"])
@@ -95,6 +98,9 @@ test_that("single iteration cubic", {
     data <- dat$data
     Bspline <- dat$Bspline
 
+	# user is missing either splines or MASS package
+	skip_if(data == NULL || Bspline == NULL)
+
     ### verify data
     expect_false(is.null(data))
     expect_false(is.null(Bspline))
@@ -122,6 +128,9 @@ test_that("single iteration histogram", {
     dat <- generate_data("histogram")
     data <- dat$data
     Bspline <- dat$Bspline
+
+	# user is missing either splines or MASS package
+	skip_if(data == NULL || Bspline == NULL)
 
     ### verify data
     expect_false(is.null(data))
@@ -151,6 +160,9 @@ test_that("single iteration quadratic", {
     data <- dat$data
     Bspline <- dat$Bspline
 
+	# user is missing either splines or MASS package
+	skip_if(data == NULL || Bspline == NULL)
+
     ### verify data
     expect_false(is.null(data))
     expect_false(is.null(Bspline))
@@ -179,6 +191,9 @@ test_that("single iteration linear", {
     data <- dat$data
     Bspline <- dat$Bspline
 
+	# user is missing either splines or MASS package
+	skip_if(data == NULL || Bspline == NULL)
+
     ### verify data
     expect_false(is.null(data))
     expect_false(is.null(Bspline))
@@ -205,6 +220,9 @@ test_that("missing values", {
     dat <- generate_data()
     data <- dat$data
     Bspline <- dat$Bspline
+
+	# user is missing either splines or MASS package
+	skip_if(data == NULL || Bspline == NULL)
 
 
 	# missing data
@@ -236,6 +254,8 @@ test_that("verbose", {
     data <- dat$data
     Bspline <- dat$Bspline
 
+	# user is missing either splines or MASS package
+	skip_if(data == NULL || Bspline == NULL)
 
 	# expect printing message
     expect_message(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY", fixed=TRUE)
