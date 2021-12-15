@@ -18,7 +18,8 @@ logistic2ph(
   hn_scale = 1,
   noSE = FALSE,
   TOL = 1e-04,
-  MAX_ITER = 1000
+  MAX_ITER = 1000,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ logistic2ph(
 \item{TOL}{Tolerance between iterations in the EM algorithm used to define convergence.}
 
 \item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
+
+\item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
 \value{
 \item{coeff}{dataframe with final coefficient and standard error estimates (where applicable) for the analysis model.}
@@ -102,11 +105,11 @@ This function returns the sieve maximum likelihood estimators (SMLE) for the log
  sdat[!V, c("Y", "Xb")] <- NA
  
  # Fit models -----------------------------------------------
- ## (1) Naive model -----------------------------------------
+ ## Naive model -----------------------------------------
  naive <- glm(Ystar ~ Xbstar + Xa, family = "binomial", data = data.frame(sdat))
  
  
- ## (4) Generalized raking ----------------------------------
+ ## Generalized raking ----------------------------------
  ### Influence function for logistic regression
  ### Taken from: https://github.com/T0ngChen/multiwave/blob/master/sim.r
  inf.fun <- function(fit) {
@@ -144,5 +147,5 @@ This function returns the sieve maximum likelihood estimators (SMLE) for the log
    TOL = 1E-4)
 }
 \references{
-Lotspeich, SC, Shepherd, BE, Amorim, GC, Shaw, PA, Tao, R. Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. \emph{Biometrics}. 2021; 1– 12. https://doi.org/10.1111/biom.13512
+Lotspeich, S. C., Shepherd, B. E., Amorim, G. G. C., Shaw, P. A., & Tao, R. (2021). Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. \emph{Biometrics, biom.13512.} https://doi.org/10.1111/biom.13512
 }

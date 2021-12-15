@@ -54,6 +54,7 @@ double WaldLinearMEXYGeneralSplineProfile (MatrixXd pB, RowVectorXd p_col_sum,
 	
 	for (iter=0; iter<MAX_ITER; ++iter) 
 	{
+		Rcpp::checkUserInterrupt();
 		/* test code */
 		// auto loop = tic();
 		/* test code end */
@@ -357,6 +358,7 @@ List TwoPhase_MLE0_MEXY (
 	for (iter=0; iter<MAX_ITER; ++iter) 
 	{
 		// time(&t1);
+		Rcpp::checkUserInterrupt();
 		
 		/**** E-step *******************************************************************************************************************************/
 		

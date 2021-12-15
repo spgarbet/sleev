@@ -25,6 +25,11 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
 #' 
+#' @references
+#' Tao, R., Mercaldo, N. D., Haneuse, S., Maronge, J. M., Rathouz, P. J., Heagerty, P. J., & Schildcrout, J. S. (2021). Two-wave two-phase outcome-dependent sampling designs, with applications to longitudinal binary data. *Statistics in Medicine, 40*(8), 1863–1876. https://doi.org/10.1002/sim.8876
+#' 
+#' @seealso [cv_linear2ph()] to calculate the average predicted log likelihood of this function.
+#' 
 #' @examples
 #'  rho = -.3
 #'  p = 0.3
@@ -65,12 +70,14 @@
 #'  # # histogram basis
 #'  
 #'  # # linear basis
-#'  # Bspline = splines::bs(simX_tilde, df=nsieve, degree=1, Boundary.knots=range(simX_tilde), intercept=TRUE)
+#'  # Bspline = splines::bs(simX_tilde, df=nsieve, degree=1,
+#'  #   Boundary.knots=range(simX_tilde), intercept=TRUE)
 #'  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
 #'  # # linear basis
 #'  
 #'  # # quadratic basis
-#'  # Bspline = splines::bs(simX_tilde, df=nsieve, degree=2, Boundary.knots=range(simX_tilde), intercept=TRUE)
+#'  # Bspline = splines::bs(simX_tilde, df=nsieve, degree=2, 
+#'  #   Boundary.knots=range(simX_tilde), intercept=TRUE)
 #'  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
 #'  # # quadratic basis
 #'  
@@ -85,7 +92,8 @@
 #'  res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
 #'    Bspline=colnames(Bspline), data=data, hn_scale=0.1)
 #' @export
-linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, MAX_ITER=1000, TOL=1E-4, noSE=FALSE, verbose=FALSE) {
+linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspline=NULL, data=NULL, hn_scale=1, noSE=FALSE, TOL=1E-4, MAX_ITER=1000, verbose=FALSE) 
+{
 
 ### linear2ph
     ###############################################################################################################
@@ -138,8 +146,8 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
     }
 	
 	if (verbose) {
-    	print(paste("There are", nrow(data), "observations in the dataset."))
-    	print(paste(length(id_exclude), "observations are excluded due to missing Y_unval, X_unval, or Z."))
+    	message("There are ", nrow(data), " observations in the dataset.")
+    	message(length(id_exclude), " observations are excluded due to missing Y_unval, X_unval, or Z.")
 	}
 	if (length(id_exclude) > 0) {
 		data = data[-id_exclude,]
@@ -147,7 +155,7 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
     n = nrow(data)
 	if (verbose) {
-    	print(paste("There are", n, "observations in the analysis."))
+    	message("There are ", n, " observations in the analysis.")
 	}
 
     id_phase1 = which(is.na(data[,Y]))
@@ -155,7 +163,7 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
         id_phase1 = union(id_phase1, which(is.na(data[,var])))
     }
 	if (verbose) {
-		print(paste("There are", n-length(id_phase1), "observations validated in the second phase."))
+		message("There are ", n-length(id_phase1), " observations validated in the second phase.")
 	}
     #### check data ###############################################################################################
 	###############################################################################################################
@@ -216,7 +224,7 @@ linear2ph <- function (Y_unval=NULL, Y=NULL, X_unval=NULL, X=NULL, Z=NULL, Bspli
 	
 	if (verbose)
 	{
-		print("Calling C++ function TwoPhase_MLE0_MEXY")
+		message("Calling C++ function TwoPhase_MLE0_MEXY")
 	}
 
 	## Ensure every variable is the correct type
