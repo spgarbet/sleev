@@ -6,6 +6,25 @@
     .Call(`_sleev_TwoPhase_MLE0_MEXY_CV_loglik`, Y_tilde, X_tilde, Y, X, Z, Bspline, MAX_ITER, TOL, Train)
 }
 
+#' Two Phase MLE0 MEXY
+#' 
+#' TODO
+#' 
+#' @param Y_unval Unvalidated Y variables
+#' @param X_unval Unvalidated X variables
+#' @param Y Validated Y variables
+#' @param X Validated X variables
+#' @param Z True covariates
+#' @param Bspline Matrix of B splines
+#' @param hn Scaling of hn
+#' @param MAX_ITER Max iterations to perform when calculating convergence
+#' @param TOL Maximum difference between iteration that satisfies convergence requirements
+#' @param noSE Skips general spline profiling if converged
+#' @noRd
+.TwoPhase_MLE0_MEXY <- function(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
+    .Call(`_sleev_TwoPhase_MLE0_MEXY`, Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
+}
+
 #' Multiply matrix by vector
 #' 
 #' Multiplies each column of a matrix by a vector
@@ -96,24 +115,5 @@ NULL
 #' @noRd
 .pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma) {
     .Call(`_sleev_pYstarCalc`, gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
-}
-
-#' Two Phase MLE0 MEXY
-#' 
-#' TODO
-#' 
-#' @param Y_unval Unvalidated Y variables
-#' @param X_unval Unvalidated X variables
-#' @param Y Validated Y variables
-#' @param X Validated X variables
-#' @param Z True covariates
-#' @param Bspline Matrix of B splines
-#' @param hn Scaling of hn
-#' @param MAX_ITER Max iterations to perform when calculating convergence
-#' @param TOL Maximum difference between iteration that satisfies convergence requirements
-#' @param noSE Skips general spline profiling if converged
-#' @noRd
-.TwoPhase_MLE0_MEXY <- function(Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE) {
-    .Call(`_sleev_TwoPhase_MLE0_MEXY`, Y_unval, X_unval, Y, X, Z, Bspline, hn, MAX_ITER, TOL, noSE)
 }
 

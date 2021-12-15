@@ -2,7 +2,7 @@ library(testthat)
 library(sleev)
 
 
-test_that("check use_default_values", {
+test_that("check default values from helper_skips.R", {
 
 
 	expect_equal(rho , -.3)
@@ -40,7 +40,7 @@ test_that("MEXY loop", {
 	    Bspline <- dat$Bspline
 
 	    # user is missing either splines or MASS package
-	    skip_if(data == NULL || Bspline == NULL)
+	    skip_if(is.null(data) || is.null(Bspline))
 
 	    ### verify data
 	    expect_vector(data["Y"])
@@ -99,7 +99,7 @@ test_that("single iteration cubic", {
     Bspline <- dat$Bspline
 
 	# user is missing either splines or MASS package
-	skip_if(data == NULL || Bspline == NULL)
+	skip_if(is.null(data) || is.null(Bspline))
 
     ### verify data
     expect_false(is.null(data))
@@ -130,7 +130,7 @@ test_that("single iteration histogram", {
     Bspline <- dat$Bspline
 
 	# user is missing either splines or MASS package
-	skip_if(data == NULL || Bspline == NULL)
+	skip_if(is.null(data) || is.null(Bspline))
 
     ### verify data
     expect_false(is.null(data))
@@ -161,7 +161,7 @@ test_that("single iteration quadratic", {
     Bspline <- dat$Bspline
 
 	# user is missing either splines or MASS package
-	skip_if(data == NULL || Bspline == NULL)
+	skip_if(is.null(data) || is.null(Bspline))
 
     ### verify data
     expect_false(is.null(data))
@@ -192,7 +192,7 @@ test_that("single iteration linear", {
     Bspline <- dat$Bspline
 
 	# user is missing either splines or MASS package
-	skip_if(data == NULL || Bspline == NULL)
+	skip_if(is.null(data) || is.null(Bspline))
 
     ### verify data
     expect_false(is.null(data))
@@ -222,7 +222,7 @@ test_that("missing values", {
     Bspline <- dat$Bspline
 
 	# user is missing either splines or MASS package
-	skip_if(data == NULL || Bspline == NULL)
+	skip_if(is.null(data) || is.null(Bspline))
 
 
 	# missing data
@@ -255,7 +255,7 @@ test_that("verbose", {
     Bspline <- dat$Bspline
 
 	# user is missing either splines or MASS package
-	skip_if(data == NULL || Bspline == NULL)
+	skip_if(is.null(data) || is.null(Bspline))
 
 	# expect printing message
     expect_message(linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, hn_scale=0.1, verbose=TRUE),"Calling C++ function TwoPhase_MLE0_MEXY", fixed=TRUE)
