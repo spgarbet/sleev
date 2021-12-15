@@ -319,6 +319,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   ## theta, gamma ---------------------------------------------------
   if(!(initial_lr_params %in% c("Zeros", "Complete-data")))
   {
+    warning("'initial_lr_params' must be \"Zeros\" or \"Complete-data\" - using \"Zeros\"")
     if (verbose)
     {
       message("Invalid starting values provided. Non-informative zeros assumed.")
@@ -335,15 +336,16 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       prev_gamma <- gamma0 <- matrix(0, nrow = ncol(gamma_design_mat), ncol = 1)
     }
 
-    } else if(initial_lr_params == "Complete-data")
+  }  
+  else if(initial_lr_params == "Complete-data")
+  {
+    prev_theta <- theta0 <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficients, ncol = 1)
+    if (errorsY)
     {
-      prev_theta <- theta0 <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficients, ncol = 1)
-      if (errorsY)
-      {
-        prev_gamma <- gamma0 <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficient, ncol = 1)
-      }
-
+      prev_gamma <- gamma0 <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficient, ncol = 1)
     }
+
+  }
 
 
     CONVERGED <- FALSE
@@ -384,7 +386,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ### -------------------------------------------------- P(Y*|X*,Y,X)
     ###################################################################
     ### P(X|X*) -------------------------------------------------------
-    # cpppX <- pXCalc(comp_dat_unval, errorsX, errorsY, prev_p, rep(seq(1, m), each = (N - n))-1, match(Bspline, colnames(comp_dat_unval))-1, seq(1, nrow(comp_dat_unval))-1)
     if (errorsX & errorsY)
     {
       ### p_kj ------------------------------------------------------
@@ -403,15 +404,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     } #else if (errorsY) {
       #pX <- rep(1, times = nrow(comp_dat_unval))
     #}
-
-    # tic("cond exp cpp")
-    # condExp <- conditionalExpectations(errorsX, errorsY, pX, pY_X, pYstar, N-n, m)
-    # CPPw_t <- condExp[["w_t"]]
-    # CPPu_t <- condExp[["u_t"]]
-    # CPPpsi_t <- condExp[["psi_t"]]
-    # toc()
-
-    # R is faster than cpp
 
     ### ------------------------------------------------------- P(X|X*)
     ###################################################################
@@ -436,7 +428,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       ### by summing over Y = 0/1 w/i each i, k ----------------------
       ### add top half of psi_t (y = 0) to bottom half (y = 1) -------
       u_t <- psi_t[c(1:(m * (N - n))), ] + psi_t[- c(1:(m * (N - n))), ]
-      } else if (errorsX)
+      } 
+      else if (errorsX)
       {
       ### P(Y|X,Z)p_kjB(X*) -------------------------------------------
       psi_num <- c(pY_X) * pX
@@ -452,7 +445,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       ### Update the w_kyi for unvalidated subjects -------------------
       ### by summing across the splines/ columns of psi_t -------------
       w_t <- rowSums(psi_t)
-      } else if (errorsY)
+      } 
+      else if (errorsY)
       {
       ### P(Y|X,Z)P(Y*|Y,X,Z) -----------------------------------------
       #### Sum up all rows per id (e.g. sum over y) -------------------
@@ -465,11 +459,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       ### Update the w_kyi for unvalidated subjects -------------------
       w_t <- psi_t
     }
-    # if (max(c(abs(CPPu_t - u_t), abs(CPPw_t - w_t), abs(CPPpsi_t - psi_t))) > 1e-10)
-    # {
-    #   warning("cpp and R are significantly different!")
-    #   browser()
-    # }
+
     ### ----------------------------- Estimate conditional expectations
     # ---------------------------------------------------------- E Step
     ###################################################################
@@ -487,23 +477,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     hessian_theta <- .calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
 
 
-    # tic("m-step R")
-    # mu <- theta_design_mat %*% prev_theta
-    # w_t <- c(rep(1, n), w_t)
-    # gradient_theta_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, Y] - 1 + exp(-mu) / (1 + exp(- mu)))) * theta_design_mat)), ncol = 1)
-    # toc()
-    #
-    #
     # ### ------------------------------------------------------ Gradient
     # ### Hessian -------------------------------------------------------
-    # post_multiply <- c((muVector) * (muVector - 1)) * w_t * theta_design_mat
-    # hessian_theta_R <- apply(theta_design_mat, MARGIN = 2, FUN = hessian_row, pm = post_multiply)
-    #
-    # if (max(abs(hessian_theta - hessian_theta_R)) > 1e-10)
-    # {
-    #   warning("cpp and R are significantly different!")
-    #   browser()
-    # }
+
     new_theta <- tryCatch(expr = prev_theta - (solve(hessian_theta) %*% gradient_theta),
       error = function(err)
       {
@@ -522,31 +498,21 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ###################################################################
     if (errorsY)
     {
-      # w_t is already the proper size
+      # w_t is already the proper size, no need to run .lengthenWT again
 
       ## Update gamma using weighted logistic regression ----------------
       muVector <- .calculateMu(gamma_design_mat, prev_gamma)
       gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
       hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
 
-      # mu <- gamma_design_mat %*% prev_gamma
-      # gradient_gamma_R <- matrix(data = c(colSums(w_t * c((comp_dat_all[, c(Y_unval)] - 1 + exp(- mu) / (1 + exp(- mu)))) * gamma_design_mat)), ncol = 1)
-
-      # if (max(abs(gradient_gamma - gradient_gamma_R)) > 1e-10)
-      # {
-      #   warning("cpp and R are significantly different! gamma")
-      #   browser()
-      # }
 
       # ### ------------------------------------------------------ Gradient
       # ### Hessian -------------------------------------------------------
-      # post_multiply <- c(w_t * muVector * (muVector - 1)) * gamma_design_mat
-      # hessian_gamma <- apply(gamma_design_mat, MARGIN = 2, FUN = hessian_row, pm = post_multiply)
       new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
         error = function(err)
         {
           matrix(NA, nrow = nrow(prev_gamma))
-          })
+        })
       if (any(is.na(new_gamma)))
       {
         suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
@@ -778,7 +744,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       }
 
       I_theta <- I_theta + dpt
-      # print(I_theta)
     }
 
     I_theta <- h_N ^ (- 2) * I_theta
@@ -800,7 +765,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       warning = function(w)
       {
         matrix(NA, nrow = nrow(prev_theta))
-        })
+      })
     if (any(is.na(se_theta)))
     {
       SE_CONVERGED <- FALSE
