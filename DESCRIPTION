@@ -1,19 +1,18 @@
 Package: sleev
 Type: Package
 Title: Semiparametric Likelihood Estimation with Errors in Variables
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: c(person(given = "Sarah", family = "Lotspeich", role = c("aut"), email = "sarah.c.lotspeich@vanderbilt.edu"),
     person(given = "Ran", family = "Tao", role=c("aut","cre"), email = "r.tao@vanderbilt.edu"),
     person(given = "Joey", family = "Sherrill", role = "prg"))
 Description: Efficient regression analysis under general two-phase sampling, where Phase I includes error-prone data and Phase II contains validated data on a subset.
 License: GPL (>= 2)
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Depends: R (>= 3.0.0)
+Depends: Rcpp (>= 1.0.7), R (>= 3.0.0)
 LinkingTo:
-    Rcpp (>= 1.0.7),
+    Rcpp,
     RcppArmadillo,
     RcppEigen
 Suggests: 
