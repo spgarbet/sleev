@@ -60,8 +60,8 @@ Performs efficient semiparametric estimation for general two-phase measurement e
  hn_scale = 1
  nsieve = 20
 
- n = 1000
- n2 = 400
+ n = 100
+ n2 = 40
  alpha = 0.3
  beta = 0.4
  set.seed(12345)

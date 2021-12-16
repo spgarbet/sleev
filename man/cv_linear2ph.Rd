@@ -75,7 +75,7 @@ Performs cross-validation to calculate the average predicted log likelihood for 
   simX[-id_phase2] = NA
    
   # cubic basis
-  nsieves = c(5, 10, 15, 20, 25, 30, 40, 50, 80)
+  nsieves = c(5, 10)
   pred_loglike = rep(NA, length(nsieves))
   for (i in 1:length(nsieves)) {
       nsieve = nsieves[i]
