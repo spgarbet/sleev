@@ -79,14 +79,16 @@ Performs cross-validation to calculate the average predicted log likelihood for 
   pred_loglike = rep(NA, length(nsieves))
   for (i in 1:length(nsieves)) {
       nsieve = nsieves[i]
-      Bspline = splines::bs(simX_tilde, df=nsieve, degree=3, Boundary.knots=range(simX_tilde), intercept=TRUE)
+      Bspline = splines::bs(simX_tilde, df=nsieve, degree=3, 
+        Boundary.knots=range(simX_tilde), intercept=TRUE)
       colnames(Bspline) = paste("bs", 1:nsieve, sep="")
       # cubic basis
      
       data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
       ### generate data
      
-      res = cv_linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", Bspline=colnames(Bspline), data=data, nfolds = 5)
+      res = cv_linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde", 
+        Bspline=colnames(Bspline), data=data, nfolds = 5)
       pred_loglike[i] = res$avg_pred_loglik
     }
    
