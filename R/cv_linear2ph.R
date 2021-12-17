@@ -12,8 +12,8 @@
 #' @param TOL Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
 #' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
 #' @return
-#' \item{avg_pred_loglike}{Stores the averge predicted log likelihood.}
-#' \item{pred_loglike}{Stores the predicted log likelihoood in each fold.}
+#' \item{avg_pred_loglike}{Stores the average predicted log likelihood.}
+#' \item{pred_loglike}{Stores the predicted log likelihood in each fold.}
 #' \item{converge}{Stores the convergence status of the EM algorithm in each run.}
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq

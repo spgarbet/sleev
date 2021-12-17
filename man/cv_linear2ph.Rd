@@ -42,8 +42,8 @@ cv_linear2ph(
 \item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
 \value{
-\item{avg_pred_loglike}{Stores the averge predicted log likelihood.}
-\item{pred_loglike}{Stores the predicted log likelihoood in each fold.}
+\item{avg_pred_loglike}{Stores the average predicted log likelihood.}
+\item{pred_loglike}{Stores the predicted log likelihood in each fold.}
 \item{converge}{Stores the convergence status of the EM algorithm in each run.}
 }
 \description{
