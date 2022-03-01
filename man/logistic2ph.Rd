@@ -14,7 +14,6 @@ logistic2ph(
   data = NULL,
   theta_pred = NULL,
   gamma_pred = NULL,
-  initial_lr_params = "Zeros",
   hn_scale = 1,
   noSE = FALSE,
   TOL = 1e-04,
@@ -40,8 +39,6 @@ logistic2ph(
 \item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
 
 \item{gamma_pred}{Vector of columns in \code{data} that pertain to the predictors in the outcome error model.}
-
-\item{initial_lr_params}{Initial values for parametric model parameters. Choices include (1) \code{"Zeros"} (non-informative starting values) or (2) \code{"Complete-data"} (estimated based on validated subjects only)}
 
 \item{hn_scale}{Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is \code{hn_scale = 1}.}
 
