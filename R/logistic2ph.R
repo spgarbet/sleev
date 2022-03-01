@@ -363,7 +363,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
     return(list(coeff = data.frame(coeff = new_theta, se = NA),
       outcome_err_coeff = data.frame(coeff = new_gamma),
-      Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
+      Bspline_coeff = cbind(k = 1:nrow(new_p), new_p),
       vcov = NA,
       converged = CONVERGED,
       se_converged = NA,
@@ -484,7 +484,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
     return(list(coeff = data.frame(coeff = new_theta, se = se_theta),
       outcome_err_coeff = data.frame(coeff = new_gamma),
-      Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
+      Bspline_coeff = cbind(k = 1:nrow(new_p), new_p),
       vcov = cov_theta,
       converged = CONVERGED,
       se_converged = SE_CONVERGED,
