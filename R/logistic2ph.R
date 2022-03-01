@@ -304,8 +304,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   theta_formula <- as.formula(paste0(Y, "~", paste(theta_pred, collapse = "+")))
   theta_design_mat <- cbind(int = 1, comp_dat_all[, theta_pred])
 
-  if (errorsY)
-  {
+  if (errorsY) {
     gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
     gamma_design_mat <- cbind(int = 1, comp_dat_all[, gamma_pred])
   }
@@ -313,51 +312,39 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # Initialize parameter values -------------------------------------
   ## theta, gamma ---------------------------------------------------
-  if(!(initial_lr_params %in% c("Zeros", "Complete-data")))
-  {
+  if(!(initial_lr_params %in% c("Zeros", "Complete-data"))) {
     warning("'initial_lr_params' must be \"Zeros\" or \"Complete-data\" - using \"Zeros\"")
-    if (verbose)
-    {
+    if (verbose) {
       message("Invalid starting values provided. Non-informative zeros assumed.")
     }
     initial_lr_params <- "Zeros"
   }
 
 
-  if(initial_lr_params == "Zeros")
-  {
+  if(initial_lr_params == "Zeros") {
     prev_theta <- theta0 <- matrix(0, nrow = ncol(theta_design_mat), ncol = 1)
-    if (errorsY)
-    {
+    if (errorsY) {
       prev_gamma <- gamma0 <- matrix(0, nrow = ncol(gamma_design_mat), ncol = 1)
     }
-
-  }  
-  else if(initial_lr_params == "Complete-data")
-  {
+  } else if(initial_lr_params == "Complete-data") {
     prev_theta <- theta0 <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficients, ncol = 1)
-    if (errorsY)
-    {
+    if (errorsY) {
       prev_gamma <- gamma0 <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficient, ncol = 1)
     }
-
   }
 
-
-    CONVERGED <- FALSE
-    CONVERGED_MSG <- "Unknown"
-    it <- 1
+  CONVERGED <- FALSE
+  CONVERGED_MSG <- "Unknown"
+  it <- 1
 
   # pre-allocate memory for loop variables
   mus_theta <- vector("numeric", nrow(theta_design_mat) * ncol(prev_theta))
-  if (errorsY)
-  {
+  if (errorsY) {
     mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
   }
 
   # Estimate theta using EM -------------------------------------------
-  while(it <= MAX_ITER & !CONVERGED)
-  {
+  while(it <= MAX_ITER & !CONVERGED) {
     # E Step ----------------------------------------------------------
     ## Update the psi_kyji for unvalidated subjects -------------------
     ### P(Y|X) --------------------------------------------------------
@@ -369,12 +356,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ### -------------------------------------------------------- P(Y|X)
     ###################################################################
     ### P(Y*|X*,Y,X) --------------------------------------------------
-    if (errorsY)
-    {
+    if (errorsY) {
       pYstar <- 1 / (1 + exp(- as.numeric((gamma_design_mat[-c(1:n), ] %*% prev_gamma))))
       I_ystar0 <- comp_dat_unval[, Y_unval] == 0
       pYstar[I_ystar0] <- 1 - pYstar[I_ystar0]
-
     } #else {
       #pYstar <- matrix(1, nrow = nrow(comp_dat_unval))
     #}
@@ -382,16 +367,13 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ### -------------------------------------------------- P(Y*|X*,Y,X)
     ###################################################################
     ### P(X|X*) -------------------------------------------------------
-    if (errorsX & errorsY)
-    {
+    if (errorsX & errorsY) {
       ### p_kj ------------------------------------------------------
       ### need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
       ### multiply by the B-spline terms
       pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_unval[, Bspline]
       ### ---------------------------------------------------------- p_kj
-    }
-    else if (errorsX)
-    {
+    } else if (errorsX) {
       ### p_kj ----------------------------------------------------------
       ### need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
       ### multiply by the B-spline terms
@@ -404,8 +386,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ### ------------------------------------------------------- P(X|X*)
     ###################################################################
     ### Estimate conditional expectations -----------------------------
-    if (errorsY & errorsX)
-    {
+    if (errorsY & errorsX) {
       ### P(Y|X,Z)P(Y*|X*,Y,X,Z)p_kjB(X*) -----------------------------
       psi_num <- c(pY_X * pYstar) * pX
       ### Update denominator ------------------------------------------
@@ -424,9 +405,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       ### by summing over Y = 0/1 w/i each i, k ----------------------
       ### add top half of psi_t (y = 0) to bottom half (y = 1) -------
       u_t <- psi_t[c(1:(m * (N - n))), ] + psi_t[- c(1:(m * (N - n))), ]
-      } 
-      else if (errorsX)
-      {
+      } else if (errorsX) {
       ### P(Y|X,Z)p_kjB(X*) -------------------------------------------
       psi_num <- c(pY_X) * pX
       ### Update denominator ------------------------------------------
@@ -477,12 +456,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     # ### Hessian -------------------------------------------------------
 
     new_theta <- tryCatch(expr = prev_theta - (solve(hessian_theta) %*% gradient_theta),
-      error = function(err)
-      {
+      error = function(err) {
         matrix(NA, nrow = nrow(prev_theta))
         })
-    if (any(is.na(new_theta)))
-    {
+    if (any(is.na(new_theta))) {
       suppressWarnings(new_theta <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
       # browser()
     }
@@ -501,48 +478,38 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
       hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
 
-
       # ### ------------------------------------------------------ Gradient
       # ### Hessian -------------------------------------------------------
       new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
-        error = function(err)
-        {
+        error = function(err) {
           matrix(NA, nrow = nrow(prev_gamma))
         })
-      if (any(is.na(new_gamma)))
-      {
+      if (any(is.na(new_gamma))) {
         suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
       }
 
       # Check for convergence -----------------------------------------
       gamma_conv <- abs(new_gamma - prev_gamma) < TOL
       ## ---------------- Update gamma using weighted logistic regression
-    }
-    else
-    { gamma_conv <- TRUE }
+    } else { gamma_conv <- TRUE }
 
     ###################################################################
     ## Update {p_kj} --------------------------------------------------
-    if (errorsX & errorsY)
-    {
+    if (errorsX & errorsY) {
       ### Update numerators by summing u_t over i = 1, ..., N ---------
       new_p_num <- p_val_num +
       rowsum(u_t, group = rep(seq(1, m), each = (N - n)), reorder = TRUE)
       new_p <- t(t(new_p_num) / colSums(new_p_num))
       ### Check for convergence ---------------------------------------
       p_conv <- abs(new_p - prev_p) < TOL
-    }
-    else if (errorsX)
-    {
+    } else if (errorsX) {
       ### Update numerators by summing u_t over i = 1, ..., N ---------
       new_p_num <- p_val_num +
       rowsum(psi_t, group = rep(seq(1, m), each = (N - n)), reorder = TRUE)
       new_p <- t(t(new_p_num) / colSums(new_p_num))
       ### Check for convergence ---------------------------------------
       p_conv <- abs(new_p - prev_p) < TOL
-    }
-    else
-    { p_conv <- TRUE }
+    } else { p_conv <- TRUE }
 
     ## -------------------------------------------------- Update {p_kj}
 
@@ -551,37 +518,28 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ###################################################################
 
     all_conv <- c(theta_conv, gamma_conv, p_conv)
-    if (mean(all_conv) == 1)
-    { CONVERGED <- TRUE }
+    if (mean(all_conv) == 1) { CONVERGED <- TRUE }
 
 
     # Update values for next iteration  -------------------------------
     it <- it + 1
     prev_theta <- new_theta
-    if (errorsY)
-    { prev_gamma <- new_gamma }
+    if (errorsY) { prev_gamma <- new_gamma }
 
-    if (errorsX)
-    { prev_p <- new_p }
+    if (errorsX) { prev_p <- new_p }
 
     #  ------------------------------- Update values for next iteration
   }
 
 
   rownames(new_theta) <- c("Intercept", theta_pred)
-  if (errorsY)
-  {
-    rownames(new_gamma) <- c("Intercept", gamma_pred)
-  }
+  if (errorsY) { rownames(new_gamma) <- c("Intercept", gamma_pred) }
 
 
-  if(!CONVERGED)
-  {
-    if(it > MAX_ITER)
-    {
+  if(!CONVERGED) {
+    if(it > MAX_ITER) {
       CONVERGED_MSG = "MAX_ITER reached"
     }
-
 
     return(list(coeff = data.frame(coeff = NA, se = NA),  
       outcome_err_coeff = data.frame(coeff = NA, se = NA),  
@@ -594,19 +552,15 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       od_loglik_at_conv = NA))
   }
 
-  if(CONVERGED)
-  { CONVERGED_MSG <- "Converged" }
+  if(CONVERGED) { CONVERGED_MSG <- "Converged" }
 
   # ---------------------------------------------- Estimate theta using EM
-  if(noSE)
-  {
-    if (!errorsX)
-    {
+  if(noSE) {
+    if (!errorsX) {
       new_p <- p_val_num <- matrix(NA, nrow = 1, ncol = 1)
     }
 
-    if (!errorsY)
-    {
+    if (!errorsY) {
       new_gamma <- NA
     }
 
@@ -627,7 +581,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
      p = new_p)
 
     return(list(coeff = data.frame(coeff = new_theta, se = NA),
-      outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
+      outcome_err_coeff = data.frame(coeff = new_gamma),
       Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
       vcov = NA,
       converged = CONVERGED,
@@ -635,19 +589,15 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       converged_msg = CONVERGED_MSG,
       iterations = it,
       od_loglik_at_conv = od_loglik_theta))
-  }
-  else
-  {
+  } else {
     # Estimate Cov(theta) using profile likelihood -------------------------
     h_N <- hn_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
 
-    if (!errorsX)
-    {
+    if (!errorsX) {
       new_p <- p_val_num <- matrix(NA, nrow = 1, ncol = 1)
     }
 
-    if (!errorsY)
-    {
+    if (!errorsY) {
       new_gamma <- NA
     }
 
@@ -691,13 +641,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       TOL = TOL,
       MAX_ITER = MAX_ITER)
 
-    if (any(is.na(single_pert_theta)))
-    {
+    if (any(is.na(single_pert_theta))) {
       I_theta <- matrix(NA, nrow = nrow(new_theta), ncol = nrow(new_theta))
       SE_CONVERGED <- FALSE
-    }
-    else
-    {
+    } else {
       spt_wide <- matrix(rep(c(single_pert_theta), times = ncol(I_theta)),
        ncol = ncol(I_theta),
        byrow = FALSE)
@@ -706,8 +653,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       SE_CONVERGED <- TRUE
     }
 
-    for (c in 1:ncol(I_theta))
-    {
+    for (c in 1:ncol(I_theta)) {
       pert_theta <- new_theta
       pert_theta[c] <- pert_theta[c] + h_N
       double_pert_theta <- sapply(X = seq(c, ncol(I_theta)),
@@ -733,8 +679,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
       dpt <- matrix(0, nrow = nrow(I_theta), ncol = ncol(I_theta))
       dpt[c,c] <- double_pert_theta[1] #Put double on the diagonal
-      if(c < ncol(I_theta))
-      {
+      if(c < ncol(I_theta)) {
         ## And fill the others in on the cth row/ column
         dpt[c, -(1:c)] <- dpt[-(1:c), c] <- double_pert_theta[-1]
       }
@@ -745,11 +690,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     I_theta <- h_N ^ (- 2) * I_theta
 
     cov_theta <- tryCatch(expr = - solve(I_theta),
-      error = function(err)
-      {
-        matrix(NA, nrow = nrow(I_theta), ncol = ncol(I_theta))
-      }
-
+      error = function(err) { matrix(NA, nrow = nrow(I_theta), ncol = ncol(I_theta)) }
       )
     # ------------------------- Estimate Cov(theta) using profile likelihood
     # if(any(diag(cov_theta) < 0)) {
@@ -758,26 +699,19 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     # }
 
     se_theta <- tryCatch(expr = sqrt(diag(cov_theta)),
-      warning = function(w)
-      {
-        matrix(NA, nrow = nrow(prev_theta))
-      })
-    if (any(is.na(se_theta)))
-    {
+      warning = function(w) { matrix(NA, nrow = nrow(prev_theta)) })
+    if (any(is.na(se_theta))) {
       SE_CONVERGED <- FALSE
-    }
-    else
-    {
+    } else {
       TRUE
     }
 
-    if (verbose)
-    {
+    if (verbose) {
       message(CONVERGED_MSG)
     }
 
     return(list(coeff = data.frame(coeff = new_theta, se = se_theta),
-      outcome_err_coeff = data.frame(coeff = new_gamma, se = NA),
+      outcome_err_coeff = data.frame(coeff = new_gamma),
       Bspline_coeff = cbind(k = comp_dat_val[, "k"], new_p),
       vcov = cov_theta,
       converged = CONVERGED,
