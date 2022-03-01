@@ -11,7 +11,6 @@
 #' @param data A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, and \code{Bspline}.
 #' @param theta_pred Vector of columns in \code{data} that pertain to the predictors in the analysis model.
 #' @param gamma_pred Vector of columns in \code{data} that pertain to the predictors in the outcome error model.
-#' @param initial_lr_params Initial values for parametric model parameters. Choices include (1) \code{"Zeros"} (non-informative starting values) or (2) \code{"Complete-data"} (estimated based on validated subjects only)
 #' @param hn_scale Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is `hn_scale = 1`.
 #' @param noSE Indicator for whether standard errors are desired. Defaults to \code{noSE = FALSE}.
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
@@ -115,30 +114,24 @@
 #'    TOL = 1E-4)
 #' @export
 
-logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL,initial_lr_params = "Zeros", hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000, verbose = FALSE)
-{
-  if (missing(data)) 
-  {
+logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL, data = NULL, theta_pred = NULL, gamma_pred = NULL, hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000, verbose = FALSE) {
+  if (missing(data)) {
     stop("No dataset is provided!")
   }
 
-  if (missing(Bspline)) 
-  {
+  if (missing(Bspline)) {
     stop("The B-spline basis is not specified!")
   } 
 
-  if (missing(Y)) 
-  {
+  if (missing(Y)) {
     stop("The accurately measured response Y is not specified!")
   }
   
-  if (xor(missing(X), missing(X_unval)))
-  {
+  if (xor(missing(X), missing(X_unval))) {
     stop("If X_unval and X are NULL, all predictors are assumed to be error-free. You must define both variables or neither!")
   }
   
-  if (length(data[,X_unval]) != length(data[,X])) 
-  {
+  if (length(data[,X_unval]) != length(data[,X])) {
     stop("The number of columns in X_unval and X is different!")
   }
 
@@ -146,8 +139,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # Calculate the validated subjects
   Validated <- logical(N) # initialize a logical vector of length N
-  for (i in 1:N)
-  {
+  for (i in 1:N) {
     Validated[i] <- !(is.na(data[i,X]) || is.na(data[i,Y]))
   }
   
@@ -160,25 +152,20 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   # Determine error setting -----------------------------------------
   ## If unvalidated variable was left blank, assume error-free ------
   errorsY <- errorsX <- TRUE
-  if (is.null(Y_unval))
-  {errorsY <- FALSE}
-
-  if (is.null(X_unval) & is.null(X))
-  {errorsX <- FALSE}
+  if (is.null(Y_unval)){errorsY <- FALSE}
+  if (is.null(X_unval) & is.null(X)){errorsX <- FALSE}
 
   ## ------ If unvalidated variable was left blank, assume error-free
   # ----------------------------------------- Determine error setting
 
   # Add the B spline basis ------------------------------------------
-  if (errorsX)
-  {
+  if (errorsX) {
     sn <- ncol(data[, Bspline])
-    if(0 %in% colSums(data[c(1:n), Bspline]))
-    {
+    if(0 %in% colSums(data[c(1:n), Bspline])) {
       warning("Empty sieve in validated data. Reconstruct B-spline basis and try again.", call. = FALSE)
 
       return(list(coeff = data.frame(coeff = NA, se = NA),
-        outcome_err_coeff = data.frame(coeff = NA, se = NA),
+        outcome_err_coeff = data.frame(coeff = NA),
         Bspline_coeff = NA,
         vcov = NA,
         converged = NA,
@@ -187,34 +174,27 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
         iterations = 0,
         od_loglik_at_conv = NA))
     }
-
   }
 
   # ------------------------------------------ Add the B spline basis
 
-  if (is.null(theta_pred))
-  {
+  if (is.null(theta_pred)) {
     theta_pred <- c(X, Z)
-    if (verbose)
-    {
+    if (verbose) {
       message("Analysis model assumed main effects only.")
     }
   }
 
-  if (is.null(gamma_pred) & errorsY)
-  {
+  if (is.null(gamma_pred) & errorsY) {
     gamma_pred <- c(X_unval, Y, X, Z)
-    if (verbose)
-    {
+    if (verbose) {
       message("Outcome error model assumed main effects only.")
     }
   }
 
-
   pred <- unique(c(theta_pred, gamma_pred))
 
-  if (errorsX & errorsY)
-  {
+  if (errorsX & errorsY) {
     # Save distinct X -------------------------------------------------
     x_obs <- data.frame(unique(data[1:n, c(X)]))
     x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
@@ -248,8 +228,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## (contributions don't change) -----------------------
     p_val_num <- rowsum(x = comp_dat_val[, Bspline], group = comp_dat_val[, "k"], reorder = TRUE)
     prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
-  } else if (errorsX)
-  {
+  } else if (errorsX) {
     # Save distinct X -------------------------------------------------
     x_obs <- data.frame(unique(data[1:n, c(X)]))
     x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
@@ -282,8 +261,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## (contributions don't change) -----------------------
     p_val_num <- rowsum(x = comp_dat_val[, Bspline], group = comp_dat_val[, "k"], reorder = TRUE)
     prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
-  } else if (errorsY)
-  {
+  } else if (errorsY) {
     # Save static (Y*,X,Y,Z) since they don't change ------------------
     comp_dat_val <- data.matrix(data[c(1:n), c(Y_unval, pred)])
 
@@ -312,27 +290,11 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # Initialize parameter values -------------------------------------
   ## theta, gamma ---------------------------------------------------
-  if(!(initial_lr_params %in% c("Zeros", "Complete-data"))) {
-    warning("'initial_lr_params' must be \"Zeros\" or \"Complete-data\" - using \"Zeros\"")
-    if (verbose) {
-      message("Invalid starting values provided. Non-informative zeros assumed.")
-    }
-    initial_lr_params <- "Zeros"
+  prev_theta <- theta0 <- matrix(0, nrow = ncol(theta_design_mat), ncol = 1)
+  if (errorsY) {
+    prev_gamma <- gamma0 <- matrix(0, nrow = ncol(gamma_design_mat), ncol = 1)
   }
-
-
-  if(initial_lr_params == "Zeros") {
-    prev_theta <- theta0 <- matrix(0, nrow = ncol(theta_design_mat), ncol = 1)
-    if (errorsY) {
-      prev_gamma <- gamma0 <- matrix(0, nrow = ncol(gamma_design_mat), ncol = 1)
-    }
-  } else if(initial_lr_params == "Complete-data") {
-    prev_theta <- theta0 <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficients, ncol = 1)
-    if (errorsY) {
-      prev_gamma <- gamma0 <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(data[c(1:n), ]))$coefficient, ncol = 1)
-    }
-  }
-
+  
   CONVERGED <- FALSE
   CONVERGED_MSG <- "Unknown"
   it <- 1
@@ -531,10 +493,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     #  ------------------------------- Update values for next iteration
   }
 
-
   rownames(new_theta) <- c("Intercept", theta_pred)
   if (errorsY) { rownames(new_gamma) <- c("Intercept", gamma_pred) }
-
 
   if(!CONVERGED) {
     if(it > MAX_ITER) {
@@ -542,7 +502,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     }
 
     return(list(coeff = data.frame(coeff = NA, se = NA),  
-      outcome_err_coeff = data.frame(coeff = NA, se = NA),  
+      outcome_err_coeff = data.frame(coeff = NA),  
       Bspline_coeff = NA, 
       vcov = NA,  
       converged = FALSE,  
