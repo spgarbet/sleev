@@ -360,9 +360,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       ### Update the w_kyi for unvalidated subjects -------------------
       ### by summing across the splines/ columns of psi_t -------------
       w_t <- rowSums(psi_t)
-      } 
-      else if (errorsY)
-      {
+      } else if (errorsY) {
       ### P(Y|X,Z)P(Y*|Y,X,Z) -----------------------------------------
       #### Sum up all rows per id (e.g. sum over y) -------------------
       psi_num <- matrix(c(pY_X * pYstar), ncol = 1)
@@ -391,7 +389,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     gradient_theta <- .calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, Y], muVector)
     hessian_theta <- .calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
 
-
     # ### ------------------------------------------------------ Gradient
     # ### Hessian -------------------------------------------------------
 
@@ -409,8 +406,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
     ## --------------------------------------------------- Update theta
     ###################################################################
-    if (errorsY)
-    {
+    if (errorsY) {
       # w_t is already the proper size, no need to run .lengthenWT again
 
       ## Update gamma using weighted logistic regression ----------------
