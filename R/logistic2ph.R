@@ -201,7 +201,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     }
   }
 
-
   if (is.null(gamma_pred) & errorsY)
   {
     gamma_pred <- c(X_unval, Y, X, Z)
@@ -249,8 +248,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## (contributions don't change) -----------------------
     p_val_num <- rowsum(x = comp_dat_val[, Bspline], group = comp_dat_val[, "k"], reorder = TRUE)
     prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
-  }
-  else if (errorsX)
+  } else if (errorsX)
   {
     # Save distinct X -------------------------------------------------
     x_obs <- data.frame(unique(data[1:n, c(X)]))
@@ -284,8 +282,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## (contributions don't change) -----------------------
     p_val_num <- rowsum(x = comp_dat_val[, Bspline], group = comp_dat_val[, "k"], reorder = TRUE)
     prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
-  }
-  else if (errorsY)
+  } else if (errorsY)
   {
     # Save static (Y*,X,Y,Z) since they don't change ------------------
     comp_dat_val <- data.matrix(data[c(1:n), c(Y_unval, pred)])
@@ -303,7 +300,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## 2 * (N - n) for the (N - n) subjects from Phase I (2 each) -----
     comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
   }
-
 
   theta_formula <- as.formula(paste0(Y, "~", paste(theta_pred, collapse = "+")))
   theta_design_mat <- cbind(int = 1, comp_dat_all[, theta_pred])
