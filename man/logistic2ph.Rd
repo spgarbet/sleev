@@ -14,7 +14,6 @@ logistic2ph(
   data = NULL,
   theta_pred = NULL,
   gamma_pred = NULL,
-  initial_lr_params = "Zeros",
   hn_scale = 1,
   noSE = FALSE,
   TOL = 1e-04,
@@ -40,8 +39,6 @@ logistic2ph(
 \item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
 
 \item{gamma_pred}{Vector of columns in \code{data} that pertain to the predictors in the outcome error model.}
-
-\item{initial_lr_params}{Initial values for parametric model parameters. Choices include (1) \code{"Zeros"} (non-informative starting values) or (2) \code{"Complete-data"} (estimated based on validated subjects only)}
 
 \item{hn_scale}{Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is \code{hn_scale = 1}.}
 
@@ -94,37 +91,15 @@ This function returns the sieve maximum likelihood estimators (SMLE) for the log
  Ystar <- rbinom(n = N, size = 1,
    prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
  
- 
  ## V is a TRUE/FALSE vector where TRUE = validated --------
  V <- seq(1, N) \%in\% sample(x = seq(1, N), size = n, replace = FALSE)
  
- 
  # Build dataset --------------------------------------------
- sdat <- cbind(Y, Xb, Ystar, Xbstar, Xa)
+ sdat <- cbind(id = 1:N, Y, Xb, Ystar, Xbstar, Xa)
  # Make Phase-II variables Y, Xb NA for unaudited subjects ---
  sdat[!V, c("Y", "Xb")] <- NA
  
- # Fit models -----------------------------------------------
- ## Naive model -----------------------------------------
- naive <- glm(Ystar ~ Xbstar + Xa, family = "binomial", data = data.frame(sdat))
- 
- 
- ## Generalized raking ----------------------------------
- ### Influence function for logistic regression
- ### Taken from: https://github.com/T0ngChen/multiwave/blob/master/sim.r
- inf.fun <- function(fit) {
-   dm <- model.matrix(fit)
-   Ihat <- (t(dm) \%*\% (dm * fit$fitted.values * (1 - fit$fitted.values))) / nrow(dm)
-   ## influence function
-   infl <- (dm * resid(fit, type = "response")) \%*\% solve(Ihat)
-   infl
- }
- naive_infl <- inf.fun(naive) # error-prone influence functions based on naive model
- colnames(naive_infl) <- paste0("if", 1:3)
- 
- # Add naive influence functions to sdat -----------------------------------------------
- sdat <- cbind(id = 1:N, sdat, naive_infl)
- 
+ # Fit model -----------------------------------------------
  ### Construct B-spline basis -------------------------------
  ### Since Xb* and Xa are both binary, reduces to indicators --
  nsieve <- 4

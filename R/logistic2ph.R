@@ -61,37 +61,15 @@
 #'  Ystar <- rbinom(n = N, size = 1,
 #'    prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
 #'  
-#'  
 #'  ## V is a TRUE/FALSE vector where TRUE = validated --------
 #'  V <- seq(1, N) %in% sample(x = seq(1, N), size = n, replace = FALSE)
 #'  
-#'  
 #'  # Build dataset --------------------------------------------
-#'  sdat <- cbind(Y, Xb, Ystar, Xbstar, Xa)
+#'  sdat <- cbind(id = 1:N, Y, Xb, Ystar, Xbstar, Xa)
 #'  # Make Phase-II variables Y, Xb NA for unaudited subjects ---
 #'  sdat[!V, c("Y", "Xb")] <- NA
 #'  
-#'  # Fit models -----------------------------------------------
-#'  ## Naive model -----------------------------------------
-#'  naive <- glm(Ystar ~ Xbstar + Xa, family = "binomial", data = data.frame(sdat))
-#'  
-#'  
-#'  ## Generalized raking ----------------------------------
-#'  ### Influence function for logistic regression
-#'  ### Taken from: https://github.com/T0ngChen/multiwave/blob/master/sim.r
-#'  inf.fun <- function(fit) {
-#'    dm <- model.matrix(fit)
-#'    Ihat <- (t(dm) %*% (dm * fit$fitted.values * (1 - fit$fitted.values))) / nrow(dm)
-#'    ## influence function
-#'    infl <- (dm * resid(fit, type = "response")) %*% solve(Ihat)
-#'    infl
-#'  }
-#'  naive_infl <- inf.fun(naive) # error-prone influence functions based on naive model
-#'  colnames(naive_infl) <- paste0("if", 1:3)
-#'  
-#'  # Add naive influence functions to sdat -----------------------------------------------
-#'  sdat <- cbind(id = 1:N, sdat, naive_infl)
-#'  
+#'  # Fit model -----------------------------------------------
 #'  ### Construct B-spline basis -------------------------------
 #'  ### Since Xb* and Xa are both binary, reduces to indicators --
 #'  nsieve <- 4
