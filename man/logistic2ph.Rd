@@ -12,8 +12,6 @@ logistic2ph(
   Z = NULL,
   Bspline = NULL,
   data = NULL,
-  theta_pred = NULL,
-  gamma_pred = NULL,
   hn_scale = 1,
   noSE = FALSE,
   TOL = 1e-04,
@@ -22,23 +20,19 @@ logistic2ph(
 )
 }
 \arguments{
-\item{Y_unval}{Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. If \code{Y_unval} is null, the outcome is assumed to be error-free.}
+\item{Y_unval}{Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis.}
 
 \item{Y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
 
-\item{X_unval}{Column name(s) with the unvalidated predictors.  If \code{X_unval} and \code{X} are \code{null}, all predictors are assumed to be error-free.}
+\item{X_unval}{Column name(s) with the unvalidated predictor(s).}
 
-\item{X}{Column name(s) with the validated predictors. If \code{X_unval} and \code{X} are \code{NULL}, all predictors are assumed to be error-free.}
+\item{X}{Column name(s) with the validated predictor(s).}
 
 \item{Z}{(Optional) Column name(s) with additional error-free covariates.}
 
 \item{Bspline}{Vector of column names containing the B-spline basis functions.}
 
 \item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, and \code{Bspline}.}
-
-\item{theta_pred}{Vector of columns in \code{data} that pertain to the predictors in the analysis model.}
-
-\item{gamma_pred}{Vector of columns in \code{data} that pertain to the predictors in the outcome error model.}
 
 \item{hn_scale}{Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is \code{hn_scale = 1}.}
 
@@ -53,11 +47,11 @@ logistic2ph(
 \value{
 \item{coeff}{dataframe with final coefficient and standard error estimates (where applicable) for the analysis model.}
 \item{outcome_err_coeff}{dataframe with final coefficient estimates for the outcome error model.}
-\item{Bspline_coeff}{dataframe with final B-spline coefficient estimates (where applicable).}
+\item{Bspline_coeff}{dataframe with final B-spline coefficient estimates.}
 \item{vcov}{variance-covarianced matrix for \code{coeff} (where applicable).}
 \item{converged}{indicator of EM algorithm convergence for parameter estimates.}
 \item{se_converged}{indicator of standard error estimate convergence.}
-\item{converged_msg}{(where applicable) description of non-convergence.}
+\item{converged_msg}{description of non-convergence (where applicable).}
 \item{iterations}{number of iterations completed by EM algorithm to find parameter estimates.}
 \item{od_loglik_at_conv}{value of the observed-data log-likelihood at convergence.}
 }
