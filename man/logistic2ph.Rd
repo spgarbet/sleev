@@ -20,63 +20,61 @@ logistic2ph(
 )
 }
 \arguments{
-\item{Y_unval}{Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis.}
+\item{Y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is required.}
 
 \item{Y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
 
-\item{X_unval}{Column name(s) with the unvalidated predictor(s).}
+\item{X_unval}{Specifies the columns of the error-prone covariates. This argument is required.}
 
-\item{X}{Column name(s) with the validated predictor(s).}
+\item{X}{Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
 
-\item{Z}{(Optional) Column name(s) with additional error-free covariates.}
+\item{Z}{Specifies the columns of the accurately measured covariates. This argument is optional.}
 
-\item{Bspline}{Vector of column names containing the B-spline basis functions.}
+\item{Bspline}{Specifies the columns of the B-spline basis. This argument is required.}
 
-\item{data}{A dataframe with one row per subject containing columns: \code{Y_unval}, \code{Y}, \code{X_unval}, \code{X}, \code{Z}, and \code{Bspline}.}
+\item{data}{Specifies the name of the dataset. This argument is required.}
 
-\item{hn_scale}{Size of the perturbation used in estimating the standard errors via profile likelihood. If none is supplied, default is \code{hn_scale = 1}.}
+\item{hn_scale}{Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.}
 
-\item{noSE}{Indicator for whether standard errors are desired. Defaults to \code{noSE = FALSE}.}
+\item{noSE}{If \code{TRUE}, then the variances of the parameter estimators will not be estimated. The default value is \code{FALSE}. This argument is optional.}
 
-\item{TOL}{Tolerance between iterations in the EM algorithm used to define convergence.}
+\item{TOL}{Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.}
 
 \item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 
 \item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
 \value{
-\item{coeff}{dataframe with final coefficient and standard error estimates (where applicable) for the analysis model.}
-\item{outcome_err_coeff}{dataframe with final coefficient estimates for the outcome error model.}
-\item{Bspline_coeff}{dataframe with final B-spline coefficient estimates.}
-\item{vcov}{variance-covarianced matrix for \code{coeff} (where applicable).}
-\item{converged}{indicator of EM algorithm convergence for parameter estimates.}
-\item{se_converged}{indicator of standard error estimate convergence.}
-\item{converged_msg}{description of non-convergence (where applicable).}
-\item{iterations}{number of iterations completed by EM algorithm to find parameter estimates.}
-\item{od_loglik_at_conv}{value of the observed-data log-likelihood at convergence.}
+\item{coefficients}{Stores the analysis results.}
+\item{outcome_err_coefficients}{Stores the outcome error model results.}
+\item{Bspline_coefficients}{Stores the final B-spline coefficient estimates.}
+\item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
+\item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
+\item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
+\item{converge_msg}{In parameter estimation, if the EM algorithm does not converge, then \code{converged_msg} is a string description.}
 }
 \description{
 This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021).
 }
 \examples{
  set.seed(918)
- 
+
  # Set sample sizes ----------------------------------------
  N <- 1000 # Phase-I = N
  n <- 250 # Phase-II/audit size = n
- 
+
  # Generate true values Y, Xb, Xa --------------------------
  Xa <- rbinom(n = N, size = 1, prob = 0.25)
  Xb <- rbinom(n = N, size = 1, prob = 0.5)
  Y <- rbinom(n = N, size = 1,prob = (1 + exp(-(- 0.65 - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
- 
+
  # Generate error-prone Xb* from error model P(Xb*|Xb,Xa) --
  sensX <- specX <- 0.75
  delta0 <- - log(specX / (1 - specX))
  delta1 <- - delta0 - log((1 - sensX) / sensX)
  Xbstar <- rbinom(n = N, size = 1,
                   prob = (1 + exp(- (delta0 + delta1 * Xb + 0.5 * Xa))) ^ (- 1))
- 
+
  # Generate error-prone Y* from error model P(Y*|Xb*,Y,Xb,Xa)
  sensY <- 0.95
  specY <- 0.90
@@ -84,15 +82,15 @@ This function returns the sieve maximum likelihood estimators (SMLE) for the log
  theta1 <- - theta0 - log((1 - sensY) / sensY)
  Ystar <- rbinom(n = N, size = 1,
    prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
- 
+
  ## V is a TRUE/FALSE vector where TRUE = validated --------
  V <- seq(1, N) \%in\% sample(x = seq(1, N), size = n, replace = FALSE)
- 
+
  # Build dataset --------------------------------------------
  sdat <- cbind(id = 1:N, Y, Xb, Ystar, Xbstar, Xa)
  # Make Phase-II variables Y, Xb NA for unaudited subjects ---
  sdat[!V, c("Y", "Xb")] <- NA
- 
+
  # Fit model -----------------------------------------------
  ### Construct B-spline basis -------------------------------
  ### Since Xb* and Xa are both binary, reduces to indicators --
