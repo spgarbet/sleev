@@ -17,7 +17,7 @@
 #' @param gamma_pred Vector of columns in \code{data} that pertain to the predictors in the outcome error model.
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
-#' @return scalar value of the function   
+#' @return scalar value of the function
 #' @noRd
 
 cv_observed_data_loglik <- function(fold, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
@@ -37,7 +37,6 @@ cv_observed_data_loglik <- function(fold, Y_unval = NULL, Y = NULL, X_unval = NU
     suppressMessages(
       train_fit <- logistic2ph(Y_unval = Y_unval, Y = Y, X_unval = X_unval, X = X, Z = Z,
                                         Bspline = Bspline, data = train,
-                                        theta_pred = theta_pred, gamma_pred = gamma_pred,
                                         noSE = TRUE, TOL = TOL, MAX_ITER = MAX_ITER)
     )
     status[i] <- train_fit$converged

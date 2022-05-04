@@ -1,7 +1,7 @@
 Package: sleev
 Type: Package
 Title: Semiparametric Likelihood Estimation with Errors in Variables
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(person(given = "Sarah", family = "Lotspeich", role = c("aut"), email = "sarah.c.lotspeich@vanderbilt.edu"),
     person(given = "Ran", family = "Tao", role=c("aut","cre"), email = "r.tao@vanderbilt.edu"),
     person(given = "Joey", family = "Sherrill", role = "prg"))
@@ -10,7 +10,7 @@ License: GPL (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Depends: Rcpp (>= 1.0.7), R (>= 3.0.0)
+Depends: Rcpp (>= 1.0.7), R (>= 3.5.0)
 LinkingTo:
     Rcpp,
     RcppArmadillo,
@@ -21,4 +21,7 @@ Suggests:
     MASS,
     rmarkdown,
     splines,
-    testthat
+    testthat,
+    R.rsp
+VignetteBuilder: R.rsp
+LazyData: true

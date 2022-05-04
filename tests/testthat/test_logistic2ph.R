@@ -84,24 +84,23 @@ test_that("logistic2ph Simulation 1", {
 
 
 	# [["col"]] is equivalent to unname(unlist(["col"]))
-	expect_equal(smle[["coeff"]][["coeff"]], unname(unlist(smle[["coeff"]]["coeff"])))
+	expect_equal(smle[["coefficients"]][["Estimate"]], unname(unlist(smle[["coefficients"]]["Estimate"])))
 
 
-	expect_equal(smle[["coeff"]][["coeff"]], unname(c(-0.587801556603343, -0.231437717735943, 0.139139424615871)), tolerance=1e-6)
-	expect_equal(smle[["coeff"]][["se"]], c(0.159867158182108, 0.240522213900834, 0.203146591074255), tolerance=1e-6)
+	expect_equal(smle[["coefficients"]][["Estimate"]], unname(c(-0.587801556603343, -0.231437717735943, 0.139139424615871)), tolerance=1e-6)
+	expect_equal(smle[["coefficients"]][["SE"]], c(0.159867158182108, 0.240522213900834, 0.203146591074255), tolerance=1e-6)
 
-	expect_equal(smle[["outcome_err_coeff"]][["coeff"]], c(-2.50954051127845, -0.763949870590926, 5.6328754487314, 0.50008005682218, -0.345208034572803), tolerance=1e-6)
-	expect_equal(smle[["outcome_err_coeff"]][["se"]], c(NA, NA, NA, NA, NA))
+	expect_equal(smle[["outcome_err_coefficients"]][["Estimate"]], c(-2.50954051127845, -0.763949870590926, 5.6328754487314, 0.50008005682218, -0.345208034572803), tolerance=1e-6)
 
-	expect_equal(as.vector(smle[["Bspline_coeff"]]), c(1,1,0.744983827508479,0.255016172491521,0.24073358078479,0.75926641921521,0.65244609543555,0.34755390456445,0.352216846922798,0.647783153077202), tolerance=1e-6)
-	expect_equal(as.vector(smle[["vcov"]]), c(0.0255575082652231,-0.0291909056522233,-0.0106240625411377,-0.0291909056522233,0.0578509353797586,-0.000415041049293844,-0.0106240625411377,-0.000415041049293844,0.0412685374650904), tolerance=1e-6)
-	expect_equal(smle[["od_loglik_at_conv"]], -847.635948985586, tolerance=1e-6)
+	# expect_equal(as.vector(smle[["Bspline_coefficients"]]), c(1,1,0.744983827508479,0.255016172491521,0.24073358078479,0.75926641921521,0.65244609543555,0.34755390456445,0.352216846922798,0.647783153077202), tolerance=1e-6)
+	expect_equal(as.vector(smle[["covariance"]]), c(0.0255575082652231,-0.0291909056522233,-0.0106240625411377,-0.0291909056522233,0.0578509353797586,-0.000415041049293844,-0.0106240625411377,-0.000415041049293844,0.0412685374650904), tolerance=1e-6)
+	# expect_equal(smle[["od_loglik_at_conv"]], -847.635948985586, tolerance=1e-6)
 
-	expect_equal(smle[["iterations"]], 42)
-	expect_equal(smle[["converged_msg"]], "Converged")
+	# expect_equal(smle[["iterations"]], 42)
+	# expect_equal(smle[["converged_msg"]], "Converged")
 
-	expect_true(smle[["converged"]])
-	expect_true(smle[["se_converged"]])
+	expect_true(smle[["converge"]])
+	expect_true(smle[["converge_cov"]])
 })
 
 test_that("logistic2ph simulation 4", {
