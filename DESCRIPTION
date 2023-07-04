@@ -1,10 +1,11 @@
 Package: sleev
 Type: Package
 Title: Semiparametric Likelihood Estimation with Errors in Variables
-Version: 1.0.2
-Authors@R: c(person(given = "Sarah", family = "Lotspeich", role = c("aut"), email = "sarah.c.lotspeich@vanderbilt.edu"),
+Version: 1.0.3
+Authors@R: c(person(given = "Sarah", family = "Lotspeich", role = "aut"),
     person(given = "Ran", family = "Tao", role=c("aut","cre"), email = "r.tao@vanderbilt.edu"),
-    person(given = "Joey", family = "Sherrill", role = "prg"))
+    person(given = "Joey", family = "Sherrill", role = "prg"),
+    person(given = "Jiangmei", family = "Xiong", role = "ctb"))
 Description: Efficient regression analysis under general two-phase sampling, where Phase I includes error-prone data and Phase II contains validated data on a subset.
 License: GPL (>= 2)
 Encoding: UTF-8
