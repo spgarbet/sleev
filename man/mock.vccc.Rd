@@ -7,6 +7,7 @@
 \format{
 A data frame with 2087 rows and 8 variables:
 \describe{
+\item{ID}{patient ID}
 \item{VL_unval}{viral load at antiretroviral therapy (ART) initiation,
 error-prone outcome, continuous}
 \item{VL_val}{viral load at antiretroviral therapy (ART) initiation,
@@ -19,10 +20,11 @@ initiation, validated outcome, binary}
 continuous}
 \item{CD4_val}{CD4 count at ART initiation, validated covariate,
 continuous}
-\item{ART}{whether patient is ART naive at enrollment, error-free
+\item{prior_ART}{whether patient is ART naive at enrollment, error-free
 covariate, binary}
-\item{Gender}{gender of patient, 1 indicates male and 0 indicates
+\item{Sex}{sex of patient, 1 indicates male and 0 indicates
 female & error-free covariate, binary}
+\item{Age}{age of patient, error-free covariate, continuous}
 }
 }
 \source{
