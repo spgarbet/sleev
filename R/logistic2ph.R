@@ -30,62 +30,6 @@
 #' @importFrom stats as.formula
 #' @importFrom stats glm
 #'
-#' @examples
-#'  set.seed(918)
-#'
-#'  # Set sample sizes ----------------------------------------
-#'  N <- 1000 # Phase-I = N
-#'  n <- 250 # Phase-II/audit size = n
-#'
-#'  # Generate true values Y, Xb, Xa --------------------------
-#'  Xa <- rbinom(n = N, size = 1, prob = 0.25)
-#'  Xb <- rbinom(n = N, size = 1, prob = 0.5)
-#'  Y <- rbinom(n = N, size = 1,prob = (1 + exp(-(- 0.65 - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
-#'
-#'  # Generate error-prone Xb* from error model P(Xb*|Xb,Xa) --
-#'  sensX <- specX <- 0.75
-#'  delta0 <- - log(specX / (1 - specX))
-#'  delta1 <- - delta0 - log((1 - sensX) / sensX)
-#'  Xbstar <- rbinom(n = N, size = 1,
-#'                   prob = (1 + exp(- (delta0 + delta1 * Xb + 0.5 * Xa))) ^ (- 1))
-#'
-#'  # Generate error-prone Y* from error model P(Y*|Xb*,Y,Xb,Xa)
-#'  sensY <- 0.95
-#'  specY <- 0.90
-#'  theta0 <- - log(specY / (1 - specY))
-#'  theta1 <- - theta0 - log((1 - sensY) / sensY)
-#'  Ystar <- rbinom(n = N, size = 1,
-#'    prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
-#'
-#'  ## V is a TRUE/FALSE vector where TRUE = validated --------
-#'  V <- seq(1, N) %in% sample(x = seq(1, N), size = n, replace = FALSE)
-#'
-#'  # Build dataset --------------------------------------------
-#'  sdat <- cbind(id = 1:N, Y, Xb, Ystar, Xbstar, Xa)
-#'  # Make Phase-II variables Y, Xb NA for unaudited subjects ---
-#'  sdat[!V, c("Y", "Xb")] <- NA
-#'
-#'  # Fit model -----------------------------------------------
-#'  ### Construct B-spline basis -------------------------------
-#'  ### Since Xb* and Xa are both binary, reduces to indicators --
-#'  nsieve <- 4
-#'  B <- matrix(0, nrow = N, ncol = nsieve)
-#'  B[which(Xa == 0 & Xbstar == 0), 1] <- 1
-#'  B[which(Xa == 0 & Xbstar == 1), 2] <- 1
-#'  B[which(Xa == 1 & Xbstar == 0), 3] <- 1
-#'  B[which(Xa == 1 & Xbstar == 1), 4] <- 1
-#'  colnames(B) <- paste0("bs", seq(1, nsieve))
-#'  sdat <- cbind(sdat, B)
-#'  smle <- logistic2ph(Y_unval = "Ystar",
-#'    Y = "Y",
-#'    X_unval = "Xbstar",
-#'    X = "Xb",
-#'    Z = "Xa",
-#'    Bspline = colnames(B),
-#'    data = sdat,
-#'    noSE = FALSE,
-#'    MAX_ITER = 1000,
-#'    TOL = 1E-4)
 #' @export
 
 logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL, data = NULL, hn_scale = 1, noSE = FALSE, TOL = 1E-4, MAX_ITER = 1000, verbose = FALSE) {
