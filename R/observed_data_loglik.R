@@ -24,8 +24,12 @@
 #' @noRd
 
 observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL, 
-                                 comp_dat_all, theta_pred = theta_pred, gamma_pred = gamma_pred, theta, gamma, p) {
+                                 comp_dat_all, theta_pred, gamma_pred, theta, gamma, p) {
 
+  # Error settings based on arguments provided ---------------------------------
+  errorsY <- !is.null(Y_unval) ## errors in Y
+  errorsX <- !is.null(X_unval) ## errors in X
+  
   #sn <- ncol(p)
   m <- nrow(p)
 
@@ -38,16 +42,20 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL,
   ## ------------------------------------------------- Sum over log[P_theta(Yi|Xi)]
   #################################################################################
   ## Sum over log[P(Yi*|Xi*,Yi,Xi)] -----------------------------------------------
-  pYstar <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[c(1:n), gamma_pred]) %*% gamma))))
-  pYstar <- ifelse(as.vector(comp_dat_all[c(1:n), Y_unval]) == 0, 1 - pYstar, pYstar)
-  return_loglik <- return_loglik + sum(log(pYstar))
+  if (errorsY) {
+    pYstar <- 1 / (1 + exp(-as.numeric(cbind(int = 1, comp_dat_all[c(1:n), gamma_pred]) %*% gamma)))
+    pYstar <- ifelse(as.vector(comp_dat_all[c(1:n), Y_unval]) == 0, 1 - pYstar, pYstar)
+    return_loglik <- return_loglik + sum(log(pYstar))
+  }
   ## ----------------------------------------------- Sum over log[P(Yi*|Xi*,Yi,Xi)]
   #################################################################################
   ## Sum over I(Xi=xk)Bj(Xi*)log p_kj ---------------------------------------------
-  pX <- p[comp_dat_all[c(1:n), "k"], ]
-  log_pX <- log(pX)
-  log_pX[log_pX == -Inf] <- 0
-  return_loglik <- return_loglik + sum(comp_dat_all[c(1:n), Bspline] * log_pX)
+  if (errorsX) {
+    pX <- p[comp_dat_all[c(1:n), "k"], ]
+    log_pX <- log(pX)
+    log_pX[log_pX == -Inf] <- 0
+    return_loglik <- return_loglik + sum(comp_dat_all[c(1:n), Bspline] * log_pX)
+  }
   ## --------------------------------------------- Sum over I(Xi=xk)Bj(Xi*)log q_kj
   #################################################################################
   # -------------------------------------------------------- For validated subjects
@@ -59,16 +67,36 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL,
   ## ---------------------------------------- Calculate P_theta(y|x) for all (y,xk)
   ################################################################################
   ## Calculate P(Yi*|Xi*,y,xk) for all (y,xk) ------------------------------------
-  pYstar <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[-c(1:n), gamma_pred]) %*% gamma))))
-  pYstar[which(comp_dat_all[-c(1:n), Y_unval] == 0)] <- 1 - pYstar[which(comp_dat_all[-c(1:n), Y_unval] == 0)]
+  if (errorsY) {
+    pYstar <- 1 / (1 + exp(-as.numeric(cbind(int = 1, comp_dat_all[-c(1:n), gamma_pred]) %*% gamma)))
+    pYstar[which(comp_dat_all[-c(1:n), Y_unval] == 0)] <- 1 - pYstar[which(comp_dat_all[-c(1:n), Y_unval] == 0)]
+  } else {
+    pYstar <- rep(1, nrow(comp_dat_all[-c(1:n), ]))
+  }
   ## ------------------------------------ Calculate P(Yi*|Xi*,y,xk) for all (y,xk)
   ################################################################################
   ## Calculate Bj(Xi*) p_kj for all (k,j) ----------------------------------------
-  pX <- p[comp_dat_all[-c(1:n), "k"], ]
+  if (errorsX) {
+    pX <- p[comp_dat_all[-c(1:n), "k"], ]
+  } else {
+    pX <- rep(1, nrow(comp_dat_all[-c(1:n), ]))
+  }
   ## ---------------------------------------- Calculate Bj(Xi*) p_kj for all (k,j)
   ################################################################################
   ## Calculate sum of P(y|xk) x P(Y*|X*,y,xk) x Bj(X*) x p_kj --------------------
-  person_sum <- rowsum(c(pY_X * pYstar * pX) * comp_dat_all[-c(1:n), Bspline], group = rep(seq(1, (N - n)), times = 2 * m))
+  if (errorsY & errorsX) {
+    person_sum <- rowsum(c(pY_X * pYstar * pX) * comp_dat_all[-c(1:n), Bspline], 
+                         group = rep(seq(1, (N - n)), 
+                                     times = 2 * m))
+  } else if (errorsY) {
+    person_sum <- rowsum(c(pY_X * pYstar * pX) * comp_dat_all[-c(1:n), Bspline], 
+                         group = rep(seq(1, (N - n)), 
+                                     times = 2))
+  } else if (errorsX) {
+    person_sum <- rowsum(c(pY_X * pYstar * pX) * comp_dat_all[-c(1:n), Bspline], 
+                         group = rep(seq(1, (N - n)), 
+                                     times = m))
+  }
   person_sum <- rowSums(person_sum)
   log_person_sum <- log(person_sum)
   log_person_sum[log_person_sum == -Inf] <- 0
