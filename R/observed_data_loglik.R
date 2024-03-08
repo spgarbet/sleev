@@ -24,7 +24,7 @@
 #' @noRd
 
 observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL, 
-                                 comp_dat_all, theta_pred, gamma_pred, theta, gamma, p) {
+                                 comp_dat_all, theta_pred, gamma_pred = NULL, theta, gamma = NULL, p) {
 
   # Error settings based on arguments provided ---------------------------------
   errorsY <- !is.null(Y_unval) ## errors in Y
