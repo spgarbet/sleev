@@ -70,16 +70,12 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL,
   if (errorsY) {
     pYstar <- 1 / (1 + exp(-as.numeric(cbind(int = 1, comp_dat_all[-c(1:n), gamma_pred]) %*% gamma)))
     pYstar[which(comp_dat_all[-c(1:n), Y_unval] == 0)] <- 1 - pYstar[which(comp_dat_all[-c(1:n), Y_unval] == 0)]
-  } else {
-    pYstar <- rep(1, nrow(comp_dat_all[-c(1:n), ]))
   }
   ## ------------------------------------ Calculate P(Yi*|Xi*,y,xk) for all (y,xk)
   ################################################################################
   ## Calculate Bj(Xi*) p_kj for all (k,j) ----------------------------------------
   if (errorsX) {
     pX <- p[comp_dat_all[-c(1:n), "k"], ]
-  } else {
-    pX <- rep(1, nrow(comp_dat_all[-c(1:n), ]))
   }
   ## ---------------------------------------- Calculate Bj(Xi*) p_kj for all (k,j)
   ################################################################################
@@ -89,11 +85,11 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL,
                          group = rep(seq(1, (N - n)), 
                                      times = 2 * m))
   } else if (errorsY) {
-    person_sum <- rowsum(c(pY_X * pYstar * pX) * comp_dat_all[-c(1:n), Bspline], 
+    person_sum <- rowsum(c(pY_X * pYstar), 
                          group = rep(seq(1, (N - n)), 
                                      times = 2))
   } else if (errorsX) {
-    person_sum <- rowsum(c(pY_X * pYstar * pX) * comp_dat_all[-c(1:n), Bspline], 
+    person_sum <- rowsum(c(pY_X * pX) * comp_dat_all[-c(1:n), Bspline], 
                          group = rep(seq(1, (N - n)), 
                                      times = m))
   }
