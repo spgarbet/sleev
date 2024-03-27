@@ -275,6 +275,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       gamma_conv <- abs(new_gamma - prev_gamma) < TOL
       ## ---------------- Update gamma using weighted logistic regression
     } else {
+      new_gamma <- NULL
       gamma_conv <- TRUE
     }
     ###################################################################
@@ -303,7 +304,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   }
 
   rownames(new_theta) <- c("Intercept", theta_pred)
-  rownames(new_gamma) <- c("Intercept", gamma_pred)
+  if (errorsY) {
+    rownames(new_gamma) <- c("Intercept", gamma_pred)  
+  }
 
   if(!CONVERGED) {
     if(it > MAX_ITER) {
@@ -336,22 +339,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # ---------------------------------------------- Estimate theta using EM
   if(noSE) {
-    ## Calculate pl(theta) -------------------------------------------------
-    od_loglik_theta <- observed_data_loglik(N = N,
-     n = n,
-     Y_unval = Y_unval,
-     Y = Y,
-     X_unval = X_unval,
-     X = X,
-     Z = Z,
-     Bspline = Bspline,
-     comp_dat_all = comp_dat_all,
-     theta_pred = theta_pred,
-     gamma_pred = gamma_pred,
-     theta = new_theta,
-     gamma = new_gamma,
-     p = new_p)
-
     res_coefficients <- data.frame(Estimate = new_theta, SE = NA, Statistic = NA, pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
