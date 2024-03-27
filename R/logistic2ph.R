@@ -67,16 +67,32 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   # Reorder so that the n validated subjects are first ------------
   data <- data[order(as.numeric(Validated), decreasing = TRUE), ]
 
+  # Create vector of predictors for each model ----------------------
+  theta_pred <- c(X, Z)
+  gamma_pred <- c(X_unval, Y, X, Z)
+  pred <- unique(c(theta_pred, gamma_pred))
+  # ----------------------  Create vector of predictors for each model
+  
+  # Determine error setting -----------------------------------------
+  ## If unvalidated variable was left blank, assume error-free ------
+  errorsY <- errorsX <- TRUE
+  if (is.null(Y_unval)) {errorsY <- FALSE}
+  if (is.null(X_unval)) {errorsX <- FALSE}
+  # ----------------------------------------- Determine error setting
+  
   # Add the B spline basis ------------------------------------------
   sn <- ncol(data[, Bspline])
   if(0 %in% colSums(data[c(1:n), Bspline])) {
     warning("Empty sieve in validated data. Reconstruct B-spline basis and try again.", call. = FALSE)
 
-    res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)), SE = NA, Statistic = NA, pvalue = NA)
+    res_coefficients <- data.frame(Estimate = rep(NA, length(theta_pred) + 1), 
+                                   SE = NA, 
+                                   Statistic = NA, 
+                                   pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
     res_final = list(coefficients = res_coefficients,
-                     outcome_err_coefficients = data.frame(Estimate = rep(NA, length(new_gamma))),
+                     outcome_err_coefficients = data.frame(Estimate = rep(NA, length(gamma_pred) + 1)),
                      Bspline_coefficients = NA,
                      covariance = NA,
                      converge = FALSE,
@@ -85,52 +101,51 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
     return(res_final)
   }
-
   # ------------------------------------------ Add the B spline basis
-  theta_pred <- c(X, Z)
-  gamma_pred <- c(X_unval, Y, X, Z)
-  pred <- unique(c(theta_pred, gamma_pred))
 
-  # Create "complete" data
-  # Save distinct X -------------------------------------------------
+  # Create "complete" data ------------------------------------------
+  ## Save distinct X ------------------------------------------------
   x_obs <- data.frame(unique(data[1:n, c(X)]))
   x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
   m <- nrow(x_obs)
   x_obs_stacked <- do.call(rbind, replicate(n = (N - n), expr = x_obs, simplify = FALSE))
   x_obs_stacked <- data.frame(x_obs_stacked[order(x_obs_stacked[, 1]), ])
   colnames(x_obs) <- colnames(x_obs_stacked) <- c(X)
-
-  # Save static (X*,Y*,X,Y,Z) since they don't change ---------------
+  ## ------------------------------------------------ Save distinct X
+  ## Save static (X*,Y*,X,Y,Z) since they don't change --------------
   comp_dat_val <- data[c(1:n), c(Y_unval, X_unval, Z, Bspline, X, Y)]
   comp_dat_val <- merge(x = comp_dat_val, y = data.frame(x_obs, k = 1:m), all.x = TRUE)
   comp_dat_val <- comp_dat_val[, c(Y_unval, pred, Bspline, "k")]
   comp_dat_val <- data.matrix(comp_dat_val)
-
+  ## -------------- Save static (X*,Y*,X,Y,Z) since they don't change
   # 2 (m x n)xd matrices (y=0/y=1) of each (one column per person, --
   # one row per x) --------------------------------------------------
-  suppressWarnings(comp_dat_unval <- cbind(data[-c(1:n), c(Y_unval, setdiff(x = pred, y = c(Y, X)), Bspline)],
-                                           x_obs_stacked))
-  comp_dat_y0 <- data.frame(comp_dat_unval, Y = 0)
-  comp_dat_y1 <- data.frame(comp_dat_unval, Y = 1)
-  colnames(comp_dat_y0)[length(colnames(comp_dat_y0))] <- colnames(comp_dat_y1)[length(colnames(comp_dat_y1))] <- Y
-  comp_dat_unval <- data.matrix(cbind(rbind(comp_dat_y0, comp_dat_y1),
-                                      k = rep(rep(seq(1, m), each = (N - n)), times = 2)))
+  comp_dat_unval <- cbind(data[-c(1:n), c(Y_unval, setdiff(x = pred, y = X), Bspline)],
+                          x_obs_stacked,
+                          k = rep(seq(1, m), each = (N - n)),
+                          row.names = NULL)
+  if (errorsY) {
+    comp_dat_y0 <- comp_dat_y1 <- comp_dat_unval ### Create two versions
+    comp_dat_y0[, Y] <- 0 ### One with Y = 0
+    comp_dat_y0[, Y] <- 1 ### And one with Y = 1
+    comp_dat_unval <- data.matrix(cbind(rbind(comp_dat_y0, comp_dat_y1)))
+  } 
   comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k")]
-
   comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
 
-  # Initialize B-spline coefficients {p_kj}  ------------
-  ## Numerators sum B(Xi*) over k = 1,...,m -------------
-  ## Save as p_val_num for updates ----------------------
-  ## (contributions don't change) -----------------------
-  p_val_num <- rowsum(x = comp_dat_val[, Bspline], group = comp_dat_val[, "k"], reorder = TRUE)
+  # Initialize B-spline coefficients {p_kj}  -----------------------
+  ## Numerators sum B(Xi*) over k = 1,...,m ------------------------
+  ## Save as p_val_num for updates (contributions don't change) ----
+  p_val_num <- rowsum(x = comp_dat_val[, Bspline], 
+                      group = comp_dat_val[, "k"], 
+                      reorder = TRUE)
   prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
 
   # Create model formulas
   theta_formula <- as.formula(paste0(Y, "~", paste(theta_pred, collapse = "+")))
-  theta_design_mat <- cbind(int = 1, comp_dat_all[, theta_pred])
+  theta_design_mat <- data.matrix(cbind(int = 1, comp_dat_all[, theta_pred]))
   gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
-  gamma_design_mat <- cbind(int = 1, comp_dat_all[, gamma_pred])
+  gamma_design_mat <- data.matrix(cbind(int = 1, comp_dat_all[, gamma_pred]))
 
   # Initialize parameter values -------------------------------------
   ## theta, gamma ---------------------------------------------------
@@ -150,24 +165,31 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     # E Step ----------------------------------------------------------
     ## Update the psi_kyji for unvalidated subjects -------------------
     ### P(Y|X) --------------------------------------------------------
-    mu_theta <- as.numeric((theta_design_mat[-c(1:n), ] %*% prev_theta))
+    mu_theta <- as.numeric(theta_design_mat[-c(1:n), ] %*% prev_theta)
     pY_X <- 1 / (1 + exp(- mu_theta))
     I_y0 <- comp_dat_unval[, Y] == 0
     pY_X[I_y0] <- 1 - pY_X[I_y0]
-
     ### -------------------------------------------------------- P(Y|X)
     ###################################################################
     ### P(Y*|X*,Y,X) --------------------------------------------------
-    pYstar <- 1 / (1 + exp(- as.numeric((gamma_design_mat[-c(1:n), ] %*% prev_gamma))))
-    I_ystar0 <- comp_dat_unval[, Y_unval] == 0
-    pYstar[I_ystar0] <- 1 - pYstar[I_ystar0]
+    if (errorsY) {
+      pYstar <- 1 / (1 + exp(- as.numeric((gamma_design_mat[-c(1:n), ] %*% prev_gamma))))
+      I_ystar0 <- comp_dat_unval[, Y_unval] == 0
+      pYstar[I_ystar0] <- 1 - pYstar[I_ystar0]
+    } else {
+      pYstar <- 1
+    }
     ### -------------------------------------------------- P(Y*|X*,Y,X)
     ###################################################################
     ### P(X|X*) -------------------------------------------------------
     ### p_kj ------------------------------------------------------
     ### need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
     ### multiply by the B-spline terms
-    pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_unval[, Bspline]
+    if (errorsY) {
+      pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_unval[, Bspline]
+    } else {
+      pX <- prev_p[rep(seq(1, m), each = (N - n)), ] * comp_dat_unval[, Bspline]
+    }
     ### ------------------------------------------------------- P(X|X*)
     ###################################################################
     ### Estimate conditional expectations -----------------------------
@@ -175,7 +197,15 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     psi_num <- c(pY_X * pYstar) * pX
     ### Update denominator ------------------------------------------
     #### Sum up all rows per id (e.g. sum over xk/y) ----------------
-    psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = 2 * m))
+    if (errorsY) {
+      psi_denom <- rowsum(x = psi_num, 
+                          group = rep(seq(1, (N - n)), 
+                                      times = 2 * m))
+    } else {
+      psi_denom <- rowsum(x = psi_num, 
+                          group = rep(seq(1, (N - n)), 
+                                      times = m))
+    }
     #### Then sum over the sn splines -------------------------------
     psi_denom <- rowSums(psi_denom)
     #### Avoid NaN resulting from dividing by 0 ---------------------
@@ -188,7 +218,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ### Update the u_kji for unvalidated subjects ------------------
     ### by summing over Y = 0/1 w/i each i, k ----------------------
     ### add top half of psi_t (y = 0) to bottom half (y = 1) -------
-    u_t <- psi_t[c(1:(m * (N - n))), ] + psi_t[- c(1:(m * (N - n))), ]
+    u_t <- psi_t[c(1:(m * (N - n))), ]
+    if (errorsY) {
+      u_t <- u_t + psi_t[- c(1:(m * (N - n))), ]
+    }
     # ---------------------------------------------------------- E Step
     ###################################################################
 
@@ -223,25 +256,27 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ###################################################################
     # w_t is already the proper size, no need to run .lengthenWT again
 
-    ## Update gamma using weighted logistic regression ----------------
-    muVector <- .calculateMu(gamma_design_mat, prev_gamma)
-    gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
-    hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
-
-    # ### ------------------------------------------------------ Gradient
-    # ### Hessian -------------------------------------------------------
-    new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
-                          error = function(err) {
-                            matrix(NA, nrow = nrow(prev_gamma))
-                          })
-    if (any(is.na(new_gamma))) {
-      suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
+    if (errorsY) {
+      ## Update gamma using weighted logistic regression ----------------
+      muVector <- .calculateMu(gamma_design_mat, prev_gamma)
+      gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
+      hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
+      # ### ------------------------------------------------------ Gradient
+      # ### Hessian -------------------------------------------------------
+      new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
+                            error = function(err) {
+                              matrix(NA, nrow = nrow(prev_gamma))
+                            })
+      if (any(is.na(new_gamma))) {
+        suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
+      }
+      
+      # Check for convergence -----------------------------------------
+      gamma_conv <- abs(new_gamma - prev_gamma) < TOL
+      ## ---------------- Update gamma using weighted logistic regression
+    } else {
+      gamma_conv <- TRUE
     }
-
-    # Check for convergence -----------------------------------------
-    gamma_conv <- abs(new_gamma - prev_gamma) < TOL
-    ## ---------------- Update gamma using weighted logistic regression
-
     ###################################################################
     ## Update {p_kj} --------------------------------------------------
     ### Update numerators by summing u_t over i = 1, ..., N ---------
@@ -278,14 +313,22 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)), SE = NA, Statistic = NA, pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    res_final = list(coefficients = res_coefficients,
-                     outcome_err_coefficients = data.frame(Estimate = rep(NA, length(new_gamma))),
-                     Bspline_coefficients = NA,
-                     covariance = NA,
-                     converge = FALSE,
-                     converge_cov = NA,
-                     converge_msg = CONVERGED_MSG)
-
+    if (errorsY) {
+      res_final = list(coefficients = res_coefficients,
+                       outcome_err_coefficients = data.frame(Estimate = rep(NA, length(new_gamma))),
+                       Bspline_coefficients = NA,
+                       covariance = NA,
+                       converge = FALSE,
+                       converge_cov = NA,
+                       converge_msg = CONVERGED_MSG)
+    } else {
+      res_final = list(coefficients = res_coefficients,
+                       Bspline_coefficients = NA,
+                       covariance = NA,
+                       converge = FALSE,
+                       converge_cov = NA,
+                       converge_msg = CONVERGED_MSG)
+    }
     return(res_final)
   }
 
@@ -312,16 +355,23 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     res_coefficients <- data.frame(Estimate = new_theta, SE = NA, Statistic = NA, pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    res_final = list(coefficients = res_coefficients,
-                     outcome_err_coefficients = data.frame(Estimate = new_gamma),
-                     Bspline_coefficients = cbind(k = 1:nrow(new_p), new_p),
-                     covariance = NA,
-                     converge = CONVERGED,
-                     converge_cov = NA,
-                     converge_msg = CONVERGED_MSG)
-
+    if (errorsY) {
+      res_final = list(coefficients = res_coefficients,
+                       outcome_err_coefficients = data.frame(Estimate = new_gamma),
+                       Bspline_coefficients = cbind(k = 1:nrow(new_p), new_p),
+                       covariance = NA,
+                       converge = CONVERGED,
+                       converge_cov = NA,
+                       converge_msg = CONVERGED_MSG)
+    } else {
+      res_final = list(coefficients = res_coefficients,
+                       Bspline_coefficients = cbind(k = 1:nrow(new_p), new_p),
+                       covariance = NA,
+                       converge = CONVERGED,
+                       converge_cov = NA,
+                       converge_msg = CONVERGED_MSG)
+    }
     return(res_final)
-
   } else {
     # Estimate Cov(theta) using profile likelihood -------------------------
     h_N <- hn_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
