@@ -379,7 +379,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       gamma = new_gamma,
       p = new_p)
 
-    I_theta <- matrix(od_loglik_theta, nrow = nrow(new_theta), ncol = nrow(new_theta))
+    I_theta <- matrix(data = od_loglik_theta, 
+                      nrow = nrow(new_theta), 
+                      ncol = nrow(new_theta))
 
     single_pert_theta <- sapply(X = seq(1, ncol(I_theta)),
       FUN = pl_theta,
@@ -403,10 +405,13 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       MAX_ITER = MAX_ITER)
 
     if (any(is.na(single_pert_theta))) {
-      I_theta <- matrix(NA, nrow = nrow(new_theta), ncol = nrow(new_theta))
+      I_theta <- matrix(data = NA, 
+                        nrow = nrow(new_theta), 
+                        ncol = nrow(new_theta))
       SE_CONVERGED <- FALSE
     } else {
-      spt_wide <- matrix(rep(c(single_pert_theta), times = ncol(I_theta)),
+      spt_wide <- matrix(rep(c(single_pert_theta), 
+                             times = ncol(I_theta)),
        ncol = ncol(I_theta),
        byrow = FALSE)
       #for the each kth row of single_pert_theta add to the kth row / kth column of I_theta
@@ -437,7 +442,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
         p_val_num = p_val_num,
         MAX_ITER = MAX_ITER,
         TOL = TOL)
-      dpt <- matrix(0, nrow = nrow(I_theta), ncol = ncol(I_theta))
+      dpt <- matrix(data = 0, 
+                    nrow = nrow(I_theta), 
+                    ncol = ncol(I_theta))
       dpt[c,c] <- double_pert_theta[1] #Put double on the diagonal
       if(c < ncol(I_theta)) {
         ## And fill the others in on the cth row/ column
@@ -457,7 +464,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     if (any(is.na(se_theta))) {
       SE_CONVERGED <- FALSE
     } else {
-      TRUE
+      SE_CONVERGED <- TRUE
     }
 
     if (verbose) {

@@ -32,20 +32,26 @@
 
 profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL,
                            comp_dat_all, theta_pred, gamma_pred, gamma0, p0, p_val_num, TOL, MAX_ITER) {
-
+  # Determine error setting -----------------------------------------
+  ## If unvalidated variable was left blank, assume error-free ------
+  errorsY <- errorsX <- TRUE
+  if (is.null(Y_unval)) {errorsY <- FALSE}
+  if (is.null(X_unval)) {errorsX <- FALSE}
+  # ----------------------------------------- Determine error setting
+  
   sn <- ncol(p0)
   m <- nrow(p0)
 
   prev_gamma <- gamma0
   prev_p <- p0
 
-  theta_design_mat <- cbind(int = 1, comp_dat_all[-c(1:n), theta_pred])
-
+  theta_design_mat <- data.matrix(cbind(int = 1, 
+                                        comp_dat_all[-c(1:n), theta_pred]))
 
   # For the E-step, save static P(Y|X) for unvalidated --------------
   pY_X <- .pYstarCalc(theta_design_mat, n, 0, theta, comp_dat_all, match(Y, colnames(comp_dat_all))-1, vector("numeric",nrow(theta_design_mat)), vector("numeric",nrow(theta_design_mat)))
   gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
-  gamma_design_mat <- cbind(int = 1, comp_dat_all[, gamma_pred])
+  gamma_design_mat <- data.frame(cbind(int = 1, comp_dat_all[, gamma_pred]))
 
   CONVERGED <- FALSE
   CONVERGED_MSG <- "Unknown"
@@ -53,22 +59,29 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
 
   # pre-allocate memory for our loop variables
   # improves performance
-  pYstar <- vector(mode="numeric", length = nrow(gamma_design_mat) - n)
-  mu_gamma <- vector(mode="numeric", length = length(pYstar))
-  mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
+  if (errorsY) {
+    pYstar <- vector(mode="numeric", length = nrow(gamma_design_mat) - n) 
+    mu_gamma <- vector(mode="numeric", length = length(pYstar))
+    mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
+    pX <- matrix(,nrow = m * (N-n) * 2, ncol = length(Bspline))
+  } else {
+    pX <- matrix(,nrow = m * (N-n), ncol = length(Bspline))
+  }
   psi_num <- matrix(,nrow = nrow(comp_dat_all)-n, ncol=length(Bspline))
   psi_t <- matrix(,nrow = nrow(psi_num), ncol = ncol(psi_num))
   w_t <- vector("numeric", length = nrow(psi_t))
   u_t <- matrix(,nrow = m * (N-n), ncol = ncol(psi_t))
-  pX <- matrix(,nrow = m * (N-n) * 2, ncol = length(Bspline))
-
+  
   # Estimate gamma/p using EM -----------------------------------------
   while(it <= MAX_ITER & !CONVERGED)
   {
     # E Step ----------------------------------------------------------
     # P(Y*|X*,Y,X) ---------------------------------------------------
-    pYstar <- .pYstarCalc(gamma_design_mat, n, n, prev_gamma, comp_dat_all, match(Y_unval, colnames(comp_dat_all))-1, pYstar, mu_gamma)
-
+    if (errorsY) {
+      pYstar <- .pYstarCalc(gamma_design_mat, n, n, prev_gamma, comp_dat_all, match(Y_unval, colnames(comp_dat_all))-1, pYstar, mu_gamma)
+    } else {
+      pYstar <- 1
+    }
     ### -------------------------------------------------- P(Y*|X*,Y,X)
     ###################################################################
     ### P(X|X*) -------------------------------------------------------
@@ -78,7 +91,11 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
     ### p_kj ------------------------------------------------------
     ### need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
     ### multiply by the B-spline terms
-    pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_all[-c(1:n), Bspline]
+    if (errorsY) {
+      pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_all[-c(1:n), Bspline]
+    } else {
+      pX <- prev_p[rep(seq(1, m), each = (N - n)), ] * comp_dat_all[-c(1:n), Bspline]
+    }
     ### ---------------------------------------------------------- p_kj
     ### ------------------------------------------------------- P(X|X*)
     ###################################################################
@@ -95,7 +112,11 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
     psi_num <- c(pY_X * pYstar) * pX
     ### Update denominator ------------------------------------------
     #### Sum up all rows per id (e.g. sum over xk/y) ----------------
-    psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = 2 * m))
+    if (errorsY) {
+      psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = 2 * m))
+    } else {
+      psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = m))
+    }
     #### Then sum over the sn splines -------------------------------
     psi_denom <- rowSums(psi_denom)
     #### Avoid NaN resulting from dividing by 0 ---------------------
@@ -108,8 +129,10 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
     ### Update the u_kji for unvalidated subjects ------------------
     ### by summing over Y = 0/1 w/i each i, k ----------------------
     ### add top half of psi_t (y = 0) to bottom half (y = 1) -------
-    u_t <- psi_t[c(1:(m * (N - n))), ] + psi_t[- c(1:(m * (N - n))), ]
-
+    u_t <- psi_t[c(1:(m * (N - n))), ]
+    if (errorsY) {
+      u_t <- u_t + psi_t[- c(1:(m * (N - n))), ]
+    }
     ### ----------------------------- Estimate conditional expectations
     # ---------------------------------------------------------- E Step
     ###################################################################
@@ -118,23 +141,32 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
     # M Step ----------------------------------------------------------
     ###################################################################
     ## Update gamma using weighted logistic regression ----------------
-    w_t <- .lengthenWT(w_t, n)
-    muVector <- .calculateMu(gamma_design_mat, prev_gamma)
-    gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[,c(Y_unval)], muVector)
-    hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
-    
-    new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
-                          error = function(err) {
-                            matrix(NA, nrow = nrow(prev_gamma))
-                          })
-    if (any(is.na(new_gamma)))
-    {
-      suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
-      # browser()
+    if (errorsY) {
+      w_t <- .lengthenWT(w_t, n)
+      muVector <- .calculateMu(gamma_design_mat, prev_gamma)
+      gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[,c(Y_unval)], muVector)
+      hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
+      
+      new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
+                            error = function(err) {
+                              matrix(NA, nrow = nrow(prev_gamma))
+                            })
+      if (any(is.na(new_gamma)))
+      {
+        suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, 
+                                                 family = "binomial", 
+                                                 data = data.frame(comp_dat_all), 
+                                                 weights = w_t)$coefficients, 
+                                             ncol = 1))
+        # browser()
+      }
+      
+      # Check for convergence -----------------------------------------
+      gamma_conv <- abs(new_gamma - prev_gamma) < TOL
+    } else {
+      new_gamma <- NULL
+      gamma_conv <- TRUE
     }
-    
-    # Check for convergence -----------------------------------------
-    gamma_conv <- abs(new_gamma - prev_gamma) < TOL
     ## ---------------- Update gamma using weighted logistic regression
     ###################################################################
     ## Update {p_kj} --------------------------------------------------
@@ -162,13 +194,16 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
 
   if(it == MAX_ITER & !CONVERGED) {
     CONVERGED_MSG <- "MAX_ITER reached"
-    new_gamma <- matrix(NA, nrow = nrow(gamma0), ncol = 1)
+    if (errorsY) {
+      new_gamma <- matrix(NA, nrow = nrow(gamma0), ncol = 1) 
+    } else {
+      new_gamma <- NULL
+    }
     new_p <- matrix(NA, nrow = nrow(p0), ncol = ncol(p0))
   }
   if(CONVERGED) CONVERGED_MSG <- "converged"
   # ---------------------------------------------- Estimate theta using EM
-
-
+  
   return(list("psi_at_conv" = psi_t,
               "gamma_at_conv" = new_gamma,
               "p_at_conv" = new_p,

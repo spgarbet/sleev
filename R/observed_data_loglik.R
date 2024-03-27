@@ -32,7 +32,8 @@ observed_data_loglik <- function(N, n, Y_unval = NULL, Y = NULL, X_unval = NULL,
   
   #sn <- ncol(p)
   m <- nrow(p)
-
+  comp_dat_all <- data.matrix(comp_dat_all)
+  
   # For validated subjects --------------------------------------------------------
   #################################################################################
   ## Sum over log[P_theta(Yi|Xi)] -------------------------------------------------
