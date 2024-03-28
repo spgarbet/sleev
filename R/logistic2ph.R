@@ -72,22 +72,22 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   gamma_pred <- c(X_unval, Y, X, Z)
   pred <- unique(c(theta_pred, gamma_pred))
   # ----------------------  Create vector of predictors for each model
-  
+
   # Determine error setting -----------------------------------------
   ## If unvalidated variable was left blank, assume error-free ------
   errorsY <- errorsX <- TRUE
   if (is.null(Y_unval)) {errorsY <- FALSE}
   if (is.null(X_unval)) {errorsX <- FALSE}
   # ----------------------------------------- Determine error setting
-  
+
   # Add the B spline basis ------------------------------------------
   sn <- ncol(data[, Bspline])
   if(0 %in% colSums(data[c(1:n), Bspline])) {
     warning("Empty sieve in validated data. Reconstruct B-spline basis and try again.", call. = FALSE)
 
-    res_coefficients <- data.frame(Estimate = rep(NA, length(theta_pred) + 1), 
-                                   SE = NA, 
-                                   Statistic = NA, 
+    res_coefficients <- data.frame(Estimate = rep(NA, length(theta_pred) + 1),
+                                   SE = NA,
+                                   Statistic = NA,
                                    pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
@@ -129,15 +129,15 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     comp_dat_y0[, Y] <- 0 ### One with Y = 0
     comp_dat_y0[, Y] <- 1 ### And one with Y = 1
     comp_dat_unval <- data.matrix(cbind(rbind(comp_dat_y0, comp_dat_y1)))
-  } 
+  }
   comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k")]
   comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
 
   # Initialize B-spline coefficients {p_kj}  -----------------------
   ## Numerators sum B(Xi*) over k = 1,...,m ------------------------
   ## Save as p_val_num for updates (contributions don't change) ----
-  p_val_num <- rowsum(x = comp_dat_val[, Bspline], 
-                      group = comp_dat_val[, "k"], 
+  p_val_num <- rowsum(x = comp_dat_val[, Bspline],
+                      group = comp_dat_val[, "k"],
                       reorder = TRUE)
   prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
 
@@ -198,12 +198,12 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ### Update denominator ------------------------------------------
     #### Sum up all rows per id (e.g. sum over xk/y) ----------------
     if (errorsY) {
-      psi_denom <- rowsum(x = psi_num, 
-                          group = rep(seq(1, (N - n)), 
+      psi_denom <- rowsum(x = psi_num,
+                          group = rep(seq(1, (N - n)),
                                       times = 2 * m))
     } else {
-      psi_denom <- rowsum(x = psi_num, 
-                          group = rep(seq(1, (N - n)), 
+      psi_denom <- rowsum(x = psi_num,
+                          group = rep(seq(1, (N - n)),
                                       times = m))
     }
     #### Then sum over the sn splines -------------------------------
@@ -270,7 +270,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       if (any(is.na(new_gamma))) {
         suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
       }
-      
+
       # Check for convergence -----------------------------------------
       gamma_conv <- abs(new_gamma - prev_gamma) < TOL
       ## ---------------- Update gamma using weighted logistic regression
@@ -305,7 +305,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   rownames(new_theta) <- c("Intercept", theta_pred)
   if (errorsY) {
-    rownames(new_gamma) <- c("Intercept", gamma_pred)  
+    rownames(new_gamma) <- c("Intercept", gamma_pred)
   }
 
   if(!CONVERGED) {
@@ -379,8 +379,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       gamma = new_gamma,
       p = new_p)
 
-    I_theta <- matrix(data = od_loglik_theta, 
-                      nrow = nrow(new_theta), 
+    I_theta <- matrix(data = od_loglik_theta,
+                      nrow = nrow(new_theta),
                       ncol = nrow(new_theta))
 
     single_pert_theta <- sapply(X = seq(1, ncol(I_theta)),
@@ -405,15 +405,15 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       MAX_ITER = MAX_ITER)
 
     if (any(is.na(single_pert_theta))) {
-      I_theta <- matrix(data = NA, 
-                        nrow = nrow(new_theta), 
+      I_theta <- matrix(data = NA,
+                        nrow = nrow(new_theta),
                         ncol = nrow(new_theta))
       SE_CONVERGED <- FALSE
     } else {
-      spt_wide <- matrix(rep(c(single_pert_theta), 
+      spt_wide <- matrix(data = rep(c(single_pert_theta),
                              times = ncol(I_theta)),
-       ncol = ncol(I_theta),
-       byrow = FALSE)
+                         ncol = ncol(I_theta),
+                         byrow = FALSE)
       #for the each kth row of single_pert_theta add to the kth row / kth column of I_theta
       I_theta <- I_theta - spt_wide - t(spt_wide)
       SE_CONVERGED <- TRUE
@@ -442,8 +442,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
         p_val_num = p_val_num,
         MAX_ITER = MAX_ITER,
         TOL = TOL)
-      dpt <- matrix(data = 0, 
-                    nrow = nrow(I_theta), 
+      dpt <- matrix(data = 0,
+                    nrow = nrow(I_theta),
                     ncol = ncol(I_theta))
       dpt[c,c] <- double_pert_theta[1] #Put double on the diagonal
       if(c < ncol(I_theta)) {

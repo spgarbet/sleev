@@ -46,9 +46,7 @@ pl_theta <- function(k, theta, h_N, n, N, Y_unval = NULL, Y, X_unval, X, Z, Bspl
                            p_val_num = p_val_num,
                            TOL = TOL,
                            MAX_ITER = MAX_ITER)
-
-  if(pl_params$converged) 
-  {
+  if(pl_params$converged) {
     od_loglik_pert <- observed_data_loglik(N = N,
                                            n = n,
                                            Y_unval = Y_unval,
