@@ -1,4 +1,8 @@
-# SLEEV: Semiparametric Likelihood Estimation with Errors in Variables
+<p style="display:inline-block;">
+  <img src="hex.png" width="200">
+  <h1>SLEEV: Semiparametric Likelihood Estimation with Errors in Variables</h1>
+</p>
+
 The complete R package `logreg2ph` and code for the simulation settings included in [this paper](https://doi.org/10.1111/biom.13512). 
 
 Part of the R package `TwoPhaseReg` as described in [this paper](https://doi.org/10.1002/sim.8876).
