@@ -20,7 +20,7 @@ logistic2ph(
 )
 }
 \arguments{
-\item{Y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is required.}
+\item{Y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.}
 
 \item{Y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
 
