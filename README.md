@@ -13,7 +13,7 @@ This package combines elements of the R packages [`logreg2ph`](https://github.co
 To install the package, run the following in your `R` console: 
 
 ```{r}
-devtools::install_github("Epic-Doughnut/sleev")
+devtools::install_github("dragontaoran/sleev")
 ```
 
 ### Simulation settings 
