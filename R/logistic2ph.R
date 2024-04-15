@@ -74,10 +74,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   # ----------------------  Create vector of predictors for each model
 
   # Determine error setting -----------------------------------------
-  ## If unvalidated variable was left blank, assume error-free ------
-  errorsY <- errorsX <- TRUE
-  if (is.null(Y_unval)) {errorsY <- FALSE}
-  if (is.null(X_unval)) {errorsX <- FALSE}
+  ## If unvalidated outcome was left blank, assume error-free -------
+  errorsY <- !is.null(Y_unval)
   # ----------------------------------------- Determine error setting
 
   # Add the B spline basis ------------------------------------------
@@ -125,13 +123,15 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
                           k = rep(seq(1, m), each = (N - n)),
                           row.names = NULL)
   if (errorsY) {
-    comp_dat_y0 <- comp_dat_y1 <- comp_dat_unval ### Create two versions
+    ### Create two versions of the complete data
+    comp_dat_y0 <- comp_dat_y1 <- comp_dat_unval 
     comp_dat_y0[, Y] <- 0 ### One with Y = 0
-    comp_dat_y0[, Y] <- 1 ### And one with Y = 1
-    comp_dat_unval <- data.matrix(cbind(rbind(comp_dat_y0, comp_dat_y1)))
+    comp_dat_y1[, Y] <- 1 ### And one with Y = 1
+    comp_dat_unval <- data.matrix(rbind(comp_dat_y0, comp_dat_y1))
   }
   comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k")]
-  comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
+  comp_dat_all <- rbind(comp_dat_val, 
+                        comp_dat_unval)
 
   # Initialize B-spline coefficients {p_kj}  -----------------------
   ## Numerators sum B(Xi*) over k = 1,...,m ------------------------
@@ -229,17 +229,12 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     # M Step ----------------------------------------------------------
     ###################################################################
     ## Update theta using weighted logistic regression ----------------
-    ### Gradient ------------------------------------------------------
     w_t <- .lengthenWT(w_t, n)
 
     # calculateMu returns exp(-mu) / (1 + exp(-mu))
     muVector <- .calculateMu(theta_design_mat, prev_theta)
     gradient_theta <- .calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, Y], muVector)
     hessian_theta <- .calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
-
-    # ### ------------------------------------------------------ Gradient
-    # ### Hessian -------------------------------------------------------
-
     new_theta <- tryCatch(expr = prev_theta - (solve(hessian_theta) %*% gradient_theta),
       error = function(err) {
         matrix(NA, nrow = nrow(prev_theta))
@@ -261,8 +256,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       muVector <- .calculateMu(gamma_design_mat, prev_gamma)
       gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
       hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
-      # ### ------------------------------------------------------ Gradient
-      # ### Hessian -------------------------------------------------------
       new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
                             error = function(err) {
                               matrix(NA, nrow = nrow(prev_gamma))
@@ -282,7 +275,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## Update {p_kj} --------------------------------------------------
     ### Update numerators by summing u_t over i = 1, ..., N ---------
     new_p_num <- p_val_num +
-      rowsum(u_t, group = rep(seq(1, m), each = (N - n)), reorder = TRUE)
+      rowsum(x = u_t, 
+             group = rep(seq(1, m), each = (N - n)), 
+             reorder = TRUE)
     new_p <- t(t(new_p_num) / colSums(new_p_num))
     ### Check for convergence ---------------------------------------
     p_conv <- abs(new_p - prev_p) < TOL
@@ -291,7 +286,6 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ###################################################################
     # M Step ----------------------------------------------------------
     ###################################################################
-
     all_conv <- c(theta_conv, gamma_conv, p_conv)
     if (mean(all_conv) == 1) { CONVERGED <- TRUE }
 
@@ -313,7 +307,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       CONVERGED_MSG = "MAX_ITER reached"
     }
 
-    res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)), SE = NA, Statistic = NA, pvalue = NA)
+    res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)), 
+                                   SE = NA, 
+                                   Statistic = NA, 
+                                   pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
     if (errorsY) {
@@ -339,7 +336,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # ---------------------------------------------- Estimate theta using EM
   if(noSE) {
-    res_coefficients <- data.frame(Estimate = new_theta, SE = NA, Statistic = NA, pvalue = NA)
+    res_coefficients <- data.frame(Estimate = new_theta, 
+                                   SE = NA, 
+                                   Statistic = NA, 
+                                   pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
     if (errorsY) {
