@@ -109,20 +109,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // pYstarCalc
-arma::vec pYstarCalc(const arma::mat& gamma_design_mat, const int& n, const int& excludeRows, const arma::mat& prev_gamma, const arma::mat& comp_dat_all, const int& Y_unval_index, arma::vec& pYstar, arma::vec& mu_gamma);
-RcppExport SEXP _sleev_pYstarCalc(SEXP gamma_design_matSEXP, SEXP nSEXP, SEXP excludeRowsSEXP, SEXP prev_gammaSEXP, SEXP comp_dat_allSEXP, SEXP Y_unval_indexSEXP, SEXP pYstarSEXP, SEXP mu_gammaSEXP) {
+arma::vec pYstarCalc(const arma::mat& gamma_design_mat, const int& startRow, const arma::mat& prev_gamma, const arma::mat& comp_dat_all, const int& Y_unval_index);
+RcppExport SEXP _sleev_pYstarCalc(SEXP gamma_design_matSEXP, SEXP startRowSEXP, SEXP prev_gammaSEXP, SEXP comp_dat_allSEXP, SEXP Y_unval_indexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type gamma_design_mat(gamma_design_matSEXP);
-    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type excludeRows(excludeRowsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type startRow(startRowSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type prev_gamma(prev_gammaSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_all(comp_dat_allSEXP);
     Rcpp::traits::input_parameter< const int& >::type Y_unval_index(Y_unval_indexSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type pYstar(pYstarSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type mu_gamma(mu_gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(pYstarCalc(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma));
+    rcpp_result_gen = Rcpp::wrap(pYstarCalc(gamma_design_mat, startRow, prev_gamma, comp_dat_all, Y_unval_index));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -134,7 +131,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_calculateMu", (DL_FUNC) &_sleev_calculateMu, 2},
     {"_sleev_calculateGradient", (DL_FUNC) &_sleev_calculateGradient, 6},
     {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
-    {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 8},
+    {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
     {NULL, NULL, 0}
 };
 

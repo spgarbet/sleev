@@ -26,9 +26,9 @@
 }
 
 #' Multiply matrix by vector
-#' 
+#'
 #' Multiplies each column of a matrix by a vector
-#' 
+#'
 #' @param mat The matrix
 #' @param v The vector
 #' @return mat * v
@@ -36,9 +36,9 @@
 NULL
 
 #' Divide matrix by vector
-#' 
+#'
 #' Divides each column of a matrix by a vector
-#' 
+#'
 #' @param mat The matrix
 #' @param v The vector divisor
 #' @return mat / v, or mat * v^-1
@@ -46,9 +46,9 @@ NULL
 NULL
 
 #' Prepend ones to a w_t
-#' 
+#'
 #' Lengthens a vector by prepending n ones
-#' 
+#'
 #' @param w_t_original The original vector
 #' @param n The number of ones to add to the front of the vector
 #' @param modifyW_T If false, instantly returns w_t_original
@@ -58,10 +58,10 @@ NULL
 }
 
 #' Calculate Mu
-#' 
+#'
 #' Calculates the value of mu according to two variables
 #' Small helper function
-#' 
+#'
 #' @param design_mat The design matrix
 #' @param prev The previous iteration of the design matrix
 #' @noRd
@@ -70,10 +70,10 @@ NULL
 }
 
 #' Calculate gradient
-#' 
+#'
 #' Calculates a gradient given w_t and a design matrix
 #' TODO
-#' 
+#'
 #' @param w_t A vector indicating ??
 #' @param n The number of ones to prepend to w_t
 #' @param design_mat The design matrix
@@ -86,9 +86,9 @@ NULL
 }
 
 #' Calculate Hessian Matrix
-#' 
+#'
 #' Calculates the Hessian Matrix and lengthens w_t by n
-#' 
+#'
 #' @param design_mat The design matrix
 #' @param w_t The vector ??
 #' @param muVector The vector returned by calculateMu
@@ -101,19 +101,16 @@ NULL
 }
 
 #' Calculate pYstar
-#' 
+#'
 #' TODO
-#' 
+#'
 #' @param gamma_design_mat The gamma design matrix
-#' @param n The starting row index to consider
-#' @param excludeRows The number of rows to exclude from the first section of gamma_design_mat
+#' @param startRow The number of the rows to start within gamma_design_mat
 #' @param prev_gamma The previous iteration of gamma_design_mat
 #' @param comp_dat_all The complete dataset
 #' @param Y_unval_index Which column of comp_dat_all houses the unvalidated Y variable
-#' @param pYstar An empty, pre-allocated vector
-#' @param mu_gamma An empty, pre-allocated vector
 #' @noRd
-.pYstarCalc <- function(gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma) {
-    .Call(`_sleev_pYstarCalc`, gamma_design_mat, n, excludeRows, prev_gamma, comp_dat_all, Y_unval_index, pYstar, mu_gamma)
+.pYstarCalc <- function(gamma_design_mat, startRow, prev_gamma, comp_dat_all, Y_unval_index) {
+    .Call(`_sleev_pYstarCalc`, gamma_design_mat, startRow, prev_gamma, comp_dat_all, Y_unval_index)
 }
 
