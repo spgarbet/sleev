@@ -50,18 +50,13 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
                                       comp_dat_all[-c(1:n), theta_pred]))
   comp_dat_all <- as.matrix(comp_dat_all)
 
-  # Remove row and column names
-  # rownames(theta_design_mat) <- colnames(theta_design_mat) <- NULL
-  # rownames(theta) <- NULL
-  # colnames(comp_dat_all) <- NULL
-
   # For the E-step, save static P(Y|X) for unvalidated --------------
   # browser()
-  pY_X <- .pYstarCalc(theta_design_mat, n, 0L, theta, comp_dat_all, match(Y, colnames(comp_dat_all))-1, vector("numeric",nrow(theta_design_mat)), vector("numeric",nrow(theta_design_mat)))
+  pY_X <- .pYstarCalc(theta_design_mat, 1L, theta, comp_dat_all, match(Y, colnames(comp_dat_all))-1)
   if (errorsY) {
     gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
-    gamma_design_mat <- data.frame(cbind(int = 1,
-                                         comp_dat_all[, gamma_pred]))
+    gamma_design_mat <- as.matrix(cbind(int = 1,
+                                        comp_dat_all[, gamma_pred]))
   }
 
   CONVERGED <- FALSE
@@ -84,11 +79,12 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
   u_t <- matrix(,nrow = m * (N-n), ncol = ncol(psi_t))
 
   # Estimate gamma/p using EM -----------------------------------------
+  #browser()
   while(it <= MAX_ITER & !CONVERGED) {
     # E Step ----------------------------------------------------------
     # P(Y*|X*,Y,X) ---------------------------------------------------
     if (errorsY) {
-      pYstar <- .pYstarCalc(gamma_design_mat, n, n, prev_gamma, comp_dat_all, match(Y_unval, colnames(comp_dat_all))-1, pYstar, mu_gamma)
+      pYstar <- .pYstarCalc(gamma_design_mat, n + 1, prev_gamma, comp_dat_all, match(Y_unval, colnames(comp_dat_all))-1)
     } else {
       pYstar <- 1
     }
@@ -216,7 +212,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
   }
   if(CONVERGED) CONVERGED_MSG <- "converged"
   # ---------------------------------------------- Estimate theta using EM
-
+  print("Successfully profiled out")
   return(list("psi_at_conv" = psi_t,
               "gamma_at_conv" = new_gamma,
               "p_at_conv" = new_p,
