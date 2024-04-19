@@ -76,6 +76,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   # Determine error setting -----------------------------------------
   ## If unvalidated outcome was left blank, assume error-free -------
   errorsY <- !is.null(Y_unval)
+  if (!errorsY & any(is.na(data[, Y]))) {
+    stop("If Y_unval is NULL, the outcome is assumed to be error-free, but Y has missing values.")
+  }
   # ----------------------------------------- Determine error setting
 
   # Add the B spline basis ------------------------------------------
@@ -124,13 +127,13 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
                           row.names = NULL)
   if (errorsY) {
     ### Create two versions of the complete data
-    comp_dat_y0 <- comp_dat_y1 <- comp_dat_unval 
+    comp_dat_y0 <- comp_dat_y1 <- comp_dat_unval
     comp_dat_y0[, Y] <- 0 ### One with Y = 0
     comp_dat_y1[, Y] <- 1 ### And one with Y = 1
     comp_dat_unval <- data.matrix(rbind(comp_dat_y0, comp_dat_y1))
   }
   comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k")]
-  comp_dat_all <- rbind(comp_dat_val, 
+  comp_dat_all <- rbind(comp_dat_val,
                         comp_dat_unval)
 
   # Initialize B-spline coefficients {p_kj}  -----------------------
@@ -275,8 +278,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     ## Update {p_kj} --------------------------------------------------
     ### Update numerators by summing u_t over i = 1, ..., N ---------
     new_p_num <- p_val_num +
-      rowsum(x = u_t, 
-             group = rep(seq(1, m), each = (N - n)), 
+      rowsum(x = u_t,
+             group = rep(seq(1, m), each = (N - n)),
              reorder = TRUE)
     new_p <- t(t(new_p_num) / colSums(new_p_num))
     ### Check for convergence ---------------------------------------
@@ -307,9 +310,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
       CONVERGED_MSG = "MAX_ITER reached"
     }
 
-    res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)), 
-                                   SE = NA, 
-                                   Statistic = NA, 
+    res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)),
+                                   SE = NA,
+                                   Statistic = NA,
                                    pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
@@ -336,9 +339,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
   # ---------------------------------------------- Estimate theta using EM
   if(noSE) {
-    res_coefficients <- data.frame(Estimate = new_theta, 
-                                   SE = NA, 
-                                   Statistic = NA, 
+    res_coefficients <- data.frame(Estimate = new_theta,
+                                   SE = NA,
+                                   Statistic = NA,
                                    pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
