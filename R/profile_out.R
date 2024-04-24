@@ -212,7 +212,6 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
   }
   if(CONVERGED) CONVERGED_MSG <- "converged"
   # ---------------------------------------------- Estimate theta using EM
-  print("Successfully profiled out")
   return(list("psi_at_conv" = psi_t,
               "gamma_at_conv" = new_gamma,
               "p_at_conv" = new_p,
