@@ -53,6 +53,10 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     stop("The number of columns in X_unval and X is different!")
   }
 
+  # Convert data to data.frame to avoid conflicts with tbl
+  data <- data.frame(data)
+
+  # Save sample size
   N <- nrow(data)
 
   # Calculate the validated subjects
@@ -121,7 +125,7 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
   ## -------------- Save static (X*,Y*,X,Y,Z) since they don't change
   # 2 (m x n)xd matrices (y=0/y=1) of each (one column per person, --
   # one row per x) --------------------------------------------------
-  comp_dat_unval <- cbind(data[-c(1:n), c(Y_unval, setdiff(x = pred, y = X), Bspline)],
+  comp_dat_unval <- cbind(data[rep(seq(from = (n+1), N), times = m), c(Y_unval, setdiff(x = pred, y = X), Bspline)],
                           x_obs_stacked,
                           k = rep(seq(1, m), each = (N - n)),
                           row.names = NULL)
