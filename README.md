@@ -16,194 +16,69 @@ To install the package, run the following in your `R` console:
 devtools::install_github("dragontaoran/sleev")
 ```
 
-### Simulation settings 
-Inside the `simulations` subdirectory, you will find the following: 
+Load package:
 
-  - `Table1_SimSetup.R`: simulations with outcome misclassification and a binary error-prone covariate, intended to inspect increasing Phase I and Phase II sample sizes
-  - `Tables2&3_SimSetup.R`: Simulations with outcome misclassification and a continuous covariate with additive errors, intended to inspect varied error variance 
-  - `Table4_SimSetup.R`: Simulations with outcome misclassification and a continuous covariate with additive errors, intended to inspect varied outcome error rates
-  - `TableS2_SimSetup.R`: Simulations with outcome misclassification and binary error-prone covariate, intended to inspect robustness of the fully-parametric MLE and proposed SMLE under complex covariate error
-  - `TableS3_SimSetup.R`: Simulations with outcome misclassification and binary error-prone covariate, intended to inspect robustness of the fully-parametric MLE and proposed SMLE under complex outcome and covariate error
-  - `TableS4_SimSetup.R`: Simulations with continuous covariate with additive errors (classical measurement error), intended to compare performance of proposed SMLE to traditional regression calibration (RC) approach
-  - `TableS5_SimSetup.R`: Simulation results for the naive estimator under outcome misclassification and a continuous covariate under varied parameterizations
-  - `TableS6_SimSetup.R`: Simulations with outcome misclassification and continuous covariate with differentially biased additive errors, intended to demonstrate robustness of the proposed SMLE to different covariate error types
-  - `TableS7_SimSetup.R`: Simulations with outcome misclassification and continuous covariate with differential multiplicative errors, intended to demonstrate robustness of the proposed SMLE to different covariate error types
-
-### Generating Data
-
-Inside each of the files above, you will find code to generate the appropriate data for that simulation setting, e.g., 
-
-```{r, eval = F, tidy = TRUE}
-set.seed(918)
-
-# Set sample sizes ----------------------------------------
-N <- 1000 # Phase I size = N
-n <- 250 # Phase II/audit size = n
-
-# Generate true values Y, Xb, Xa ----------------------------
-Xa <- rbinom(n = N, size = 1, prob = 0.25)
-Xb <- rbinom(n = N, size = 1, prob = 0.5)
-Y <- rbinom(n = N, size = 1, prob = (1 + exp(-(- 0.65 - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
-
-# Generate error-prone Xb* from error model P(Xb*|Xb,Xa) ------
-sensX <- specX <- 0.75
-delta0 <- - log(specX / (1 - specX))
-delta1 <- - delta0 - log((1 - sensX) / sensX)
-Xbstar <- rbinom(n = N, size = 1, prob = (1 + exp(- (delta0 + delta1 * Xb + 0.5 * Xa))) ^ (- 1))
-
-# Generate error-prone Y* from error model P(Y*|Xb*,Y,Xb,Xa) ---
-sensY <- 0.95
-specY <- 0.90
-theta0 <- - log(specY / (1 - specY))
-theta1 <- - theta0 - log((1 - sensY) / sensY)
-Ystar <- rbinom(n = N, size = 1, prob = (1 + exp(- (theta0 - 0.2 * Xbstar + theta1 * Y - 0.2 * Xb - 0.1 * Xa))) ^ (- 1))
+```{r}
+library(sleev)
 ```
 
-Then, the user has the option of two audit designs: simple random sampling (SRS) or 1:1 case-control sampling based on $Y^*$ (naive case-control). Based on these designs, the validation indicators V are generated as follows: 
+### `mock.vccc` data
 
-```{r, eval = FALSE}
-# Choose audit design: SRS or -----------------------------
-## Naive case-control: case-control based on Y^* ----
-audit <- "SRS" #or "Naive case-control"
+This data is a simulated two-phase sampling dataset based on VCCC data. To load this dataset, run:
 
-# Draw audit of size n based on design --------------------
-## V is a TRUE/FALSE vector where TRUE = validated --------
-if(audit == "SRS")
-{
-    V <- seq(1, N) %in% sample(x = seq(1, N), size = n, replace = FALSE)
-}
-if(audit == "Naive case-control")
-{
-    V <- seq(1, N) %in% c(sample(x = which(Ystar == 0), size = 0.5 * n, replace = FALSE),
-                          sample(x = which(Ystar == 1), size = 0.5 * n, replace = FALSE))
-}
+```{r}
+data(mock.vccc)
 ```
 
-Finally, combine the generated data and validation indicators into an analytical dataset: 
+### Preprocessing
+Because of skewness, we often transform both CD4 and VL. In our analysis, CD4 was divided by 10 and square-root transformed and VL was log_10 transformed:
 
-```{r, eval = F, tidy = T}
-# Build dataset --------------------------------------------
-sdat <- cbind(Y, Xb, Ystar, Xbstar, Xa, V)
-# Make Phase-II variables Y, Xb NA for unaudited subjects ---
-sdat[!V, c("Y", "Xb")] <- NA
+```
+mock.vccc$CD4_val_sq10 <- sqrt(mock.vccc$CD4_val/10)
+mock.vccc$CD4_unval_sq10 <- sqrt(mock.vccc$CD4_unval/10)
+mock.vccc$VL_val_l10 <- log10(mock.vccc$VL_val)
+mock.vccc$VL_unval_l10 <- log10(mock.vccc$VL_unval)
+```
+Load `splines`	package
+
+```
+library(splines)
 ```
 
-### Running Estimator Code
+### Construct B-spline Basis
 
-The `R` scripts each contain implementations for the estimators discussed in the paper. Examples of each are provided below:
-
-#### 1. Naive Analysis
-
-```{r, eval = F, tidy = T}
-naive <- glm(Ystar ~ Xbstar + Xa, family = "binomial", data = data.frame(sdat))
-beta_naive <- naive$coefficients[2]
-se_naive <- sqrt(diag(vcov(naive)))[2]
+```
+n <- nrow(mock.vccc) # get the number of rows of the dataset
+sn <- 20 # set the size of the B-spline basis
+# portion the size of the B-spline basis according to the size of two sex groups
+sex_ratio <- sum(mock.vccc$Sex==0)/n
+sn_0 <- round(sn*sex_ratio, digits = 0)
+sn_1 <- sn-sn_0
+# create B-spline basis for each sex group separately through bs()
+Bspline_0 <- splines::bs(x=mock.vccc$VL_unval_l10[mock.vccc$Sex==0], df=sn_0, degree=3,
+                         intercept=TRUE)
+Bspline_1 <- splines::bs(x=mock.vccc$VL_unval_l10[mock.vccc$Sex==1], df=sn_1, degree=3,
+                         intercept=TRUE)
+# create B-spline basis for this analysis by combining the two bases created above
+Bspline <- matrix(data=0, nrow=n, ncol=sn)
+Bspline[mock.vccc$Sex==0,1:(sn_0)] <- Bspline_0
+Bspline[mock.vccc$Sex==1,(sn_0+1):sn] <- Bspline_1
+# name B-spline basis matrix columns properly
+colnames(Bspline) <- paste0("bs", 1:sn) 
+# add the B-spline basis to the analysis dataset 
+data <- data.frame(cbind(mock.vccc, Bspline))
 ```
 
-#### 2. Complete-Case Analysis
-
-```{r, eval = F, tidy = T}
-cc <- glm(Y[V] ~ Xb[V] + Xa[V], family = "binomial")
-beta_cc <- cc$coefficients[2]
-se_cc <- sqrt(diag(vcov(cc)))[2]
+### Model fitting 
+The SMLEs can be obtained by running
 ```
-
-#### 3. Horvitz--Thompson Estimator (for Naive Case-Control Audit Only)
-
-```{r, eval = F, tidy = T}
-library(sandwich)
-if (audit == "Naive case-control") {
-  sample_wts <- ifelse(Ystar[V] == 0, 1 / ((0.5 * n) / (table(Ystar)[1])), 1 / ((0.5 * n) / (table(Ystar)[2])))
-  ht <- glm(Y[V] ~ Xb[V] + Xa[V], family = "binomial",
-            weights = sample_wts)
-  beta_ht <- ht$coefficients[2]
-  se_ht <- sqrt(diag(sandwich(ht)))[2]
-}
+res_linear <- linear2ph(Y_unval="CD4_unval_sq10", Y="CD4_val_sq10", X_unval="VL_unval_l10",
+                        X="VL_val_l10", Z="Sex", Bspline=colnames(Bspline), data=data,
+                        hn_scale = 1, noSE = FALSE, TOL = 1e-04, MAX_ITER = 1000,
+                        verbose = FALSE)
 ```
+Check convergence:
 
-#### 4. Generalized Raking Estimator
-
-```{r, eval = F, tidy = T}
-### Influence function for logistic regression
-### Taken from: https://github.com/T0ngChen/multiwave/blob/master/sim.r
-inf.fun <- function(fit) {
-  dm <- model.matrix(fit)
-  Ihat <- (t(dm) %*% (dm * fit$fitted.values * (1 - fit$fitted.values))) / nrow(dm)
-  ## influence function
-  infl <- (dm * resid(fit, type = "response")) %*% solve(Ihat)
-  infl
-}
-
-naive_infl <- inf.fun(naive) # error-prone influence functions based on naive model
-colnames(naive_infl) <- paste0("if", 1:3)
-
-# Add naive influence functions to sdat -----------------------------------------------
-sdat <- cbind(id = 1:N, sdat, naive_infl)
-
-# Calibrate raking weights to the sum of the naive influence functions ----------------
-library(survey)
-if (audit == "SRS") {
-  sstudy <- twophase(id = list(~id, ~id),
-                     data = data.frame(sdat),
-                     subset = ~V)
-} else if (audit == "Naive case-control") {
-  sstudy <- twophase(id = list(~id, ~id),
-                     data = data.frame(sdat),
-                     strat = list(NULL, ~Ystar),
-                     subset = ~V)
-}
-scal <- calibrate(sstudy, ~ if1 + if2 + if3, phase = 2, calfun = "raking")
-
-# Fit analysis model using calibrated weights -----------------------------------------
-rake <- svyglm(Y ~ Xb + Xa, family = "binomial", design = scal)
-beta_rake <- rake$coefficients[2]
-se_rake <- sqrt(diag(vcov(rake)))[2]
 ```
-
-#### 5. Maximum Likelihood Estimator (MLE) (for Binary Xb* Only)
-
-```{r, eval = F, tidy = T}
-# Script: two-phase log-likelihood specification adapted from Tang et al. (2015) named ~/code/Tang_twophase_loglik_binaryX.R
-source("Tang_twophase_loglik_binaryX.R")
-fit_Tang <- nlm(f = Tang_twophase_loglik,
-                p = rep(0, 12),
-                hessian = TRUE,
-                Val = "V",
-                Y_unval = "Ystar",
-                Y_val="Y",
-                X_unval = "Xbstar",
-                X_val = "Xb",
-                C = "Xa",
-                data = sdat)
-beta_mle <- fit_Tang$estimate[10]
-se_mle <- sqrt(diag(solve(fit_Tang$hessian)))[10]
-```
-
-#### 6. Sieve Maximum Likelihood Estimator (SMLE)
-
-```{r, eval = F, tidy = T}
-# Construct B-spline basis -------------------------------
-nsieve <- 4
-B <- matrix(0, nrow = N, ncol = nsieve)
-B[which(Xa == 0 & Xbstar == 0), 1] <- 1
-B[which(Xa == 0 & Xbstar == 1), 2] <- 1
-B[which(Xa == 1 & Xbstar == 0), 3] <- 1
-B[which(Xa == 1 & Xbstar == 1), 4] <- 1
-colnames(B) <- paste0("bs", seq(1, nsieve))
-sdat <- cbind(sdat, B)
-
-library("logreg2ph")
-smle <- logreg2ph(Y_unval = "Ystar",
-                  Y_val = "Y",
-                  X_unval = "Xbstar",
-                  X_val = "Xb",
-                  C = "Xa",
-                  Validated = "V",
-                  Bspline = colnames(B),
-                  data = sdat,
-                  noSE = FALSE,
-                  MAX_ITER = 1000,
-                  TOL = 1E-4)
-beta_smle <- smle$Coefficients$Coefficient[2]
-se_smle <- smle$Coefficients$SE[2]
+c(res_linear$converge, res_linear$converge_cov)
 ```
