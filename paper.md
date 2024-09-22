@@ -86,7 +86,7 @@ speed up the computation, and we unified the syntax across functions.
 
 In this section, we briefly introduce the SMLEs for linear regression.
 The SMLEs for logistic regression are similar to linear regression and
-described in **reference to github full paper**.Suppose that we want to fit
+described in the [package vignette](https://github.com/dragontaoran/sleev/blob/main/vignettes/sleev_vignette.pdf).Suppose that we want to fit
 a standard linear regression model for a continuous outcome $Y$ and
 covariates $\mathbf{X}$:
 $Y = \alpha + \mathbf{\beta}^{T}\ \mathbf{X} + \epsilon$, where
@@ -186,7 +186,7 @@ We now illustrate how to obtain SMLEs using the sleev package with
 dataset mock.vccc. Specifically, we show how to fit a linear regression
 model in the presence of errors in both the outcome and covariates using
 the linear2ph() function. Situations with more covariates and examples
-with logistic regression are included in **reference to github full paper**.
+with logistic regression are included in  the [package vignette](https://github.com/dragontaoran/sleev/blob/main/vignettes/sleev_vignette.pdf).
 
 This example fits a linear regression model with CD4 count at antiretroviral therapy (ART) 
 initiation regressed on viral load (VL) at ART initiation, adjusting for sex at birth. 
