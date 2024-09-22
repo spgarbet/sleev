@@ -165,7 +165,7 @@ found in (@lotspeich2022efficient).
 # Functionalities of the `sleev` R package
 
 The sleev package provides a user-friendly way to obtain the SMLEs and
-their standard errors. The sleev package includes two main functions:
+their standard errors. The package can be installed and loaded from the R CRAN library or [Github](https://github.com/dragontaoran/sleev). The sleev package includes two main functions:
 linear2ph() and logistic2ph(), to fit linear and logistic regressions,
 respectively, under two-phase sampling with an error-prone outcome and
 covariates. The input arguments are similar for the two functions and
@@ -197,12 +197,10 @@ analysis, CD4 was divided by 10 and square root transformed and VL
 was $\log_{10}$ transformed:
 
 ```
+data(mock.vccc)
 mock.vccc$CD4_val_sq10 <- sqrt(mock.vccc$CD4_val/10)
-
 mock.vccc$CD4_unval_sq10 <- sqrt(mock.vccc$CD4_unval/10)
-
 mock.vccc$VL_val_l10 <- log10(mock.vccc$VL_val)
-
 mock.vccc$VL_unval_l10 <- log10(mock.vccc$VL_unval)
 ```
 
