@@ -21,7 +21,7 @@ affiliations:
     index: 4
 authors:
   - name: Jiangmei Xiong
-  - corresponding: yes
+    corresponding: yes
     affiliation: 1
   - name: Sarah C. Lotspeich
     affiliation: 2
