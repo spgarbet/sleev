@@ -22,17 +22,23 @@ affiliations:
 authors:
   - name: Jiangmei Xiong
     corresponding: yes
+    orcid: 0000-0002-7481-765X
     affiliation: 1
   - name: Sarah C. Lotspeich
     affiliation: 2
+    orcid: 0000-0001-5380-2427
   - name: Joey B. Sherrill
     affiliation: 3
+    orcid: 0009-0002-2741-0475
   - name: Gustavo Amorim
     affiliation: 1
+    orcid: 0000-0002-2941-5360
   - name: Bryan E. Shepherd
     affiliation: 1
+    orcid: 0000-0002-3758-5992
   - name: Ran Tao
     affiliation: '1,4'
+    orcid: 0000-0002-1106-2923
 ---
 
 # Summary
@@ -56,7 +62,7 @@ error-prone responses and covariates.
 Routinely collected data are being used frequently in biomedical
 research, such as electronic health records. However, these data tend to
 be error-prone, and careless use of these data could lead to biased
-estimates and misleading research findings (@duan2016empirical). To avoid invalid
+estimates and misleading research findings [@duan2016empirical]. To avoid invalid
 study results, trained experts carefully verify and extract data
 elements. However, it is usually only feasible to validate data for a
 subset of records or variables. After validation, researchers have
@@ -67,14 +73,14 @@ have low bias and are as efficient as possible.
 
 SMLE, which combines the error-prone data on all records with the
 validated data on a subsample, is a highly efficient and robust
-estimator to analyze such two-phase data (@tao2021efficient; @lotspeich2022efficient). Still, in
+estimator to analyze such two-phase data [@tao2021efficient; @lotspeich2022efficient]. Still, in
 practice these estimators can be difficult to implement, as they involve
-approximating nuisance conditional densities using B-splines (@schumaker2007spline)
+approximating nuisance conditional densities using B-splines [@schumaker2007spline]
 and then maximizing the semiparametric likelihood via a sophisticated EM
-algorithm (@tao2017efficient). R package sleev makes this method readily
+algorithm [@tao2017efficient]. R package sleev makes this method readily
 applicable for practitioners in a user-friendly way. sleev integrates
 and extends R packages logreg2ph and TwoPhaseReg, two primitive R
-packages developed with the original methods papers (@tao2021efficient; @lotspeich2022efficient). These
+packages developed with the original methods papers [@tao2021efficient; @lotspeich2022efficient]. These
 two packages lacked proper documentation, were computationally slow, and
 were difficult to use. To promote the use of SMLE in two-phase data,
 extensive work has been done to create sleev, a computationally
@@ -158,9 +164,9 @@ The maximization of expression (2) is carried out through an EM
 algorithm to find the SMLEs $\widehat{\mathbf{\theta}}$ and
 ${\widehat{p}}_{kj}$. The covariance matrix of the SMLE
 $\widehat{\mathbf{\theta}}$ is obtained through the method of profile
-likelihood (@murphy2000profile). Full details on the SMLE method for logistic regression
+likelihood [@murphy2000profile]. Full details on the SMLE method for logistic regression
 with error-prone data, including its theoretical properties, can be
-found in (@lotspeich2022efficient).
+found in [@lotspeich2022efficient].
 
 # Functionalities of the `sleev` R package
 
@@ -176,7 +182,7 @@ $B_{j}^{q}\left( \mathbf{X}_{i}^{*} \right)$ to be used in the
 estimation of the error densities.
 
 The sleev package included a dataset constructed to mimic data from the
-Vanderbilt Comprehensive Care Clinic (VCCC) patient records from (@giganti2020accounting).
+Vanderbilt Comprehensive Care Clinic (VCCC) patient records from [@giganti2020accounting].
 Table 1 lists the variables in this dataset to be used in subsequent
 analyses.
 
