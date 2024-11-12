@@ -144,10 +144,10 @@ the package with a detailed illustration using simulated HIV data
 
 Suppose that we want to fit a standard linear regression model for a
 continuous outcome $Y$ and vector of covariates $\pmb{X}$:
-$Y=\alpha+\pmb{\beta}^{\textup T}\mathbf{X}+\epsilon$, where $\epsilon$
+$Y=\alpha+\pmb{\beta}^{\text T}\mathbf{X}+\epsilon$, where $\epsilon$
 follows a normal distribution with mean zero and variance $\sigma^2$.
 Our goal is to obtain estimates of
-$\pmb{\theta=}(\alpha,\pmb{\beta}^{\textup T}, \sigma^2)^{\textup T}$.
+$\pmb{\theta=}(\alpha,\pmb{\beta}^{\text T}, \sigma^2)^{\text T}$.
 When we have error-prone data, $Y$ and $\mathbf{X}$ are unobserved
 except for a subset of subjects whose records are validated. For the
 majority of subjects whose records are not validated, only the
@@ -158,7 +158,7 @@ assumed that the measurement errors $W$ and $\pmb{U}$ are independent of
 $\epsilon$. However, $W$ and $\pmb{U}$ can be correlated. Note that
 $\pmb{X^*}$ can also include error-free covariates $\pmb{Z}$, which can
 be expressed as
-$\pmb{X^*}=(\pmb{X^*_0}^{\textup T}, \pmb{Z}^{\textup T})^{\textup T}$,
+$\pmb{X^*}=(\pmb{X^*_0}^{\text T}, \pmb{Z}^{\text T})^{\text T}$,
 where $\pmb{X^*_0}$ denotes error-prone covariates. However, for
 simplicity, we do not include the expression of error-free covariates
 $\pmb{Z}$ throughout Sections 2 and 3. With potential errors in our
@@ -172,7 +172,7 @@ $$= P_{\pmb{\theta}}(Y|\pmb{X})P(W,\pmb{U}|\pmb{X}^{\pmb{*}})P(\pmb{X}^{\pmb{*}}
 where $P(\cdot)$ and $P(\cdot|\cdot)$ denote density and conditional
 density functions, respectively. $P_{\pmb{\theta}}(Y|\pmb{X})$ then
 refers to the conditional density function of the linear regression
-model $Y=\alpha+\pmb{X}\pmb{\beta}+\epsilon$. Denote the validation
+model $Y=\alpha+\pmb{\beta}^{\text T}\mathbf{X}+\epsilon$. Denote the validation
 indicator variable by $V$, with $V=1$ indicating that a record was
 validated and $V=0$ otherwise. For records that do not undergo
 validation, their measurement errors $(W, \pmb{U})$ are missing.
@@ -229,9 +229,9 @@ can be found in @Tao2021.
 # 3. Sieve maximum likelihood estimators for logistic regression
 
 For a binary outcome $Y$, we fit a logistic regression model
-$P_{\pmb{\theta}}(Y=1|\mathbf{X})=\left[1+\exp\{-(\alpha+\pmb{\beta}^{\textup T}\mathbf{X})\}\right]^{-1}$
+$P_{\pmb{\theta}}(Y=1|\mathbf{X})=\left[1+\exp\{-(\alpha+\pmb{\beta}^{\text T}\mathbf{X})\}\right]^{-1}$
 with parameters
-$\pmb{\theta} = (\alpha, \pmb{\beta}^{\textup T})^{\textup T}$. The
+$\pmb{\theta} = (\alpha, \pmb{\beta}^{\text T})^{\text T}$. The
 joint density of $(Y^*,\pmb{X}^*,Y,\pmb{X})$ is \begin{align}
 P(Y^*,\pmb{X}^*,Y,\pmb{X})&=P(Y^*|\pmb{X^*},Y,\pmb{X})P(Y|\pmb{X},\pmb{X^*})P(\pmb{X}|\pmb{X^*})P(\pmb{X^*})\nonumber\\
 &=P(Y^*|\pmb{X^*},Y,\pmb{X})P_{\pmb{\theta}}(Y|\pmb{X})P(\pmb{X}|\pmb{X^*})P(\pmb{X^*}),\nonumber
@@ -243,8 +243,9 @@ log-likelihood takes the form
 
 $$
 \sum^n_{i=1}V_i\{\log P_{\pmb{\theta}}(Y_i|\pmb{X}_i)+\log P(Y^*_i|\pmb{X}_i^{\pmb{*}},Y_i,\pmb{X}_i)+\log P(\pmb{X}_i|\pmb{X}_i^{\pmb{*}})\}
-$$ $$
-+\sum^n_{i=1}(1-V_i)\log\left \{\sum^1_{y=0}\int \log P_{\pmb{\theta}}(y|\pmb{x})P(Y^*_i|\pmb{X}_i^{\pmb{*}},y,\pmb{x})P(\pmb{x}|\pmb{X}_i^{\pmb{*}})\text d\pmb{x}\right\}.  
+$$ 
+$$
++\sum^n_{i=1}(1-V_i)\log\left \{\sum^1_{y=0}\int P_{\pmb{\theta}}(y|\pmb{x})P(Y^*_i|\pmb{X}_i^{\pmb{*}},y,\pmb{x})P(\pmb{x}|\pmb{X}_i^{\pmb{*}})\text d\pmb{x}\right\}.  
 $$ {#eq-logitlik}
 
 We fit $P(Y^*|\pmb{X}^{\pmb{*}},Y,\pmb{X})$ with an additional logistic
@@ -548,7 +549,7 @@ The 95% confidence interval of CD4 count $(\text{cells/10mm}^3)^{1/2}$
 for this group is therefore
 
 ```{r}
-est.mean + c(-1,1)*1.96*sqrt(est.cov)
+est.mean + c(-1, 1) * 1.96 * c(sqrt(est.cov))
 ```
 
 ## 4.4 Choosing the B-spline basis through cross-validation
@@ -784,7 +785,8 @@ perform PCA for the two continuous covariates. The two input variables
 are the error-prone unvalidated VL and error-free age:
 
 ```{r}
-VLAge_pca_all <- prcomp(x=mock.vccc[,c("VL_unval_l10", "Age")], center = TRUE,scale. = TRUE)
+VLAge_pca_all <- prcomp(x=mock.vccc[,c("VL_unval_l10", "Age")],
+                        center = TRUE, scale. = TRUE)
 VLAge_pca <- VLAge_pca_all$x[,1]
 ```
 
