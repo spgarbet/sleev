@@ -1,5 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^simulations$
+^hex.png
+^.paper.bib
+^.paper.md
+^.github$
 
 cran-comments.html
