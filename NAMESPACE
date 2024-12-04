@@ -3,6 +3,7 @@
 export(cv_linear2ph)
 export(linear2ph)
 export(logistic2ph)
+export(logistic2ph_summ)
 importFrom(Rcpp,evalCpp)
 importFrom(Rcpp,sourceCpp)
 importFrom(stats,as.formula)
