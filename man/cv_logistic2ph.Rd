@@ -5,7 +5,6 @@
 \title{Performs cross-validation to calculate the average predicted log likelihood for the \code{logistic2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.}
 \usage{
 cv_logistic2ph(
-  fold,
   Y_unval = NULL,
   Y = NULL,
   X_unval = NULL,

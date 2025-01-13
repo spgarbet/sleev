@@ -19,7 +19,7 @@
 #' @importFrom stats pchisq
 #'
 #' @export
-cv_logistic2ph <- function(fold, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
+cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
                            Validated = NULL, Bspline = NULL, data, nfolds = 5, TOL = 1E-4, MAX_ITER = 1000) {
   if (nfolds >= 3) {
     if (verbose) {
