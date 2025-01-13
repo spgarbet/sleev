@@ -17,12 +17,9 @@
 #'
 #' @return
 #' \item{coefficients}{Stores the analysis results.}
-#' \item{outcome_err_coefficients}{Stores the outcome error model results.}
-#' \item{Bspline_coefficients}{Stores the final B-spline coefficient estimates.}
 #' \item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
 #' \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 #' \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
-#' \item{converge_msg}{In parameter estimation, if the EM algorithm does not converge, then \code{converged_msg} is a string description.}
 #'
 #' @references
 #' Lotspeich, S. C., Shepherd, B. E., Amorim, G. G. C., Shaw, P. A., & Tao, R. (2021). Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. *Biometrics, biom.13512.* https://doi.org/10.1111/biom.13512
@@ -97,12 +94,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
     res_final = list(coefficients = res_coefficients,
-                     outcome_err_coefficients = data.frame(Estimate = rep(NA, length(gamma_pred) + 1)),
-                     Bspline_coefficients = NA,
                      covariance = NA,
                      converge = FALSE,
-                     converge_cov = NA,
-                     converge_msg = "B-spline error")
+                     converge_cov = NA)
 
     return(res_final)
   }
@@ -322,19 +316,14 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
     if (errorsY) {
       res_final = list(coefficients = res_coefficients,
-                       outcome_err_coefficients = data.frame(Estimate = rep(NA, length(new_gamma))),
-                       Bspline_coefficients = NA,
                        covariance = NA,
                        converge = FALSE,
-                       converge_cov = NA,
-                       converge_msg = CONVERGED_MSG)
+                       converge_cov = NA)
     } else {
       res_final = list(coefficients = res_coefficients,
-                       Bspline_coefficients = NA,
                        covariance = NA,
                        converge = FALSE,
-                       converge_cov = NA,
-                       converge_msg = CONVERGED_MSG)
+                       converge_cov = NA)
     }
     return(res_final)
   }
@@ -351,19 +340,14 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
 
     if (errorsY) {
       res_final = list(coefficients = res_coefficients,
-                       outcome_err_coefficients = data.frame(Estimate = new_gamma),
-                       Bspline_coefficients = cbind(k = 1:nrow(new_p), new_p),
                        covariance = NA,
                        converge = CONVERGED,
-                       converge_cov = NA,
-                       converge_msg = CONVERGED_MSG)
+                       converge_cov = NA)
     } else {
       res_final = list(coefficients = res_coefficients,
-                       Bspline_coefficients = cbind(k = 1:nrow(new_p), new_p),
                        covariance = NA,
                        converge = CONVERGED,
-                       converge_cov = NA,
-                       converge_msg = CONVERGED_MSG)
+                       converge_cov = NA)
     }
     return(res_final)
   } else {
@@ -484,12 +468,9 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
     res_final = list(coefficients = res_coefficients,
-                     outcome_err_coefficients = data.frame(Estimate = new_gamma),
-                     Bspline_coefficients = cbind(k = 1:nrow(new_p), new_p),
                      covariance = cov_theta,
                      converge = CONVERGED,
-                     converge_cov = SE_CONVERGED,
-                     converge_msg = CONVERGED_MSG)
+                     converge_cov = SE_CONVERGED)
 
     return(res_final)
   }

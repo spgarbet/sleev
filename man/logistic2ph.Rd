@@ -46,12 +46,9 @@ logistic2ph(
 }
 \value{
 \item{coefficients}{Stores the analysis results.}
-\item{outcome_err_coefficients}{Stores the outcome error model results.}
-\item{Bspline_coefficients}{Stores the final B-spline coefficient estimates.}
 \item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
 \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
-\item{converge_msg}{In parameter estimation, if the EM algorithm does not converge, then \code{converged_msg} is a string description.}
 }
 \description{
 This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021).
