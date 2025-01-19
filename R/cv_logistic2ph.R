@@ -20,7 +20,8 @@
 #'
 #' @export
 cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
-                           Validated = NULL, Bspline = NULL, data, nfolds = 5, TOL = 1E-4, MAX_ITER = 1000) {
+                           Bspline = NULL, data, nfolds = 5, TOL = 1E-4, MAX_ITER = 1000,
+                           verbose = FALSE) {
   if (nfolds >= 3) {
     if (verbose) {
       print(paste0(nfolds, "-folds cross-validation will be performed."))
@@ -59,14 +60,16 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
       train_theta <- train_fit$coeff$coeff
       train_gamma <- train_fit$outcome_err_coeff$coeff
       train_p <- train_fit$Bspline_coeff
-      train_x <- data.frame(train[train[, Validated] == 1, X])
+      train_x <- data.frame(train[which(!is.na(train[, X])), X])
+      # train_x <- data.frame(train[train[, Validated] == 1, X])
       train_x <- data.frame(train_x[order(train_x[, 1]), ])
       colnames(train_x) <- X
       train_x <- cbind(k = 1:nrow(train_x), train_x)
       train_p <- merge(train_x, train_p)
 
       test <- data[which(data[, fold] != f), ]
-      test_x <- data.frame(test[test[, Validated] == 1, X])
+      test_x <- data.frame(test[which(!is.na(test[, X])), X])
+      # test_x <- data.frame(test[test[, Validated] == 1, X])
       test_x <- data.frame(test_x[order(test_x[, 1]), ])
       colnames(test_x) <- X
       test_x <- cbind(k_ = 1:nrow(test_x), test_x)
@@ -100,15 +103,31 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
       re_test_p <- t(t(test_p) / denom)
 
       # Construct complete dataset
-      cd <- complete_data(Y_unval = "Ystar", Y = "Y", X_unval = "Xbstar", X = "Xb", Z = "Xa",
-                          Validated = "V", Bspline = Bspline, data = test)
+      test$V <- as.numeric(!is.na(test[, X])) ## define validation indicator
+      cd <- complete_data(Y_unval = Y_unval,
+                          Y = Y,
+                          X_unval = X_unval,
+                          X = X,
+                          Z = Z,
+                          Validated = "V",
+                          Bspline = Bspline,
+                          data = test)
 
       # Calculate log-likelihood -------------------------------------------
-      ll_f <- observed_data_loglik(N = nrow(test), n = sum(test[, Validated]),
-                                   Y_unval = Y_unval, Y = Y, X_unval = X_unval, X = X, Z = Z,
-                                   Bspline = Bspline, comp_dat_all = cd,
-                                   theta_pred = theta_pred, gamma_pred = gamma_pred,
-                                   theta = train_theta, gamma = train_gamma, p = re_test_p)
+      ll_f <- observed_data_loglik(N = nrow(test),
+                                   n = sum(!is.na(test[, X])),
+                                   Y_unval = Y_unval,
+                                   Y = Y,
+                                   X_unval = X_unval,
+                                   X = X,
+                                   Z = Z,
+                                   Bspline = Bspline,
+                                   comp_dat_all = cd,
+                                   theta_pred = theta_pred,
+                                   gamma_pred = gamma_pred,
+                                   theta = train_theta,
+                                   gamma = train_gamma,
+                                   p = re_test_p)
       ll[i] <- ll_f
     } else {
       ll[i] <- NA

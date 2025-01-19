@@ -10,12 +10,12 @@ cv_logistic2ph(
   X_unval = NULL,
   X = NULL,
   Z = NULL,
-  Validated = NULL,
   Bspline = NULL,
   data,
   nfolds = 5,
   TOL = 1e-04,
-  MAX_ITER = 1000
+  MAX_ITER = 1000,
+  verbose = FALSE
 )
 }
 \arguments{
