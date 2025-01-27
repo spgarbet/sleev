@@ -46,8 +46,8 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
   msg <- rep("", nfolds)
   ll <- rep(NA, nfolds)
   for (i in 1:nfolds) {
-    f <- unique(data[, fold])[i]
-    train <- data[which(data[, fold] == f), ]
+    f <- unique(data[, "fold"])[i]
+    train <- data[which(data[, "fold"] == f), ]
     suppressMessages(
       train_fit <- logistic2ph_all(Y_unval = Y_unval, Y = Y, X_unval = X_unval,
                                    X = X, Z = Z, Bspline = Bspline, data = train,
@@ -67,7 +67,7 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
       train_x <- cbind(k = 1:nrow(train_x), train_x)
       train_p <- merge(train_x, train_p)
 
-      test <- data[which(data[, fold] != f), ]
+      test <- data[which(data[, "fold"] != f), ]
       test_x <- data.frame(test[which(!is.na(test[, X])), X])
       # test_x <- data.frame(test[test[, Validated] == 1, X])
       test_x <- data.frame(test_x[order(test_x[, 1]), ])
