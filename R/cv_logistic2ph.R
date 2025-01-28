@@ -53,10 +53,9 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
                                    X = X, Z = Z, Bspline = Bspline, data = train,
                                    noSE = TRUE, TOL = TOL, MAX_ITER = MAX_ITER)
     )
-    status[i] <- train_fit$converged
-    msg[i] <- train_fit$converged_msg
+    status[i] <- train_fit$converge
 
-    if (train_fit$converged) {
+    if (train_fit$converge) {
       train_theta <- train_fit$coeff$coeff
       train_gamma <- train_fit$outcome_err_coeff$coeff
       train_p <- train_fit$Bspline_coeff
