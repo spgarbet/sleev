@@ -472,7 +472,8 @@ logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = 
                      converge = CONVERGED,
                      converge_cov = SE_CONVERGED)
 
+    res_final <- logistic2ph_class(res_final)
+
     return(res_final)
   }
 }
-

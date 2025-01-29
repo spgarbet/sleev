@@ -22,8 +22,11 @@ Suggests:
     MASS,
     rmarkdown,
     splines,
-    testthat,
+    testthat (>= 3.0.0),
     R.rsp,
     tibble
 VignetteBuilder: R.rsp
 LazyData: true
+Imports:
+    methods
+Config/testthat/edition: 3
