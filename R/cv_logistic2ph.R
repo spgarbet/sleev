@@ -45,39 +45,40 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
   status <- rep(TRUE, nfolds)
   msg <- rep("", nfolds)
   ll <- rep(NA, nfolds)
-  for (i in 1:nfolds) {
-    f <- unique(data[, "fold"])[i]
+  for (j in 1:nfolds) {
+    f <- unique(data[, "fold"])[j]
     train <- data[which(data[, "fold"] == f), ]
     suppressMessages(
       train_fit <- logistic2ph_all(Y_unval = Y_unval, Y = Y, X_unval = X_unval,
                                    X = X, Z = Z, Bspline = Bspline, data = train,
                                    noSE = TRUE, TOL = TOL, MAX_ITER = MAX_ITER)
     )
-    status[i] <- train_fit$converge
+    status[j] <- train_fit$converge
 
     if (train_fit$converge) {
-      train_theta <- train_fit$coeff$coeff
-      train_gamma <- train_fit$outcome_err_coeff$coeff
-      train_p <- train_fit$Bspline_coeff
-      train_x <- data.frame(train[which(!is.na(train[, X])), X])
-      # train_x <- data.frame(train[train[, Validated] == 1, X])
-      train_x <- data.frame(train_x[order(train_x[, 1]), ])
-      colnames(train_x) <- X
-      train_x <- cbind(k = 1:nrow(train_x), train_x)
-      train_p <- merge(train_x, train_p)
+      train_theta <- train_fit$coefficients$Estimate
+      train_gamma <- train_fit$outcome_err_coefficients$Estimate
+      train_p <- train_fit$Bspline_coeff ## k, x, and coefficients
+      #train_x <- train_fit$Bspline_coefficients[, c(1:2)] ## k and x vals
+      # train_x <- data.frame(train[which(!is.na(train[, X])), X])
+      # train_x <- data.frame(train_x[order(train_x[, 1]), ])
+      # colnames(train_x) <- X
+      # train_x <- cbind(k = 1:nrow(train_x), train_x)
+      # train_p <- merge(train_x, train_p)
 
       test <- data[which(data[, "fold"] != f), ]
-      test_x <- data.frame(test[which(!is.na(test[, X])), X])
-      # test_x <- data.frame(test[test[, Validated] == 1, X])
+      test_x <- unique(data.frame(test[which(!is.na(test[, X])), X]))
       test_x <- data.frame(test_x[order(test_x[, 1]), ])
       colnames(test_x) <- X
       test_x <- cbind(k_ = 1:nrow(test_x), test_x)
-      test_p <- matrix(data = NA, nrow = nrow(test_x), ncol = length(Bspline))
+      test_p <- matrix(data = NA,
+                       nrow = nrow(test_x),
+                       ncol = length(Bspline))
 
       for (i in 1:nrow(test_x)) {
         x_ <- test_x[i, X]
-        bf <- suppressWarnings(expr = max(which(train_x[, X] <= x_)))
-        af <- suppressWarnings(expr = min(which(train_x[, X] >= x_)))
+        bf <- suppressWarnings(expr = max(which(train_p[, X] <= x_)))
+        af <- suppressWarnings(expr = min(which(train_p[, X] >= x_)))
         if (bf == -Inf) { bf <- af }
         if (af == Inf) { af <- bf }
 
@@ -127,9 +128,9 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
                                    theta = train_theta,
                                    gamma = train_gamma,
                                    p = re_test_p)
-      ll[i] <- ll_f
+      ll[j] <- ll_f
     } else {
-      ll[i] <- NA
+      ll[j] <- NA
     }
   }
   # --------------------------------------------- Loop over the folds
