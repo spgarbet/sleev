@@ -58,26 +58,27 @@ cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z
     if (train_fit$converge) {
       train_theta <- train_fit$coeff$coeff
       train_gamma <- train_fit$outcome_err_coeff$coeff
-      train_p <- train_fit$Bspline_coeff
-      train_x <- data.frame(train[which(!is.na(train[, X])), X])
-      # train_x <- data.frame(train[train[, Validated] == 1, X])
-      train_x <- data.frame(train_x[order(train_x[, 1]), ])
-      colnames(train_x) <- X
-      train_x <- cbind(k = 1:nrow(train_x), train_x)
-      train_p <- merge(train_x, train_p)
+      train_p <- train_fit$Bspline_coeff ## k, x, and coefficients
+      #train_x <- train_fit$Bspline_coefficients[, c(1:2)] ## k and x vals
+      # train_x <- data.frame(train[which(!is.na(train[, X])), X])
+      # train_x <- data.frame(train_x[order(train_x[, 1]), ])
+      # colnames(train_x) <- X
+      # train_x <- cbind(k = 1:nrow(train_x), train_x)
+      # train_p <- merge(train_x, train_p)
 
       test <- data[which(data[, "fold"] != f), ]
-      test_x <- data.frame(test[which(!is.na(test[, X])), X])
-      # test_x <- data.frame(test[test[, Validated] == 1, X])
+      test_x <- unique(data.frame(test[which(!is.na(test[, X])), X]))
       test_x <- data.frame(test_x[order(test_x[, 1]), ])
       colnames(test_x) <- X
       test_x <- cbind(k_ = 1:nrow(test_x), test_x)
-      test_p <- matrix(data = NA, nrow = nrow(test_x), ncol = length(Bspline))
+      test_p <- matrix(data = NA,
+                       nrow = nrow(test_x),
+                       ncol = length(Bspline))
 
       for (i in 1:nrow(test_x)) {
         x_ <- test_x[i, X]
-        bf <- suppressWarnings(expr = max(which(train_x[, X] <= x_)))
-        af <- suppressWarnings(expr = min(which(train_x[, X] >= x_)))
+        bf <- suppressWarnings(expr = max(which(train_p[, X] <= x_)))
+        af <- suppressWarnings(expr = min(which(train_p[, X] >= x_)))
         if (bf == -Inf) { bf <- af }
         if (af == Inf) { af <- bf }
 
