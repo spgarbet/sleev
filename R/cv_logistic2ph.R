@@ -1,15 +1,15 @@
 #' Performs cross-validation to calculate the average predicted log likelihood for the \code{logistic2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.
 #'
-#' @param Y_unval Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.
-#' @param Y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
-#' @param X_unval Specifies the columns of the error-prone covariates. This argument is required.
-#' @param X Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.
-#' @param Bspline Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.
-#' @param Z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.
+#' @param y_unval Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.
+#' @param y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
+#' @param x_unval Specifies the columns of the error-prone covariates. This argument is required.
+#' @param x Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.
+#' @param b_spline Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.
+#' @param z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param nfolds Specifies the number of cross-validation folds. The default value is \code{5}. Although \code{nfolds} can be as large as the sample size (leave-one-out cross-validation), it is not recommended for large datasets. The smallest value allowable is \code{3}.
-#' @param MAX_ITER Specifies the maximum number of iterations in the EM algorithm. The default number is \code{2000}. This argument is optional.
-#' @param TOL Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
+#' @param max_iter Specifies the maximum number of iterations in the EM algorithm. The default number is \code{2000}. This argument is optional.
+#' @param tol Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
 #' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
 #' @return
 #' \item{avg_pred_loglike}{Stores the average predicted log likelihood.}
@@ -19,9 +19,14 @@
 #' @importFrom stats pchisq
 #'
 #' @export
-cv_logistic2ph <- function(Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL,
-                           Bspline = NULL, data, nfolds = 5, TOL = 1E-4, MAX_ITER = 1000,
+cv_logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = NULL,
+                           b_spline = NULL, data, nfolds = 5, tol = 1E-4, max_iter = 1000,
                            verbose = FALSE) {
+
+  # variable name change
+  Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
+  Bspline = b_spline; TOL = tol; MAX_ITER = max_iter
+
   if (nfolds >= 3) {
     if (verbose) {
       print(paste0(nfolds, "-folds cross-validation will be performed."))
