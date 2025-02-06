@@ -5,42 +5,42 @@
 \title{Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems}
 \usage{
 logistic2ph_summ(
-  Y_unval = NULL,
-  Y = NULL,
-  X_unval = NULL,
-  X = NULL,
-  Z = NULL,
-  Bspline = NULL,
+  y_unval = NULL,
+  y = NULL,
+  x_unval = NULL,
+  x = NULL,
+  z = NULL,
+  b_spline = NULL,
   data = NULL,
   hn_scale = 1,
-  noSE = FALSE,
-  TOL = 1e-04,
-  MAX_ITER = 1000,
+  se = TRUE,
+  tol = 1e-04,
+  max_iter = 1000,
   verbose = FALSE
 )
 }
 \arguments{
-\item{Y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.}
+\item{y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.}
 
-\item{Y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
+\item{y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
 
-\item{X_unval}{Specifies the columns of the error-prone covariates. This argument is required.}
+\item{x_unval}{Specifies the columns of the error-prone covariates. This argument is required.}
 
-\item{X}{Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
+\item{x}{Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
 
-\item{Z}{Specifies the columns of the accurately measured covariates. This argument is optional.}
+\item{z}{Specifies the columns of the accurately measured covariates. This argument is optional.}
 
-\item{Bspline}{Specifies the columns of the B-spline basis. This argument is required.}
+\item{b_spline}{Specifies the columns of the B-spline basis. This argument is required.}
 
 \item{data}{Specifies the name of the dataset. This argument is required.}
 
 \item{hn_scale}{Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.}
 
-\item{noSE}{If \code{TRUE}, then the variances of the parameter estimators will not be estimated. The default value is \code{FALSE}. This argument is optional.}
+\item{se}{If \code{FALSE}, then the variances of the parameter estimators will not be estimated. The default value is \code{TRUE}. This argument is optional.}
 
-\item{TOL}{Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.}
+\item{tol}{Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.}
 
-\item{MAX_ITER}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
+\item{max_iter}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 
 \item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
