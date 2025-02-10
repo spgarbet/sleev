@@ -2,12 +2,12 @@
 #'
 #' Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
 #'
-#' @param y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.
-#' @param y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
-#' @param x_unval Specifies the columns of the error-prone covariates. Subjects with missing values of \code{X_unval} are omitted from the analysis. This argument is required.
-#' @param x Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.
-#' @param b_spline Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.
-#' @param z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.
+#' @param y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{y_unval} are omitted from the analysis. This argument is required.
+#' @param y Column name that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
+#' @param x_unval Specifies the columns of the error-prone covariates. Subjects with missing values of \code{x_unval} are omitted from the analysis. This argument is required.
+#' @param x Specifies the columns that store the validated values of \code{x_unval} in the second phase. Subjects with missing values of \code{x} are considered as those not selected in the second phase. This argument is required.
+#' @param b_spline Specifies the columns of the B-spline basis. Subjects with missing values of \code{b_spline} are omitted from the analysis. This argument is required.
+#' @param z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{z} are omitted from the analysis. This argument is optional.
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param hn_scale Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.
 #' @param max_iter Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
@@ -15,10 +15,19 @@
 #' @param se If \code{FALSE}, then the variances of the parameter estimators will not be estimated. The default value is \code{TRUE}. This argument is optional.
 #' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
 #'
+#' @details
+#' Models for \code{linear2ph()} are specified through the arguments. The dataset input should at least contain columns for unvalidated error-prone outcome, validated error-prone outcome,
+#' unvalidated error-prone covariate(s), validated error-prone covariate(s), and B-spline basis. B-spline basis can be generated from \code{splines::bs()} function, with argument \code{x}
+#' being the unvalidated error-prone covariate(s). See vignette for options in tuning the B-spline basis.
+#'
 #' @return
-#' \item{coefficients}{Stores the analysis results.}
-#' \item{sigma}{Stores the residual standard error.}
-#' \item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
+#' `linear2ph()` returns an object of class `"linear2ph"`. The function `coef()` is used to obtain the coefficients of the fitted model. The function `summary()` is used to obtain and print a summary of results.
+#'
+#' An object of class `"linear2ph"` is a list containing at least the following components:
+
+#' \item{coefficients}{A named vector of the linear regression coefficient estimates.}
+#' \item{sigma}{The residual standard error.}
+#' \item{covariance}{The covariance matrix of the linear regression coefficient estimates.}
 #' \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 #' \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
 #'

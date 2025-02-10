@@ -20,13 +20,13 @@ logistic2ph(
 )
 }
 \arguments{
-\item{y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.}
+\item{y_unval}{Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{y_unval = NULL} (the default), \code{y} is treated as error-free.}
 
-\item{y}{Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
+\item{y}{Column name that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.}
 
 \item{x_unval}{Specifies the columns of the error-prone covariates. This argument is required.}
 
-\item{x}{Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
+\item{x}{Specifies the columns that store the validated values of \code{x_unval} in the second phase. Subjects with missing values of \code{x} are considered as those not selected in the second phase. This argument is required.}
 
 \item{z}{Specifies the columns of the accurately measured covariates. This argument is optional.}
 
@@ -45,13 +45,21 @@ logistic2ph(
 \item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
 \value{
-\item{coefficients}{Stores the analysis results.}
-\item{covariance}{Stores the covariance matrix of the regression coefficient estimates.}
+\code{logistic2ph()} returns an object of class \code{"logistic2ph"}. The function \code{coef()} is used to obtain the coefficients of the fitted model. The function \code{summary()} is used to obtain and print a summary of results.
+
+An object of class \code{"logistic2ph"} is a list containing at least the following components:
+\item{coefficients}{A named vector of the logistic regression coefficient estimates.}
+\item{covariance}{The covariance matrix of the logistic regression coefficient estimates.}
 \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
 }
 \description{
 This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021).
+}
+\details{
+Models for \code{logistic2ph()} are specified through the arguments. The dataset input should at least contain columns for unvalidated error-prone outcome, validated error-prone outcome,
+unvalidated error-prone covariate(s), validated error-prone covariate(s), and B-spline basis. B-spline basis can be generated from \code{splines::bs()} function, with argument \code{x}
+being the unvalidated error-prone covariate(s). See vignette for options in tuning the B-spline basis.
 }
 \references{
 Lotspeich, S. C., Shepherd, B. E., Amorim, G. G. C., Shaw, P. A., & Tao, R. (2021). Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. \emph{Biometrics, biom.13512.} https://doi.org/10.1111/biom.13512

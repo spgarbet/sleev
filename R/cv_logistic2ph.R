@@ -1,22 +1,71 @@
+#' Cross-validation log-likelihood prediction for \code{logistic2ph}
+#'
 #' Performs cross-validation to calculate the average predicted log likelihood for the \code{logistic2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.
 #'
-#' @param y_unval Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{Y_unval = NULL} (the default), \code{Y} is treated as error-free.
-#' @param y Column name that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.
+#' @param y_unval Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{y_unval = NULL} (the default), \code{y} is treated as error-free.
+#' @param y Column name that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
 #' @param x_unval Specifies the columns of the error-prone covariates. This argument is required.
-#' @param x Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.
-#' @param b_spline Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.
-#' @param z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.
+#' @param x Specifies the columns that store the validated values of \code{x_unval} in the second phase. Subjects with missing values of \code{x} are considered as those not selected in the second phase. This argument is required.
+#' @param b_spline Specifies the columns of the B-spline basis. Subjects with missing values of \code{b_spline} are omitted from the analysis. This argument is required.
+#' @param z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{z} are omitted from the analysis. This argument is optional.
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param nfolds Specifies the number of cross-validation folds. The default value is \code{5}. Although \code{nfolds} can be as large as the sample size (leave-one-out cross-validation), it is not recommended for large datasets. The smallest value allowable is \code{3}.
 #' @param max_iter Specifies the maximum number of iterations in the EM algorithm. The default number is \code{2000}. This argument is optional.
 #' @param tol Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
 #' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
+#'
+#' @details
+#' \code{cv_logistic2ph} gives log-likelihood prediction for models and data like those in \code{logistic2ph}. Therefore, the arguments of \code{cv_logistic2ph} is analogous to that of \code{logistic2ph}.
+#'
 #' @return
+#' `cv_logistic2ph()` returns a list that includes the following components:
 #' \item{avg_pred_loglike}{Stores the average predicted log likelihood.}
 #' \item{pred_loglike}{Stores the predicted log likelihood in each fold.}
 #' \item{converge}{Stores the convergence status of the EM algorithm in each run.}
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
+#'
+#' @examples
+#' set.seed(1)
+#' # different B-spline sizes
+#' sns <- c(15, 20, 25, 30, 35, 40)
+#' # vector to hold mean log-likelihood and run time for each sn
+#' pred_loglike.1 <- run.time.secs <- rep(NA, length(sns))
+#' # get number of rows of the dataset
+#' n <- nrow(mock.vccc)
+#' # specify number of folds in the cross validation
+#' k <- 5
+#' # calculate proportion of female patients in the dataset
+#' sex_ratio <- sum(mock.vccc$Sex==0)/n
+#' for (i in 1:length(sns)) {
+#'   # constructing B-spline basis using the same process as in Section 4.3.1
+#'   print(i)
+#'   sn <- sns[i]
+#'   art_ratio <- sum(mock.vccc$prior_ART==0)/n
+#'   sn_0 <- round(sn*art_ratio)
+#'   sn_1 <- sn-sn_0
+#'   Bspline_0 <- splines::bs(x=mock.vccc$VL_unval_l10[mock.vccc$prior_ART==0],
+#'                            df=sn_0, degree=3, intercept=TRUE)
+#'   Bspline_1 <- splines::bs(x=mock.vccc$VL_unval_l10[mock.vccc$prior_ART==1],
+#'                            df=sn_1, degree=3, intercept=TRUE)
+#'   Bspline <- matrix(0, n, sn)
+#'   Bspline[mock.vccc$prior_ART==0,1:sn_0] <- Bspline_0
+#'   Bspline[mock.vccc$prior_ART==1,(sn_0+1):sn] <- Bspline_1
+#'   colnames(Bspline) <- paste("bs", 1:sn, sep="")
+#'   data.sieve <- data.frame(cbind(mock.vccc, Bspline))
+
+#'   # cross validation, produce mean log-likelihood
+#'   start.time <- Sys.time()
+#'   res.1 <- cv_logistic2ph(y="ADE_val", y_unval="ADE_unval",
+#'                           x="VL_val_l10", x_unval="VL_unval_l10",
+#'                           z="prior_ART", b_spline=colnames(Bspline),
+#'                           data=data.sieve,
+#'                           nfolds=5, max_iter = 2000, tol = 1e-04)
+#'   # save run time
+#'   run.time.secs[i] <- difftime(Sys.time(), start.time, units = "secs")
+#'   # save mean log-likelihood result
+#'   pred_loglike.1[i] <- res.1$avg_pred_loglik
+#' }
 #'
 #' @export
 cv_logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = NULL,
@@ -54,9 +103,9 @@ cv_logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z
     f <- unique(data[, "fold"])[j]
     train <- data[which(data[, "fold"] == f), ]
     suppressMessages(
-      train_fit <- logistic2ph_all(Y_unval = Y_unval, Y = Y, X_unval = X_unval,
-                                   X = X, Z = Z, Bspline = Bspline, data = train,
-                                   noSE = TRUE, TOL = TOL, MAX_ITER = MAX_ITER)
+      train_fit <- logistic2ph_all(y_unval = Y_unval, y = Y, x_unval = X_unval,
+                                   x = X, z = Z, b_spline = Bspline, data = train,
+                                   se = FALSE, tol = TOL, max_iter = MAX_ITER)
     )
     status[j] <- train_fit$converge
 

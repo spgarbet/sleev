@@ -605,10 +605,10 @@ for (i in 1:length(sns)) {
   data.sieve <- data.frame(cbind(mock.vccc, Bspline))
   
   # cross validation, produce mean log-likelihood
-  res.1 <- cv_linear2ph(Y="CD4_val_sq10", Y_unval="CD4_unval_sq10",
-                        X="VL_val_l10", X_unval="VL_unval_l10", Z="Sex",
-                        Bspline=colnames(Bspline), data=data.sieve, 
-                        nfolds=k, MAX_ITER = 2000, TOL = 1e-04, 
+  res.1 <- cv_linear2ph(y="CD4_val_sq10", y_unval="CD4_unval_sq10",
+                        x="VL_val_l10", x_unval="VL_unval_l10", z="Sex",
+                        b_spline=colnames(Bspline), data=data.sieve, 
+                        nfolds=k, max_iter = 2000, tol = 1e-04, 
                         verbose = FALSE)
                     
   # save mean log-likelihood result                  

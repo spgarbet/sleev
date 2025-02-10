@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv_linear2ph.R
 \name{cv_linear2ph}
 \alias{cv_linear2ph}
-\title{Performs cross-validation to calculate the average predicted log likelihood for the \code{linear2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.}
+\title{Cross-validation log-likelihood prediction for \code{linear2ph}}
 \usage{
 cv_linear2ph(
   y_unval = NULL,
@@ -19,17 +19,17 @@ cv_linear2ph(
 )
 }
 \arguments{
-\item{y_unval}{Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{Y_unval} are omitted from the analysis. This argument is required.}
+\item{y_unval}{Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{y_unval} are omitted from the analysis. This argument is required.}
 
-\item{y}{Specifies the column that stores the validated value of \code{Y_unval} in the second phase. Subjects with missing values of \code{Y} are considered as those not selected in the second phase. This argument is required.}
+\item{y}{Specifies the column that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.}
 
-\item{x_unval}{Specifies the columns of the error-prone covariates. Subjects with missing values of \code{X_unval} are omitted from the analysis. This argument is required.}
+\item{x_unval}{Specifies the columns of the error-prone covariates. Subjects with missing values of \code{x_unval} are omitted from the analysis. This argument is required.}
 
-\item{x}{Specifies the columns that store the validated values of \code{X_unval} in the second phase. Subjects with missing values of \code{X} are considered as those not selected in the second phase. This argument is required.}
+\item{x}{Specifies the columns that store the validated values of \code{x_unval} in the second phase. Subjects with missing values of \code{x} are considered as those not selected in the second phase. This argument is required.}
 
-\item{z}{Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{Z} are omitted from the analysis. This argument is optional.}
+\item{z}{Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{z} are omitted from the analysis. This argument is optional.}
 
-\item{b_spline}{Specifies the columns of the B-spline basis. Subjects with missing values of \code{Bspline} are omitted from the analysis. This argument is required.}
+\item{b_spline}{Specifies the columns of the B-spline basis. Subjects with missing values of \code{b_spline} are omitted from the analysis. This argument is required.}
 
 \item{data}{Specifies the name of the dataset. This argument is required.}
 
@@ -42,12 +42,16 @@ cv_linear2ph(
 \item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
 }
 \value{
-\item{avg_pred_loglike}{Stores the average predicted log likelihood.}
-\item{pred_loglike}{Stores the predicted log likelihood in each fold.}
-\item{converge}{Stores the convergence status of the EM algorithm in each run.}
+\code{cv_linear2ph()} returns a list that includes the following components:
+\item{avg_pred_loglike}{The average predicted log likelihood across each fold.}
+\item{pred_loglike}{The predicted log likelihood in each fold.}
+\item{converge}{The convergence status of the EM algorithm in each run.}
 }
 \description{
 Performs cross-validation to calculate the average predicted log likelihood for the \code{linear2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.
+}
+\details{
+\code{cv_linear2ph} gives log-likelihood prediction for models and data like those in \code{linear2ph}. Therefore, the arguments of \code{cv_linear2ph} is analogous to that of \code{linear2ph}.
 }
 \examples{
   rho = 0.3
