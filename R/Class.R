@@ -24,9 +24,12 @@ linear2ph_class <- function(input) {
 #' @export
 print.linear2ph <- function(object) {
   if (object$converge) {
-    cat("This model has converged.\n")
+    cat("The parameter estimation has converged.\n")
     cat("Coefficients:\n")
     print(object$coefficients[,1])
+    if(!object$converge_cov){
+      cat("The variance estimation is either not requested to be estimated or did not converge.")
+    }
   } else {
     cat("This model did not converge.\n")
   }
@@ -41,30 +44,49 @@ coef.linear2ph <- function(object) {
   object$coefficients
 }
 
-#' Print Method for linear2ph Objects
+#' Summary Method for linear2ph Objects
 #'
-#' Prints the details of a \code{linear2ph} object.
+#' Summarizes the details of a \code{linear2ph} object.
 #' @param object An object of class \code{linear2ph}.
-#' @return None. Prints a summary of the object.
+#' @return coefficient matrix and covariance matrix.
 #' @export
 #' @method summary linear2ph
 summary.linear2ph <- function(object) {
-  if (object$converge) {
-    cat("Model Summary:\n")
-    cat("Coefficients:\n")
-    print(object$coefficients)
-    cat("\nCovariance Matrix:\n")
-    print(object$covariance)
-    # Return the summary as a list (if desired)
-    result <- list(
-      coefficients = object$coefficients,
-      covariance = object$covariance
-    )
-    return(invisible(result))  # Return the summary as a list
-  } else {
-    cat("This model did not converge. No summary available.\n")
+  if (!object$converge) {
+    warning("This model did not converge. No summary available.")
+    return(invisible(NULL))
   }
+
+  # Construct summary object
+  summary_obj <- list(
+    coefficients = object$coefficients,
+    covariance = object$covariance
+  )
+
+  class(summary_obj) <- "summary.linear2ph"  # Assign class
+  return(invisible(summary_obj))  # Return invisibly
 }
+
+#' Print Method for summary.linear2ph Objects
+#'
+#' Prints a structured summary of a \code{linear2ph} model.
+#'
+#' @param x An object of class \code{summary.linear2ph}.
+#' @return Invisibly returns \code{x}.
+#' @export
+#' @method print summary.linear2ph
+print.summary.linear2ph <- function(x) {
+  cat("Model Summary:\n")
+  cat("Coefficients:\n")
+  print(x$coefficients)  # Explicitly prints coefficients
+
+  cat("\nCovariance Matrix:\n")
+  print(x$covariance)  # Explicitly prints covariance
+
+  invisible(x)  # Return invisibly, avoiding auto-printing
+}
+
+
 
 #' Constructor for logistic2ph Objects
 #'
@@ -92,9 +114,12 @@ logistic2ph_class <- function(input) {
 #' @method print logistic2ph
 print.logistic2ph <- function(object) {
   if (object$converge) {
-    cat("This model has converged.\n")
+    cat("The parameter estimation has converged.\n")
     cat("Coefficients:\n")
     print(object$coefficients[,1])
+    if(!object$converge_cov){
+      cat("The variance estimation is either not requested to be estimated or did not converge.")
+    }
   } else {
     cat("This model did not converge.\n")
   }
@@ -112,28 +137,42 @@ coef.logistic2ph <- function(object) {
 
 #' Summary Method for logistic2ph Objects
 #'
-#' Prints the details of a \code{logistic2ph} object.
+#' Summarizes the details of a \code{logistic2ph} object.
 #' @param object An object of class \code{logistic2ph}.
-#' @return list of coefficients and covariance
+#' @return coefficient matrix and covariance matrix.
 #' @export
 #' @method summary logistic2ph
 summary.logistic2ph <- function(object) {
-  if (object$converge) {
-    # Print the summary
-    cat("Model Summary:\n")
-    cat("Coefficients:\n")
-    print(object$coefficients)  # Print coefficients
-    cat("\nCovariance Matrix:\n")
-    print(object$covariance)  # Print covariance matrix
-
-    # Return the summary as a list (if desired)
-    result <- list(
-      coefficients = object$coefficients,
-      covariance = object$covariance
-    )
-    return(invisible(result))  # Return the summary as a list
-  } else {
-    cat("This model did not converge. No summary available.\n")
-    return(NULL)  # Return NULL if model did not converge
+  if (!object$converge) {
+    warning("This model did not converge. No summary available.")
+    return(invisible(NULL))
   }
+
+  # Construct summary object
+  summary_obj <- list(
+    coefficients = object$coefficients,
+    covariance = object$covariance
+  )
+
+  class(summary_obj) <- "summary.logistic2ph"  # Assign class
+  return(invisible(summary_obj))  # Return invisibly
+}
+
+#' Print Method for summary.logistic2ph Objects
+#'
+#' Prints a structured summary of a \code{logistic2ph} model.
+#'
+#' @param x An object of class \code{summary.logistic2ph}.
+#' @return Invisibly returns \code{x}.
+#' @export
+#' @method print summary.logistic2ph
+print.summary.logistic2ph <- function(x) {
+  cat("Model Summary:\n")
+  cat("Coefficients:\n")
+  print(x$coefficients)  # Explicitly prints coefficients
+
+  cat("\nCovariance Matrix:\n")
+  print(x$covariance)  # Explicitly prints covariance
+
+  invisible(x)  # Return invisibly, avoiding auto-printing
 }

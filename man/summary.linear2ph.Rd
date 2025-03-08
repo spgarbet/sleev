@@ -2,7 +2,7 @@
 % Please edit documentation in R/Class.R
 \name{summary.linear2ph}
 \alias{summary.linear2ph}
-\title{Print Method for linear2ph Objects}
+\title{Summary Method for linear2ph Objects}
 \usage{
 \method{summary}{linear2ph}(object)
 }
@@ -10,8 +10,8 @@
 \item{object}{An object of class \code{linear2ph}.}
 }
 \value{
-None. Prints a summary of the object.
+coefficient matrix and covariance matrix.
 }
 \description{
-Prints the details of a \code{linear2ph} object.
+Summarizes the details of a \code{linear2ph} object.
 }
