@@ -10,7 +10,7 @@ Part of the R package `TwoPhaseReg` as described in [this paper](https://doi.org
   This package combines elements of the R packages [`logreg2ph`](https://github.com/sarahlotspeich/logreg2ph) and [`TwoPhaseReg`](https://github.com/dragontaoran/TwoPhaseReg). The logsitic regression function is rewritten with C++ to boost computational speed. Here is logistic regression function computational time (s) comparison, across 100 simualations.
 
 | Functions  	 |  Mean 	    |     SD      |
-|--------------|------------|-------------|
+| ------------ | ---------- | ----------- |
 | `logreg2ph`	 | 155.814571	| 72.41892927 |
 | `logistic2ph`| 70.569576  | 8.38126354  | 
   
