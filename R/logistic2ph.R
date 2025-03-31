@@ -24,6 +24,7 @@
 #' `logistic2ph()` returns an object of class `"logistic2ph"`. The function `coef()` is used to obtain the coefficients of the fitted model. The function `summary()` is used to obtain and print a summary of results.
 #'
 #' An object of class `"logistic2ph"` is a list containing at least the following components:
+#' \item{call}{the matched call.}
 #' \item{coefficients}{A named vector of the logistic regression coefficient estimates.}
 #' \item{covariance}{The covariance matrix of the logistic regression coefficient estimates.}
 #' \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
@@ -38,6 +39,9 @@
 #' @export
 
 logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = NULL, b_spline = NULL, data = NULL, hn_scale = 1, se = TRUE, tol = 1E-4, max_iter = 1000, verbose = FALSE) {
+  # Store the function call
+  model_call <- match.call()
+
   # variable name change
   Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
   Bspline = b_spline; noSE = !se; TOL = tol; MAX_ITER = max_iter
@@ -479,10 +483,12 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
     res_coefficients$pvalue <- 1 - pchisq(res_coefficients$Statistic ^ 2, df = 1)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    res_final = list(coefficients = res_coefficients,
-                     covariance = cov_theta,
-                     converge = CONVERGED,
-                     converge_cov = SE_CONVERGED)
+    res_final = list(
+                    call = model_call,  # Store the call in the object
+                    coefficients = res_coefficients,
+                    covariance = cov_theta,
+                    converge = CONVERGED,
+                    converge_cov = SE_CONVERGED)
 
     res_final <- logistic2ph_class(res_final)
 

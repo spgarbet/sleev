@@ -24,7 +24,7 @@
 #' `linear2ph()` returns an object of class `"linear2ph"`. The function `coef()` is used to obtain the coefficients of the fitted model. The function `summary()` is used to obtain and print a summary of results.
 #'
 #' An object of class `"linear2ph"` is a list containing at least the following components:
-
+#' \item{call}{the matched call.}
 #' \item{coefficients}{A named vector of the linear regression coefficient estimates.}
 #' \item{sigma}{The residual standard error.}
 #' \item{covariance}{The covariance matrix of the linear regression coefficient estimates.}
@@ -103,6 +103,9 @@
 #' @export
 linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spline=NULL, data=NULL, hn_scale=1, se=TRUE, tol=1E-4, max_iter=1000, verbose=FALSE)
 {
+  # Store the function call
+  model_call <- match.call()
+
   # variable name change
   Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
   Bspline = b_spline; noSE = !se; TOL = tol; MAX_ITER = max_iter
@@ -295,11 +298,14 @@ linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spl
 	    res_coefficients[,4] = 1-pchisq(res_coefficients[,3]^2, df=1)
 	}
 
-	res_final = list(coefficients=res_coefficients,
+	res_final = list(
+	  call = model_call,  # Store the call in the object
+	  coefficients=res_coefficients,
 		sigma=sqrt(res$sigma_sq),
 		covariance=res_cov,
 		converge=!res$flag_nonconvergence,
 		converge_cov=!res$flag_nonconvergence_cov)
+
 
 	res_final <- linear2ph_class(res_final)
 
