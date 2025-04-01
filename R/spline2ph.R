@@ -11,7 +11,7 @@
 #' @param split_group Optional. Whether to split by group proportion for the group with B-spline size if the \code{group} argument is provided. If `FALSE`, then the split will be averaged across all groups. Default is `TRUE`.
 #'
 #' @details
-#' This function can be directly applied to regression model with one or more error-prone continuous covariates.
+#' This function can be directly applied for regression model with one or more error-prone continuous covariates.
 #'
 #' @return
 #' the \code{data.frame} object including the original dataset and the B-spline bases.

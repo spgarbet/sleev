@@ -26,8 +26,7 @@ linear2ph_class <- function(input) {
 print.linear2ph <- function(object) {
   # print function call
   cat("Call:\n")
-  print(match.call())
-  cat("Call:\n")
+  print(object$call)
 
   if (object$converge) {
     cat("The parameter estimation has converged.\n")
@@ -136,8 +135,7 @@ logistic2ph_class <- function(input) {
 print.logistic2ph <- function(object) {
   # print function call
   cat("Call:\n")
-  print(match.call())
-  cat("Call:\n")
+  print(object$call)
 
   if (object$converge) {
     cat("The parameter estimation has converged.\n")

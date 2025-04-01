@@ -52,7 +52,7 @@ abstract: "Data with measurement error in the outcome, covariates, or both are n
   sieve maximum likelihood estimator (SMLE), which combines the error-prone data on
   all records with the validated data on a subsample, is a highly efficient and robust
   estimator to analyze such two-phase data. However, given their complexity, a computationally
-  efficient and user-friendly tool is needed to obtain SMLEs. This paper introduces
+  efficient and user-friendly tool is needed to obtain SMLEs. This vignette introduces
   the `sleev` package for making semiparametric likelihood-based inference
   using SMLEs for error-prone two-phase data in settings with binary and continuous
   outcomes. Functions from this package can be used to analyze data with error-prone
@@ -90,15 +90,15 @@ obtain information on a large number of people. However, these data tend
 to be error-prone, often across multiple variables, and careless use of
 these data could lead to biased estimates and misleading research
 findings [@duan2016empirical]. To avoid invalid study results, routinely
-collected data may undergo an audition or validation, in which trained
-experts carefully verify and extract data elements. However, it is
-usually only feasible to validate data for a subset of records or
-variables. After validation, researchers have two types of data: (i)
-error-prone pre-validation data for all records (phase one data) and
-(ii) error-free validated data on a subset of records (phase two data).
-For analyses, the goal is then to combine the two types of data to
-obtain estimates that have low bias and are as efficient (i.e., have the
-smallest variance) as possible.
+collected data may undergo an validation, in which trained experts
+carefully verify and extract data elements. However, it is usually only
+feasible to validate data for a subset of records or variables. After
+validation, researchers have two types of data: (i) error-prone
+pre-validation data for all records (phase one data) and (ii) error-free
+validated data on a subset of records (phase two data). For analyses,
+the goal is then to combine the two types of data to obtain estimates
+that have low bias and are as efficient (i.e., have the smallest
+variance) as possible.
 
 Building off of the measurement error and missing data literature, there
 are several types of approaches for combining such two-phase data with
@@ -110,13 +110,13 @@ methods (e.g., maximum likelihood estimation [@carroll2006measurement;
 @cole2006multiple; @Giganti2020accounting]). Both design- and
 model-based estimators require the missing at random assumption for
 unbiased estimation, i.e., conditional on observed data, those records
-to be validated are selected through simple random sampling.
-Design-based estimators also require that the probability of being
-selected for validation is non-zero for all records, whereas no such
-positivity assumption is required for model-based estimators. Because
-they make no model assumptions on the error mechanism, design-based
-estimators tend to be more robust but less efficient than model-based
-estimators [@bang2005doubly; @Amorim2021].
+to be validated are selected through random sampling. Design-based
+estimators also require that the probability of being selected for
+validation is non-zero for all records, whereas no such positivity
+assumption is required for model-based estimators. Because they make no
+model assumptions on the error mechanism, design-based estimators tend
+to be more robust but less efficient than model-based estimators
+[@bang2005doubly; @Amorim2021].
 
 A robust class of model-based estimators, sieve maximum likelihood
 estimators (SMLEs), have recently been developed to analyze two-phase
@@ -130,15 +130,15 @@ implement, as they involve approximating nuisance conditional densities
 using B-splines [@schumaker1981] and then maximizing the semiparametric
 likelihood via a sophisticated EM algorithm [@tao2017efficient].
 
-In this paper, we introduce the `sleev` package, which computes SMLEs for
-linear and logistic regressions using partially-validated, error-prone
-data. The `sleev` package incorporates error-prone data on all records
-plus validated data on a subset of records to obtain efficient and
-robust estimates of regression parameters in a user-friendly manner.
-This paper describes the SMLE method (Sections 2 and 3) and demonstrates
-the features of the `sleev` package and the application of functions in
-the package with a detailed illustration using simulated HIV data
-(Section 4).
+In this vignette, we introduce the `sleev` package, which computes SMLEs
+for linear and logistic regressions using partially-validated,
+error-prone data. The `sleev` package incorporates error-prone data on
+all records plus validated data on a subset of records to obtain
+efficient and robust estimates of regression parameters in a
+user-friendly manner. This vignette describes the SMLE method (Sections
+2 and 3) and demonstrates the features of the `sleev` package and the
+application of functions in the package with a detailed illustration
+using simulated HIV data (Section 4).
 
 # 2. Sieve maximum likelihood estimators for linear regression
 
@@ -172,10 +172,10 @@ $$= P_{\pmb{\theta}}(Y|\pmb{X})P(W,\pmb{U}|\pmb{X}^{\pmb{*}})P(\pmb{X}^{\pmb{*}}
 where $P(\cdot)$ and $P(\cdot|\cdot)$ denote density and conditional
 density functions, respectively. $P_{\pmb{\theta}}(Y|\pmb{X})$ then
 refers to the conditional density function of the linear regression
-model $Y=\alpha+\pmb{\beta}^{\text T}\mathbf{X}+\epsilon$. Denote the validation
-indicator variable by $V$, with $V=1$ indicating that a record was
-validated and $V=0$ otherwise. For records that do not undergo
-validation, their measurement errors $(W, \pmb{U})$ are missing.
+model $Y=\alpha+\pmb{\beta}^{\text T}\mathbf{X}+\epsilon$. Denote the
+validation indicator variable by $V$, with $V=1$ indicating that a
+record was validated and $V=0$ otherwise. For records that do not
+undergo validation, their measurement errors $(W, \pmb{U})$ are missing.
 Therefore, the contributions of these unvalidated subjects to the
 log-likelihood can be obtained by integrating out $W$ and $\pmb{U}$. Let
 $(Y^*_i, \pmb{X}_i^{\pmb{*}}, W_i, \pmb{U}_i, V_i, Y_i, \pmb{X}_i)$ for
@@ -203,9 +203,9 @@ continuous elements, where only a small number of observations on
 $(W, \pmb{U})$ will be associated with each $\pmb{X^*} = \pmb{x^*}$. In
 this situation, we estimate $P(W_i,\pmb{U}_i|\pmb{X}_i^{\pmb{*}})$ with
 B-spline sieves. Specifically, we approximate
-$P(w_i,\pmb{u}_i|\pmb{X}_i^{\pmb{*}})$ and
+$P(w,\pmb{u}|\pmb{X}_i^{\pmb{*}})$ and
 $\log P(W_i,\pmb{U}_i|\pmb{X}_i^{\pmb{*}})$ by
-$\sum_{k=1}^mI(w_i=w_k, \pmb{u}_i=\pmb{u}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})p_{kj}$
+$\sum_{k=1}^mI(w=w_k, \pmb{u}=\pmb{u}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})p_{kj}$
 and
 $\sum_{k=1}^mI(W_i=w_k, \pmb{U}_i=\pmb{u}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})\log p_{kj}$,
 respectively. $B_j^q(\pmb{X}_i^{\pmb{*}})$ is the $j$th B-spline basis
@@ -259,10 +259,11 @@ $\sum_{k=1}^mI(\pmb{x}=\pmb{x}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})p_{kj
 and
 $\sum_{k=1}^mI(\pmb{X}_i=\pmb{x}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})\log p_{kj}$,
 respectively. Consequently, the approximated log-likelihood can be
-rewritten with the B-splines as $$
+rewritten with the B-splines as 
+$$
     \sum^n_{i=1}V_i\bigg\{\log P_{\pmb{\theta}}(Y_i|\pmb{X}_i)+\log P_{\pmb{\gamma}}(Y^*_i|\pmb{X}_i^{\pmb{*}},Y_i,\pmb{X}_i)+\sum_{k=1}^mI(\pmb{X}_i=\pmb{x}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})\log p_{kj}\bigg\}
 $$ $$    
-+\sum^n_{i=1}(1-V_i)\log\left\{\sum^1_{y=0}\sum^m_{k=1}  P_{\pmb{\theta}}(y|\pmb{x}_k)P_{\pmb{\gamma}}(Y^*_i|\pmb{X}_i^{\pmb{*}},y,\pmb{x}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})p_{kj}\right\}. 
++\sum^n_{i=1}(1-V_i)\log\left\{\sum^1_{y=0}\sum^m_{k=1}  P_{\pmb{\theta}}(y|\pmb{x}_k)P_{\pmb{\gamma}}(Y^*_i|\pmb{X}_i^{\pmb{*}},y,\pmb{x}_k)I(\pmb{x}=\pmb{x}_k)\sum_{j=1}^{s_n}B_j^q(\pmb{X}_i^{\pmb{*}})p_{kj}\right\}. 
 $$ {#eq-logitlikApprox}
 
 Similar to the linear regression case, we maximize expression
@@ -297,11 +298,11 @@ arguments for error-prone and error-free outcome and covariates, the
 user needs to specify the B-spline matrix $B_j^q(\pmb{X}_i^{\pmb{*}})$
 to be used in the estimation of the error densities.
 
-We now illustrate how to obtain SMLEs using the `sleev` package. First, we
-briefly describe the data that will be used, and then we show how to fit
-a linear regression model in the presence of errors in both the outcome
-and covariates using the `linear2ph()` function. We will explain how to
-choose the dimension of the B-spline basis, $s_n$. We will also
+We now illustrate how to obtain SMLEs using the `sleev` package. First,
+we briefly describe the data that will be used, and then we show how to
+fit a linear regression model in the presence of errors in both the
+outcome and covariates using the `linear2ph()` function. We will explain
+how to choose the dimension of the B-spline basis, $s_n$. We will also
 demonstrate two ways to handle the situation when there is more than one
 continuous covariate in the model, where the dimension of the B-spline
 basis increases exponentially with the number of continuous covariates.
@@ -310,8 +311,8 @@ logistic regression model, which is largely analogous to the use of
 `linear2ph()`.
 
 ```{r funtab, echo=FALSE}
-funtab2 <- data.frame(Argument=c("Y_unval","Y","X_unval","X","Z","Bspline","data","hn_scale","noSE",
-                                 "TOL","MAX_ITER","verbose"),
+funtab2 <- data.frame(Argument=c("y_unval","y","x_unval","x","x","b_spline","data","hn_scale","se",
+                                 "tol","max_iter","verbose"),
                       Description=c("Column name of unvalidated outcome in the input dataset.",
                                     paste(c("Column name of validated outcome in the input dataset. ",
                                             "NA",
@@ -385,15 +386,15 @@ The dataset is included in the `sleev` package, and it can be loaded by
 data("mock.vccc")
 ```
 
-@tbl-vccchead displays the first six rows of the VCCC dataset:
-patients $1, 3,$ and $5$ have `NA` listed for the `VL_val`, `ADE_val`,
-and `CD4_val` variables, which means that these patients were not
-selected for data validation; in contrast, patients $2, 4,$ and $6$ had
-their data validated. For example, from the data validation, patient 2
-had a viral load (VL) of 907 copies/mL$^3$ and no AIDS-defining events
-within one year of antiretroviral therapy (ART) initiation confirmed.
-However, the patient's CD4 at ART initiation was found to be 114
-cells/mm$^3$, not 36.
+@tbl-vccchead displays the first six rows of the VCCC dataset: patients
+$1, 3,$ and $5$ have `NA` listed for the `VL_val`, `ADE_val`, and
+`CD4_val` variables, which means that these patients were not selected
+for data validation; in contrast, patients $2, 4,$ and $6$ had their
+data validated. For example, from the data validation, patient 2 had a
+viral load (VL) of 907 copies/mL$^3$ and no AIDS-defining events within
+one year of antiretroviral therapy (ART) initiation confirmed. However,
+the patient's CD4 at ART initiation was found to be 114 cells/mm$^3$,
+not 36.
 
 ```{r echo=FALSE}
 #| label: tbl-vccchead
@@ -427,26 +428,31 @@ error-free.
 
 To obtain the SMLEs, we first need to set up the B-spline basis for the
 covariates `VL_unval_l10` (the transformed error-prone VL variable from
-phase one) and `Sex`. The `spline2ph()` function in `sleev` packages can set up the B-spline basis, and combine it with the data input for the final analysis. The column names of the B-spline basis is by default `bs[num]`, where `[num]` is the index of the B-spline basis column.
+phase one) and `Sex`. The `spline2ph()` function in `sleev` packages can
+set up the B-spline basis, and combine it with the data input for the
+final analysis. The column names of the B-spline basis are set as
+`bs[num]`, where `[num]` is the index of the B-spline basis column.
 
 Here, we use a cubic B-spline basis with the `degree=3` argument in our
-call to the `spline2ph()` function from the `splines` package. The size of the
-basis $s_{n}$ is set to be 20; this was specified through the `size = 20`
-argument. The B-spline basis is set up separately for the two `Sex`
-groups by specifying argument `group = "Sex"`. Here, the size of the B-spline basis is assigned in proportion to
-the relative size of the two `Sex` groups. This allows the errors in
-`VL_unval_l10` to be heterogeneous between males and females. The
-described B-spline basis is constructed as follows.
+call to the `spline2ph()` function. The size
+of the basis $s_{n}$ is set to be 20; this was specified through the
+`size = 20` argument. The B-spline basis is set up separately for the
+two `Sex` groups by specifying argument `group = "Sex"`. Here, the size
+of the B-spline basis is assigned in proportion to the relative size of
+the two `Sex` groups. This allows the errors in `VL_unval_l10` to be
+heterogeneous between males and females. The described B-spline basis is
+constructed as follows.
 
 ```{r}
 sn=20
+b_spline_names <- paste0("bs", 1:sn)
 data.linear <- spline2ph(x = "VL_unval_l10", data = mock.vccc, size = sn,
-                         degree = 3,  group = "Sex")
+                         degree = 3,  bs_names = b_spline_names, group = "Sex")
 ```
 
 Alternatively, if the investigator has prior knowledge that the errors
 in `VL_unval_l10` are likely to be homogeneous, one may fit a simpler
-model by not stratifying the B-spline basis by `Sex`. 
+model by not stratifying the B-spline basis by `Sex`, by not specifying the `group` argument in this function.
 
 ### 4.3.2 Model fitting and result interpretation
 
@@ -456,27 +462,29 @@ The SMLEs can be obtained by running
 start.time <- Sys.time()
 res_linear <- linear2ph(y_unval = "CD4_unval_sq10", y = "CD4_val_sq10", 
                         x_unval = "VL_unval_l10",x = "VL_val_l10",z = "Sex", 
-                        b_spline = paste0("bs", 1:sn), data = data.linear,
+                        b_spline = b_spline_names, data = data.linear,
                         hn_scale = 1, se = TRUE, tol = 1e-04, 
                         max_iter = 1000, verbose = FALSE)
 paste0("Run time: ", round(difftime(Sys.time(), start.time, 
                                     units = "secs"), 3), " sec")
 ```
 
-`linear2ph()` returns an object of class `linear2ph`, denoted by `res_linear`
-in the code above. An object of class "linear2ph" is a list containing five slots: `coefficients`,
-`covariance`, `sigma`, `converge`, and `converge_cov`. We should first
-check if the EM algorithms for estimating the regression coefficients
-and their covariance matrix converged by checking if
-`res_linear$converge` and `res_linear$converge_conv` are `TRUE`.
+`linear2ph()` returns an object of class `linear2ph`, denoted by
+`res_linear` in the code above. An object of class "linear2ph" is a list
+containing five slots: `coefficients`, `covariance`, `sigma`,
+`converge`, and `converge_cov`. We should first check if the EM
+algorithms for estimating the regression coefficients and their
+covariance matrix converged by checking if `res_linear$converge` and
+`res_linear$converge_conv` are `TRUE`.
 
 ```{r}
 c(res_linear$converge, res_linear$converge_cov)
 ```
 
-The `coef()` function takes an object of class `linear2ph` and gives the regression coefficient
-estimates and their corresponding standard error estimates,
-$z$-statistics, and $p$-values. This is analogous to the content of element `coefficients` in the output list.
+The `coef()` function takes an object of class `linear2ph` and gives the
+regression coefficient estimates and their corresponding standard error
+estimates, $z$-statistics, and $p$-values. This is analogous to the
+content of element `coefficients` in the output list.
 
 ```{r}
 (res_linear_coef <- coef(res_linear))
@@ -499,16 +507,18 @@ males is `r res_linear$coefficients[3,1]` higher than that for females,
 adjusting for VL. Based on the $p$-values, both VL and sex are
 associated with CD4 count at the 0.05 significance level.
 
-The `res_linear$covariance` slot gives the covariance matrix, and the `summary()` function takes an object of class `linear2ph` and gives both the model parameter estimates and the covariance matrix. The covariance matrix can
-be used to calculate confidence intervals for the outcome variable for a
-subset of the patients. For example, suppose we want to know the 95%
-confidence interval of the expected CD4 count for male patients with VL
-of 1200 copies/mL$^3$. First, we need to calculate the estimated mean
-transformed CD4 count for this patient group:
+The `res_linear$covariance` slot gives the covariance matrix, and the
+`summary()` function takes an object of class `linear2ph` and gives both
+the model parameter estimates and the covariance matrix. The covariance
+matrix can be used to calculate confidence intervals for the outcome
+variable for a subset of the patients. For example, suppose we want to
+know the 95% confidence interval of the expected CD4 count for male
+patients with VL of 1200 copies/mL$^3$. First, we need to calculate the
+estimated mean transformed CD4 count for this patient group:
 
 ```{r}
 x.vec <- matrix(data = c(1,log10(1200),1), ncol = 1) # set up data matrix
-est.mean <- res_linear_coef[,1]%*%x.vec # calculate estimated mean
+est.mean <- res_linear_coef %*% x.vec # calculate estimated mean
 est.mean
 ```
 
@@ -516,8 +526,8 @@ Then, we use the estimated covariance matrix to compute the variance of
 the linear combination `est.mean`:
 
 ```{r echo=TRUE,results=FALSE}
-res_linear_cov <- summary(res_linear)[[2]]
-est.cov <- t(x.vec)%*%res_linear_cov%*%x.vec # covariance of est.mean
+res_linear_cov <- res_linear$covariance
+est.cov <- t(x.vec) %*% res_linear_cov %*% x.vec # covariance of est.mean
 ```
 
 The 95% confidence interval of CD4 count $(\text{cells/10mm}^3)^{1/2}$
@@ -567,14 +577,16 @@ sex_ratio <- sum(mock.vccc$Sex == 0) / n
 for (i in 1:length(sns)) {
   # constructing B-spline basis using the same process as in Section 4.3.1
   sn <- sns[i]
+  b_spline_names <- paste0("bs", 1:sn)
   data.sieve <- spline2ph(x = "VL_unval_l10", data = mock.vccc, size = sn,
-                          degree = 3,  group = "Sex")
+                         degree = 3,  bs_names = b_spline_names, 
+                         group = "Sex")
 
   # cross validation, produce mean log-likelihood
   start.time <- Sys.time()
   res.1 <- cv_linear2ph(y = "CD4_val_sq10", y_unval = "CD4_unval_sq10",
                         x ="VL_val_l10", x_unval = "VL_unval_l10", z = "Sex",
-                        b_spline = paste0("bs", 1:sn), data = data.sieve, 
+                        b_spline = b_spline_names, data = data.sieve, 
                         nfolds = k, max_iter = 2000, tol = 1e-04, 
                         verbose = FALSE)
   # save run time
@@ -584,8 +596,8 @@ for (i in 1:length(sns)) {
 }
 ```
 
-The average predicted log-likelihoods and run time for the different $s_n$ considered
-are:
+The average predicted log-likelihoods and run time for the different
+$s_n$ considered are:
 
 ```{r include=FALSE}
 maxns <- sns[which.max(pred_loglike.1)]
@@ -611,14 +623,15 @@ and $s_n=35$.
 ```{r}
 # same process as in Section 4.3, fit with sn = 35
 sn.35 <- 35
-Bspline <- spline2ph(x = "VL_unval_l10", data = mock.vccc, size = sn.35,
-                     degree = 3,  group = "Sex")
-data.sieve <- cbind(mock.vccc, Bspline)
+b_spline_names <- paste0("bs", 1:sn.35)
+data.sieve <- spline2ph(x = "VL_unval_l10", data = mock.vccc, size = sn.35,
+                        degree = 3,  bs_names = b_spline_names, 
+                        group = "Sex")
 
 start.time <- Sys.time()
 fit.sn.35 <- linear2ph(y = "CD4_val_sq10", y_unval = "CD4_unval_sq10",
                        x = "VL_val_l10", x_unval = "VL_unval_l10", z = "Sex", 
-                       b_spline=paste0("bs", 1:sn.35), data=data.sieve, 
+                       b_spline=b_spline_names, data=data.sieve, 
                        hn_scale = 1, se = TRUE, tol = 1e-04, 
                        max_iter = 1000, verbose = FALSE)
 paste0("Run time: ", round(difftime(Sys.time(), start.time, 
@@ -648,25 +661,29 @@ continuous variables to be incorporated into the B-spline basis.
 
 ### 4.5.1 Bivariate B-spline
 
-When there are two continuous covariates in the model, the B-spline bases is constructed from 
-tensor product of the one-dimensional B-spline bases for each variable.
-In this example, the two variables are VL and age, stratified by sex. Due to the curse of
-dimensionality, the choice of number of knots has more restrictions than
-when there is only one continuous covariate. For instance, in this
-example the smallest size for the one-dimensional cubic B-spline basis
-is 4. If we set one-dimensional $s_n$ for each sex and each variable to be $4$, the aggregate size of the
-multi-dimensional B-spline basis will be $4^2+4^2=32$, which is
-considered big with regard to the sample size we have available.
+When there are two continuous covariates in the model, the B-spline
+basis is constructed from the tensor product of the one-dimensional B-spline
+bases for each variable. In this example, the two variables are VL and
+age, stratified by sex. Due to the curse of dimensionality, the choice
+of number of knots has more restrictions than when there is only one
+continuous covariate. For instance, in this example the smallest size
+for the one-dimensional cubic B-spline basis is 4. If we set
+one-dimensional $s_n$ for each sex and each variable to be $4$, the
+aggregate size of the multi-dimensional B-spline basis will be
+$4^2+4^2=32$, which is considered big with regards to the sample size we
+have available.
 
 ```{r include=FALSE}
 options(digits = 3)
 ```
 
 ```{r}
+sn_total = 4 ^ 2 + 4 ^ 2
+bivariate_names <- paste0("bs", 1:sn_total)
 data.bivariate <- spline2ph(x = c("VL_unval_l10", "Age"), size = 8, degree = 3,
-                  data = mock.vccc, group = "Sex",split_group = FALSE)
+                            bs_names = bivariate_names, data = mock.vccc, 
+                            group = "Sex", split_group = FALSE)
 ```
-
 
 The B-spline matrix is combined with the dataset and the corresponding
 column names are added as input arguments. Note that for the
@@ -681,11 +698,10 @@ estimates are very similar among these `hn_scale` values (data not
 shown). Therefore, we choose $1/4$ to be the `hn_scale` value.
 
 ```{r}
-sn=32
 start.time <- Sys.time()
 res_linear_bivariate = linear2ph(y = "CD4_val_sq10", y_unval = "CD4_unval_sq10",
                        x = "VL_val_l10", x_unval = "VL_unval_l10", 
-                       z = c("Age", "Sex"), b_spline = paste0("bs", 1:sn),
+                       z = c("Age", "Sex"), b_spline = bivariate_names,
                        data = data.bivariate, hn_scale = 1/4, se = TRUE,
                        tol = 1e-04, max_iter = 1000, verbose = FALSE)
 paste0("Run time: ", round(difftime(Sys.time(), start.time, 
@@ -722,17 +738,20 @@ than the original covariates.
 
 ```{r}
 sn=20
-data_pca <- spline2ph(x = "VLAge_pca", size = sn, degree = 3, 
-                      data = mock.vccc,group = "Sex", split_group = TRUE)
+pca_names <- paste0("bs", 1:sn)
+data_pca <- spline2ph(x = "VLAge_pca", size = sn, degree = 3,
+                      bs_names = pca_names, data = mock.vccc,
+                      group = "Sex", split_group = TRUE)
+
 start.time <- Sys.time()
 res_linear_pca = linear2ph(y = "CD4_val_sq10", y_unval = "CD4_unval_sq10",
                        x = "VL_val_l10", x_unval = "VL_unval_l10",
-                       z = c("Age", "Sex"), b_spline = paste0("bs", 1:sn), 
+                       z = c("Age", "Sex"), b_spline = pca_names, 
                        data = data_pca, hn_scale = 1/4, se = TRUE, 
                        tol = 1e-04, max_iter = 1000, verbose = FALSE)
 paste0("Run time: ", round(difftime(Sys.time(), start.time, 
                                     units = "secs"), 3), " sec")
-res_linear_pca$coefficients
+coef(res_linear_pca)
 ```
 
 Note that these results are very close to those generated when using the
@@ -758,8 +777,10 @@ B-splines into one data frame prior to fitting the SMLE.
 ```{r}
 # same process as in Section 4.3.1
 sn=20
-data.logistic <- spline2ph(x = "CD4_unval_sq10", size = 20, degree = 3,
-                           data = mock.vccc, group = "prior_ART", split_group = TRUE)
+logistic_names <- paste0("bs", 1:sn)
+data.logistic <- spline2ph(x = "CD4_unval_sq10", size = 20, degree = 3, 
+                           bs_names = logistic_names, data = mock.vccc, 
+                           group = "prior_ART", split_group = TRUE)
 ```
 
 Now, we obtain the SMLEs for the logistic regression model of interest
@@ -769,7 +790,7 @@ by running the `logistic2ph()` function on our augmented dataset:
 start.time <- Sys.time()
 res_logistic <- logistic2ph(y = "ADE_val", y_unval = "ADE_unval",   
                             x = "CD4_val_sq10", x_unval = "CD4_unval_sq10",
-                            z = "prior_ART", b_spline = paste0("bs", 1:sn),
+                            z = "prior_ART", b_spline = logistic_names,
                             data = data.logistic, hn_scale = 1/2, se = TRUE, 
                             tol = 1e-04, max_iter = 1000, verbose = FALSE)
 paste0("Run time: ", round(difftime(Sys.time(), start.time, 
@@ -799,8 +820,8 @@ of 250 cells/mm$^3$. A 95% confidence interval for this odds ratio,
 computed in the usual manner, is
 
 ```{r}
-exp(res_logistic$coefficients[2,1]+
-      c(-1,1)*1.96*res_logistic$coefficients[2,2])
+exp(res_logistic$coefficients[2,1] +
+      c(-1,1) * 1.96 * res_logistic$coefficients[2,2])
 ```
 
 After adjusting for CD4 count, the estimated odds ratio for having an
@@ -808,8 +829,8 @@ ADE within one year for ART naive patients versus patients not ART naive
 is $exp(-0.254)=0.776$, and the 95% confidence interval is
 
 ```{r}
-exp(res_logistic$coefficients[3,1]+
-      c(-1,1)*1.96*res_logistic$coefficients[3,2])
+exp(res_logistic$coefficients[3,1] +
+      c(-1,1) * 1.96 * res_logistic$coefficients[3,2])
 ```
 
 Based on these results, the association between having ADE within one
@@ -819,9 +840,9 @@ initiation and whether the patient is ART naive at enrollment is not.
 
 # 5. Summary and discussion
 
-The `sleev` R package is a useful tool for analyzing two-phase validation
-studies with error-prone outcome and covariates. It empowers users to
-perform linear regression for continuous outcomes and logistic
+The `sleev` R package is a useful tool for analyzing two-phase
+validation studies with an error-prone outcome and covariates. It empowers
+users to perform linear regression for continuous outcomes and logistic
 regression for binary outcomes. It allows the errors among variables to
 be correlated with each other and with additional error-free covariates.
 It also accommodates the conventional measurement error scenarios with
@@ -829,13 +850,13 @@ errors in the outcome or covariates only. The resulting SMLEs are
 statistically efficient and numerically stable while making minimal
 assumptions on the error distributions.
 
-In this paper, we demonstrate the usage of functions in the `sleev`
+In this vignette, we demonstrate the usage of functions in the `sleev`
 package under different scenarios. We showcase the selection process of
 the size of a B-spline basis, which is not frequently seen in papers
-that involve the use of B-splines. We also show the impact of curse of
+that involve the use of B-splines. We also show the impact of the curse of
 dimensionality on the construction of the B-spline basis, and recommend
 PCA as a dimension reduction technique that can circumvent this
-"challenge". We hope that users find the demonstrations in this paper
+challenge. We hope that users find the demonstrations in this vignette
 useful for their applications.
 
 In the future, we plan to extend the SMLE to address errors in outcomes
