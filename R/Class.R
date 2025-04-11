@@ -180,7 +180,7 @@ print.logistic2ph <- function(object) {
   if (object$converge) {
     cat("\nThe parameter estimation has converged.\n")
     cat("\nCoefficients:\n")
-    print(object$coefficients[,1])
+    print(object$coefficients)
     if(!object$converge_cov){
       cat("\nThe variance estimation is either not requested to be estimated or did not converge.\n")
     }

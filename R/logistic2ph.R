@@ -483,9 +483,12 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
     res_coefficients$pvalue <- 1 - pchisq(res_coefficients$Statistic ^ 2, df = 1)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
+    coef_return <- as.numeric(new_theta)
+    names(coef_return) <- rownames(res_coefficients)
+
     res_final = list(
                     call = model_call,  # Store the call in the object
-                    coefficients = res_coefficients[,1],
+                    coefficients = coef_return,
                     covariance = cov_theta,
                     converge = CONVERGED,
                     converge_cov = SE_CONVERGED)
