@@ -40,13 +40,46 @@ print.linear2ph <- function(object) {
   }
 }
 
+# function that creates "covariate matrix"
+covariate_matrix <- function(object){
+  param_est <- object$coefficients
+  res_cov <- object$covariance
+  cov_names <- names(param_est)
+  # Construct matrix
+  res_coefficients = matrix(NA, nrow=ncov, ncol=4)
+  colnames(res_coefficients) = c("Estimate", "SE", "Statistic", "p-value")
+  rownames(res_coefficients) = cov_names
+  # Fill in values
+  res_coefficients[,1] = param_est
+
+  res_coefficients[,2] = diag(res_cov)
+  res_coefficients[which(res_coefficients[,2] > 0),2] = sqrt(res_coefficients[which(res_coefficients[,2] > 0),2])
+
+  id_NA = which(is.na(res_coefficients[,1]) | is.na(res_coefficients[,2]))
+  if (length(id_NA) > 0)
+  {
+    res_coefficients[-id_NA,3] = res_coefficients[-id_NA,1]/res_coefficients[-id_NA,2]
+    res_coefficients[-id_NA,4] = 1-pchisq(res_coefficients[-id_NA,3]^2, df=1)
+  }
+  else
+  {
+    res_coefficients[,3] = res_coefficients[,1]/res_coefficients[,2]
+    res_coefficients[,4] = 1-pchisq(res_coefficients[,3]^2, df=1)
+  }
+}
+
 #' Coefficient Method for linear2ph Objects
 #'
 #' Prints the coefficientss of a \code{linear2ph} object.
 #' @param object An object of class \code{linear2ph}.
 #' @export
 coef.linear2ph <- function(object) {
-  object$coefficients[,1]
+  if (!object$converge) {
+    warning("This model did not converge. No coefficient estimation available.")
+    return(NULL)
+  } else {
+    object$coefficients
+  }
 }
 
 #' Coefficient Method for linear2ph Objects
@@ -55,7 +88,12 @@ coef.linear2ph <- function(object) {
 #' @param object An object of class \code{linear2ph}.
 #' @export
 coefficients.linear2ph <- function(object) {
-  object$coefficients[,1]
+  if (!object$converge) {
+    warning("This model did not converge. No coefficient estimation available.")
+    return(NULL)
+  } else {
+    object$coefficients
+  }
 }
 
 #' Summary Method for linear2ph Objects
@@ -74,7 +112,7 @@ summary.linear2ph <- function(object) {
   # Construct summary object similar to summary.lm
   summary_obj <- list(
     call = object$call,  # Store original model call
-    coefficients = object$coefficients,
+    coefficients = covariate_matrix(object),
     covariance = object$covariance
   )
 
@@ -156,7 +194,12 @@ print.logistic2ph <- function(object) {
 #' @export
 #' @method coef logistic2ph
 coef.logistic2ph <- function(object) {
-  object$coefficients[,1]
+  if (!object$converge) {
+    warning("This model did not converge. No coefficient estimation available.")
+    return(NULL)
+  } else {
+    object$coefficients
+  }
 }
 
 #' Coefficient Method for logistic2ph Objects
@@ -166,7 +209,12 @@ coef.logistic2ph <- function(object) {
 #' @export
 #' @method coef logistic2ph
 coefficients.logistic2ph <- function(object) {
-  object$coefficients[,1]
+  if (!object$converge) {
+    warning("This model did not converge. No coefficient estimation available.")
+    return(NULL)
+  } else {
+    object$coefficients
+  }
 }
 
 #' Summary Method for logistic2ph Objects
@@ -185,7 +233,7 @@ summary.logistic2ph <- function(object) {
   # Construct summary object similar to summary.lm
   summary_obj <- list(
     call = object$call,  # Store original model call
-    coefficients = object$coefficients,
+    coefficients = covariate_matrix(object),
     covariance = object$covariance
   )
 

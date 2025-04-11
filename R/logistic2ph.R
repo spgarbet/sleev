@@ -485,7 +485,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
 
     res_final = list(
                     call = model_call,  # Store the call in the object
-                    coefficients = res_coefficients,
+                    coefficients = res_coefficients[,1],
                     covariance = cov_theta,
                     converge = CONVERGED,
                     converge_cov = SE_CONVERGED)

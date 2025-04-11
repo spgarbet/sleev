@@ -300,7 +300,7 @@ linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spl
 
 	res_final = list(
 	  call = model_call,  # Store the call in the object
-	  coefficients=res_coefficients,
+	  coefficients=res_coefficients[,1],
 		sigma=sqrt(res$sigma_sq),
 		covariance=res_cov,
 		converge=!res$flag_nonconvergence,
