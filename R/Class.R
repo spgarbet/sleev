@@ -45,6 +45,7 @@ covariate_matrix <- function(object){
   param_est <- object$coefficients
   res_cov <- object$covariance
   cov_names <- names(param_est)
+  ncov <- length(cov_names)
   # Construct matrix
   res_coefficients = matrix(NA, nrow=ncov, ncol=4)
   colnames(res_coefficients) = c("Estimate", "SE", "Statistic", "p-value")
@@ -66,6 +67,7 @@ covariate_matrix <- function(object){
     res_coefficients[,3] = res_coefficients[,1]/res_coefficients[,2]
     res_coefficients[,4] = 1-pchisq(res_coefficients[,3]^2, df=1)
   }
+  return(res_coefficients)
 }
 
 #' Coefficient Method for linear2ph Objects
