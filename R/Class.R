@@ -29,14 +29,14 @@ print.linear2ph <- function(object) {
   print(object$call)
 
   if (object$converge) {
-    cat("The parameter estimation has converged.\n")
-    cat("Coefficients:\n")
+    cat("\nThe parameter estimation has converged.\n")
+    cat("\nCoefficients:\n")
     print(object$coefficients[,1])
     if(!object$converge_cov){
-      cat("The variance estimation is either not requested to be estimated or did not converge.")
+      cat("\nThe variance estimation is either not requested to be estimated or did not converge.\n")
     }
   } else {
-    cat("This model did not converge.\n")
+    cat("\nThis model did not converge.\n")
   }
 }
 
@@ -138,14 +138,14 @@ print.logistic2ph <- function(object) {
   print(object$call)
 
   if (object$converge) {
-    cat("The parameter estimation has converged.\n")
-    cat("Coefficients:\n")
+    cat("\nThe parameter estimation has converged.\n")
+    cat("\nCoefficients:\n")
     print(object$coefficients[,1])
     if(!object$converge_cov){
-      cat("The variance estimation is either not requested to be estimated or did not converge.")
+      cat("\nThe variance estimation is either not requested to be estimated or did not converge.\n")
     }
   } else {
-    cat("This model did not converge.\n")
+    cat("\nThis model did not converge.\n")
   }
 }
 
