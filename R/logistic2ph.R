@@ -36,6 +36,20 @@
 #' @importFrom stats as.formula
 #' @importFrom stats glm
 #'
+#' @examples
+#' # example code
+#' data("mock.vccc")
+#' sn <- 20
+#' logistic_names <- paste0("bs", 1:sn)
+#' data.logistic <- spline2ph(x = "CD4_unval_sq10", size = 20, degree = 3,
+#'                            bs_names = logistic_names, data = mock.vccc,
+#'                            group = "Prior_ART", split_group = TRUE)
+#' res_logistic <- logistic2ph(y = "ADE_val", y_unval = "ADE_unval",
+#'                             x = "CD4_val_sq10", x_unval = "CD4_unval_sq10",
+#'                             z = "Prior_ART", b_spline = logistic_names,
+#'                             data = data.logistic, hn_scale = 1/2, se = TRUE,
+#'                             tol = 1e-04, max_iter = 1000, verbose = FALSE)
+#'
 #' @export
 
 logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = NULL, b_spline = NULL, data = NULL, hn_scale = 1, se = TRUE, tol = 1E-4, max_iter = 1000, verbose = FALSE) {

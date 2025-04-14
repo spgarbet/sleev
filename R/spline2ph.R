@@ -19,9 +19,14 @@
 #' @examples
 #' # example code
 #' data("mock.vccc")
-#' spline2ph(size = 20, degree = 3, data = mock.vccc, x = "VL_unval", group = "Sex")
+#' sn <- 20
+#' b_spline_names <- paste0("bs", 1:sn)
+#' data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
+#'                          degree = 3,  bs_names = b_spline_names,
+#'                          group = "Sex")
 #'
 #' @export
+
 spline2ph <- function(x, data, size = 20, degree = 3, bs_names, group = NULL, split_group = TRUE){
   n <- nrow(data) # get the number of rows of the dataset
   # portion the size of the B-spline basis according to the size of two sex groups

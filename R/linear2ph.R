@@ -40,66 +40,18 @@
 #' @seealso [cv_linear2ph()] to calculate the average predicted log likelihood of this function.
 #'
 #' @examples
-#'  rho = -.3
-#'  p = 0.3
-#'  hn_scale = 1
-#'  nsieve = 20
-#'
-#'  n = 100
-#'  n2 = 40
-#'  alpha = 0.3
-#'  beta = 0.4
-#'  set.seed(12345)
-#'
-#'  ### generate data
-#'  simX = rnorm(n)
-#'  epsilon = rnorm(n)
-#'  simY = alpha+beta*simX+epsilon
-#'  error = MASS::mvrnorm(n, mu=c(0,0), Sigma=matrix(c(1, rho, rho, 1), nrow=2))
-#'
-#'  simS = rbinom(n, 1, p)
-#'  simU = simS*error[,2]
-#'  simW = simS*error[,1]
-#'  simY_tilde = simY+simW
-#'  simX_tilde = simX+simU
-#'
-#'  id_phase2 = sample(n, n2)
-#'
-#'  simY[-id_phase2] = NA
-#'  simX[-id_phase2] = NA
-#'
-#'  # # histogram basis
-#'  # Bspline = matrix(NA, nrow=n, ncol=nsieve)
-#'  # cut_x_tilde = cut(simX_tilde, breaks=quantile(simX_tilde, probs=seq(0, 1, 1/nsieve)),
-#'  #   include.lowest = TRUE)
-#'  # for (i in 1:nsieve) {
-#'  #     Bspline[,i] = as.numeric(cut_x_tilde == names(table(cut_x_tilde))[i])
-#'  # }
-#'  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-#'  # # histogram basis
-#'
-#'  # # linear basis
-#'  # Bspline = splines::bs(simX_tilde, df=nsieve, degree=1,
-#'  #   Boundary.knots=range(simX_tilde), intercept=TRUE)
-#'  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-#'  # # linear basis
-#'
-#'  # # quadratic basis
-#'  # Bspline = splines::bs(simX_tilde, df=nsieve, degree=2,
-#'  #   Boundary.knots=range(simX_tilde), intercept=TRUE)
-#'  # colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-#'  # # quadratic basis
-#'
-#'  # cubic basis
-#'  Bspline = splines::bs(simX_tilde, df=nsieve, degree=3,
-#'    Boundary.knots=range(simX_tilde), intercept=TRUE)
-#'  colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-#'  # cubic basis
-#'
-#'  data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
-#'
-#'  res = linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde",
-#'    Bspline=colnames(Bspline), data=data, hn_scale=0.1)
+#' # example code
+#' data("mock.vccc")
+#' sn <- 20
+#' b_spline_names <- paste0("bs", 1:sn)
+#' data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
+#'                          degree = 3,  bs_names = b_spline_names,
+#'                          group = "Sex")
+#' res_linear <- linear2ph(y_unval = "CD4_unval", y = "CD4_val",
+#'                         x_unval = "VL_unval", x = "VL_val",
+#'                         z = "Sex", b_spline = b_spline_names,
+#'                         data = data.linear,  hn_scale = 1, se = TRUE,
+#'                         tol = 1e-04, max_iter = 1000, verbose = FALSE)
 #' @export
 linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spline=NULL, data=NULL, hn_scale=1, se=TRUE, tol=1E-4, max_iter=1000, verbose=FALSE)
 {
