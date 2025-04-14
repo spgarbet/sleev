@@ -3,7 +3,8 @@
 #' Creates an object of class \code{linear2ph}.
 #' @param input the internal list input
 #' @return An object of class \code{linear2ph}.
-#' @export
+#' @noRd
+
 linear2ph_class <- function(input) {
   structure(
     list(
@@ -157,7 +158,8 @@ print.summary.linear2ph <- function(x) {
 #' Creates an object of class \code{logistic2ph}.
 #' @param input the internal list input
 #' @return An object of class \code{logistic2ph}.
-#' @export
+#' @noRd
+
 logistic2ph_class <- function(input) {
   structure(
     list(

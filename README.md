@@ -7,13 +7,6 @@ The complete R package `logreg2ph` and code for the simulation settings included
   
 Part of the R package `TwoPhaseReg` as described in [this paper](https://doi.org/10.1002/sim.8876).
   
-  This package combines elements of the R packages [`logreg2ph`](https://github.com/sarahlotspeich/logreg2ph) and [`TwoPhaseReg`](https://github.com/dragontaoran/TwoPhaseReg). The logsitic regression function is rewritten with C++ to boost computational speed. Here is logistic regression function computational time (s) comparison, across 100 simualations.
-
-| Functions  	 |  Mean 	    |     SD      |
-| ------------ | ---------- | ----------- |
-| `logreg2ph`	 | 155.814571	| 72.41892927 |
-| `logistic2ph`| 70.569576  | 8.38126354  | 
-  
 Below is a simple example for running a linear regression with `sleev`. The complete vignette detailing all uses of example in `sleev` can be found in folder `vignette`.
   
 ### Install
