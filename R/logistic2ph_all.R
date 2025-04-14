@@ -29,6 +29,7 @@
 #'
 #' @importFrom stats as.formula
 #' @importFrom stats glm
+#' @noRd
 
 logistic2ph_all <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = NULL, b_spline = NULL, data = NULL, hn_scale = 1, se = TRUE, tol = 1E-4, max_iter = 1000, verbose = FALSE) {
   # variable name change

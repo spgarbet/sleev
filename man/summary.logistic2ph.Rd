@@ -10,7 +10,7 @@
 \item{object}{An object of class \code{logistic2ph}.}
 }
 \value{
-coefficient matrix and covariance matrix.
+An object of class \code{summary.logistic2ph}, containing the call, coefficients, and covariance.
 }
 \description{
 Summarizes the details of a \code{logistic2ph} object.

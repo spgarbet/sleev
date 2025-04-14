@@ -48,6 +48,7 @@ linear2ph(
 \code{linear2ph()} returns an object of class \code{"linear2ph"}. The function \code{coef()} is used to obtain the coefficients of the fitted model. The function \code{summary()} is used to obtain and print a summary of results.
 
 An object of class \code{"linear2ph"} is a list containing at least the following components:
+\item{call}{the matched call.}
 \item{coefficients}{A named vector of the linear regression coefficient estimates.}
 \item{sigma}{The residual standard error.}
 \item{covariance}{The covariance matrix of the linear regression coefficient estimates.}

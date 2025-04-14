@@ -9,9 +9,9 @@ spline2ph(
   data,
   size = 20,
   degree = 3,
+  bs_names,
   group = NULL,
-  split_group = TRUE,
-  bs_names = NULL
+  split_group = TRUE
 )
 }
 \arguments{
@@ -22,6 +22,8 @@ spline2ph(
 \item{size}{Pass on to the \code{df} argument in \code{splines::bs()}. Degrees of freedom for EACH variable.}
 
 \item{degree}{Pass on to the \code{degree} argument in \code{splines::bs()}. Degree of the piecewise polynomial. Default is 3 for cubic splines.}
+
+\item{bs_names}{Column names of the output B-spline basis matrix.}
 
 \item{group}{Optional. Column name of the categorical variable of which might have heterogeneous errors among different groups.}
 
@@ -34,7 +36,7 @@ the \code{data.frame} object including the original dataset and the B-spline bas
 Creates splines for two-phase regression function in this package, including \code{linear2ph}, \code{logistic2ph}, \code{cv_linear2ph}, \code{cv_logistic2ph}.
 }
 \details{
-This function can be directly applied to regression model with one or more error-prone continuous covariates.
+This function can be directly applied for regression model with one or more error-prone continuous covariates.
 }
 \examples{
 # example code

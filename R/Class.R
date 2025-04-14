@@ -40,7 +40,12 @@ print.linear2ph <- function(object) {
   }
 }
 
-# function that creates "covariate matrix"
+#' Creates "covariate matrix"
+#'
+#' Creates "covariate matrix" for both \code{linear2ph} and \code{logistic2ph} object.
+#' @param object An object of class \code{linear2ph} or \code{logistic2ph}.
+#' @noRd
+
 covariate_matrix <- function(object){
   param_est <- object$coefficients
   res_cov <- object$covariance

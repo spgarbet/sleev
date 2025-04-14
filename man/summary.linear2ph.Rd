@@ -10,7 +10,7 @@
 \item{object}{An object of class \code{linear2ph}.}
 }
 \value{
-coefficient matrix and covariance matrix.
+An object of class \code{summary.linear2ph}, containing the call, coefficients, and covariance.
 }
 \description{
 Summarizes the details of a \code{linear2ph} object.
