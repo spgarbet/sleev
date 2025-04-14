@@ -41,6 +41,10 @@ This function can be directly applied for regression model with one or more erro
 \examples{
 # example code
 data("mock.vccc")
-spline2ph(size = 20, degree = 3, data = mock.vccc, x = "VL_unval", group = "Sex")
+sn <- 20
+b_spline_names <- paste0("bs", 1:sn)
+data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
+                         degree = 3,  bs_names = b_spline_names,
+                         group = "Sex")
 
 }

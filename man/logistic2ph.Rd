@@ -62,6 +62,21 @@ Models for \code{logistic2ph()} are specified through the arguments. The dataset
 unvalidated error-prone covariate(s), validated error-prone covariate(s), and B-spline basis. B-spline basis can be generated from \code{splines::bs()} function, with argument \code{x}
 being the unvalidated error-prone covariate(s). See vignette for options in tuning the B-spline basis.
 }
+\examples{
+# example code
+data("mock.vccc")
+sn <- 20
+logistic_names <- paste0("bs", 1:sn)
+data.logistic <- spline2ph(x = "CD4_unval_sq10", size = 20, degree = 3,
+                           bs_names = logistic_names, data = mock.vccc,
+                           group = "Prior_ART", split_group = TRUE)
+res_logistic <- logistic2ph(y = "ADE_val", y_unval = "ADE_unval",
+                            x = "CD4_val_sq10", x_unval = "CD4_unval_sq10",
+                            z = "Prior_ART", b_spline = logistic_names,
+                            data = data.logistic, hn_scale = 1/2, se = TRUE,
+                            tol = 1e-04, max_iter = 1000, verbose = FALSE)
+
+}
 \references{
 Lotspeich, S. C., Shepherd, B. E., Amorim, G. G. C., Shaw, P. A., & Tao, R. (2021). Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. \emph{Biometrics, biom.13512.} https://doi.org/10.1111/biom.13512
 }
