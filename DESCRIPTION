@@ -25,8 +25,7 @@ Suggests:
     testthat (>= 3.0.0),
     R.rsp,
     tibble
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr
 LazyData: true
-Imports:
-    methods
 Config/testthat/edition: 3
+Config/build/args: --no-build-vignettes

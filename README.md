@@ -2,12 +2,14 @@
   <img src="hex.png" width="200">
     <h1>SLEEV: Semiparametric Likelihood Estimation with Errors in Variables</h1>
     </p>
-    
+
+License: file LICENSE_sleev.txt
+
 The complete R package `logreg2ph` and code for the simulation settings included in [this paper](https://doi.org/10.1111/biom.13512). 
   
 Part of the R package `TwoPhaseReg` as described in [this paper](https://doi.org/10.1002/sim.8876).
   
-Below is a simple example for running a linear regression with `sleev`. The complete vignette detailing all uses of example in `sleev` can be found in folder `vignette`.
+Below is a simple example for running a linear regression with `sleev`. The complete vignette detailing all uses of example in `sleev` can be found in as a [PDF](inst/doc/sleev_vignette.pdf).
   
 ### Install
 To install the package for GitHub, run the following in your `R` console: 
