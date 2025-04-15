@@ -2,13 +2,24 @@
 % Please edit documentation in R/Class.R
 \name{coefficients.linear2ph}
 \alias{coefficients.linear2ph}
-\title{Coefficient Method for linear2ph Objects}
+\alias{coef.linear2ph}
+\title{Extract Coefficients from linear2ph Model}
 \usage{
-\method{coefficients}{linear2ph}(object)
+\method{coefficients}{linear2ph}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{linear2ph}.}
+
+\item{...}{Additional arguments passed to other methods.}
+}
+\value{
+A numeric vector of coefficients if the model converged,
+otherwise \code{NULL} with a warning.
 }
 \description{
-Prints the coefficientss of a \code{linear2ph} object.
+Extracts estimated coefficients from a two-phase linear regression model
+of class \code{linear2ph}.
+}
+\seealso{
+\code{\link[stats]{coefficients}}
 }

@@ -4,10 +4,12 @@
 \alias{summary.logistic2ph}
 \title{Summary Method for logistic2ph Objects}
 \usage{
-\method{summary}{logistic2ph}(object)
+\method{summary}{logistic2ph}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{logistic2ph}.}
+
+\item{...}{Additional arguments passed to methods}
 }
 \value{
 An object of class \code{summary.logistic2ph}, containing the call, coefficients, and covariance.

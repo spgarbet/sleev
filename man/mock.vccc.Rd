@@ -20,7 +20,7 @@ initiation, validated outcome, binary}
 continuous}
 \item{CD4_val}{CD4 count at ART initiation, validated covariate,
 continuous}
-\item{prior_ART}{whether patient is ART naive at enrollment, error-free
+\item{Prior_ART}{whether patient is ART naive at enrollment, error-free
 covariate, binary}
 \item{Sex}{sex of patient, 1 indicates male and 0 indicates
 female & error-free covariate, binary}

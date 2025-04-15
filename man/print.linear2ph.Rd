@@ -4,10 +4,12 @@
 \alias{print.linear2ph}
 \title{Print Method for linear2ph Objects}
 \usage{
-\method{print}{linear2ph}(object)
+\method{print}{linear2ph}(x, ...)
 }
 \arguments{
-\item{object}{An object of class \code{linear2ph}.}
+\item{x}{An object of class \code{linear2ph}.}
+
+\item{...}{Additional arguments passed to methods}
 }
 \description{
 Prints the details of a \code{linear2ph} object.

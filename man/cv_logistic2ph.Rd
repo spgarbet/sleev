@@ -48,50 +48,8 @@ cv_logistic2ph(
 \item{converge}{Stores the convergence status of the EM algorithm in each run.}
 }
 \description{
-Performs cross-validation to calculate the average predicted log likelihood for the \code{logistic2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.
+Performs cross-validation to calculate the average predicted log likelihood for the \code{logistic2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood. See pacakge vigenette for code examples.
 }
 \details{
 \code{cv_logistic2ph} gives log-likelihood prediction for models and data like those in \code{logistic2ph}. Therefore, the arguments of \code{cv_logistic2ph} is analogous to that of \code{logistic2ph}.
-}
-\examples{
-set.seed(1)
-# different B-spline sizes
-sns <- c(15, 20, 25, 30, 35, 40)
-# vector to hold mean log-likelihood and run time for each sn
-pred_loglike.1 <- run.time.secs <- rep(NA, length(sns))
-# get number of rows of the dataset
-n <- nrow(mock.vccc)
-# specify number of folds in the cross validation
-k <- 5
-# calculate proportion of female patients in the dataset
-sex_ratio <- sum(mock.vccc$Sex==0)/n
-for (i in 1:length(sns)) {
-  # constructing B-spline basis using the same process as in Section 4.3.1
-  print(i)
-  sn <- sns[i]
-  art_ratio <- sum(mock.vccc$prior_ART==0)/n
-  sn_0 <- round(sn*art_ratio)
-  sn_1 <- sn-sn_0
-  Bspline_0 <- splines::bs(x=mock.vccc$VL_unval_l10[mock.vccc$prior_ART==0],
-                           df=sn_0, degree=3, intercept=TRUE)
-  Bspline_1 <- splines::bs(x=mock.vccc$VL_unval_l10[mock.vccc$prior_ART==1],
-                           df=sn_1, degree=3, intercept=TRUE)
-  Bspline <- matrix(0, n, sn)
-  Bspline[mock.vccc$prior_ART==0,1:sn_0] <- Bspline_0
-  Bspline[mock.vccc$prior_ART==1,(sn_0+1):sn] <- Bspline_1
-  colnames(Bspline) <- paste("bs", 1:sn, sep="")
-  data.sieve <- data.frame(cbind(mock.vccc, Bspline))
-  # cross validation, produce mean log-likelihood
-  start.time <- Sys.time()
-  res.1 <- cv_logistic2ph(y="ADE_val", y_unval="ADE_unval",
-                          x="VL_val_l10", x_unval="VL_unval_l10",
-                          z="prior_ART", b_spline=colnames(Bspline),
-                          data=data.sieve,
-                          nfolds=5, max_iter = 2000, tol = 1e-04)
-  # save run time
-  run.time.secs[i] <- difftime(Sys.time(), start.time, units = "secs")
-  # save mean log-likelihood result
-  pred_loglike.1[i] <- res.1$avg_pred_loglik
-}
-
 }

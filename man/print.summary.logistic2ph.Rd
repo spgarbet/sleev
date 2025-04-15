@@ -4,10 +4,12 @@
 \alias{print.summary.logistic2ph}
 \title{Print Method for summary.logistic2ph Objects}
 \usage{
-\method{print}{summary.logistic2ph}(x)
+\method{print}{summary.logistic2ph}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{summary.logistic2ph}.}
+
+\item{...}{Additional arguments passed to methods}
 }
 \value{
 Invisibly returns \code{x}.

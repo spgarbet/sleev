@@ -22,18 +22,19 @@ linear2ph_class <- function(input) {
 #' Print Method for linear2ph Objects
 #'
 #' Prints the details of a \code{linear2ph} object.
-#' @param object An object of class \code{linear2ph}.
+#' @param x An object of class \code{linear2ph}.
+#' @param ... Additional arguments passed to methods
 #' @export
-print.linear2ph <- function(object) {
+print.linear2ph <- function(x, ...) {
   # print function call
   cat("Call:\n")
-  print(object$call)
+  print(x$call)
 
-  if (object$converge) {
+  if (x$converge) {
     cat("\nThe parameter estimation has converged.\n")
     cat("\nCoefficients:\n")
-    print(object$coefficients[,1])
-    if(!object$converge_cov){
+    print(x$coefficients[,1])
+    if(!x$converge_cov){
       cat("\nThe variance estimation is either not requested to be estimated or did not converge.\n")
     }
   } else {
@@ -76,42 +77,36 @@ covariate_matrix <- function(object){
   return(res_coefficients)
 }
 
-#' Coefficient Method for linear2ph Objects
+#' Extract Coefficients from linear2ph Model
 #'
-#' Prints the coefficientss of a \code{linear2ph} object.
-#' @param object An object of class \code{linear2ph}.
-#' @export
-coef.linear2ph <- function(object) {
-  if (!object$converge) {
-    warning("This model did not converge. No coefficient estimation available.")
-    return(NULL)
-  } else {
-    object$coefficients
-  }
-}
-
-#' Coefficient Method for linear2ph Objects
+#' Extracts estimated coefficients from a two-phase linear regression model
+#' of class \code{linear2ph}.
 #'
-#' Prints the coefficientss of a \code{linear2ph} object.
 #' @param object An object of class \code{linear2ph}.
+#' @param ... Additional arguments passed to other methods.
+#' @return A numeric vector of coefficients if the model converged,
+#'         otherwise \code{NULL} with a warning.
 #' @export
-coefficients.linear2ph <- function(object) {
+#' @method coefficients linear2ph
+#' @aliases coef.linear2ph
+#' @seealso \code{\link[stats]{coefficients}}
+coefficients.linear2ph <- function(object, ...) {
   if (!object$converge) {
-    warning("This model did not converge. No coefficient estimation available.")
+    warning("Model did not converge - no coefficient estimates available")
     return(NULL)
-  } else {
-    object$coefficients
   }
+  object$coefficients
 }
 
 #' Summary Method for linear2ph Objects
 #'
 #' Summarizes the details of a \code{linear2ph} object.
 #' @param object An object of class \code{linear2ph}.
+#' @param ... Additional arguments passed to methods
 #' @return An object of class \code{summary.linear2ph}, containing the call, coefficients, and covariance.
 #' @export
 #' @method summary linear2ph
-summary.linear2ph <- function(object) {
+summary.linear2ph <- function(object, ...) {
   if (!object$converge) {
     warning("This model did not converge. No summary available.")
     return(invisible(NULL))
@@ -132,10 +127,11 @@ summary.linear2ph <- function(object) {
 #'
 #' Prints a structured summary of a \code{linear2ph} model.
 #' @param x An object of class \code{summary.linear2ph}.
+#' @param ... Additional arguments passed to methods
 #' @return Invisibly returns \code{x}.
 #' @export
 #' @method print summary.linear2ph
-print.summary.linear2ph <- function(x) {
+print.summary.linear2ph <- function(x, ...) {
   if (!inherits(x, "summary.linear2ph")) {
     stop("print.summary.linear2ph() called on a non-summary object")
   }
@@ -176,19 +172,20 @@ logistic2ph_class <- function(input) {
 #' Print Method for logistic2ph Objects
 #'
 #' Prints the details of a \code{logistic2ph} object.
-#' @param object An object of class \code{logistic2ph}.
+#' @param x An object of class \code{logistic2ph}.
+#' @param ... Additional arguments passed to methods
 #' @export
 #' @method print logistic2ph
-print.logistic2ph <- function(object) {
+print.logistic2ph <- function(x, ...) {
   # print function call
   cat("Call:\n")
-  print(object$call)
+  print(x$call)
 
-  if (object$converge) {
+  if (x$converge) {
     cat("\nThe parameter estimation has converged.\n")
     cat("\nCoefficients:\n")
-    print(object$coefficients)
-    if(!object$converge_cov){
+    print(x$coefficients)
+    if(!x$converge_cov){
       cat("\nThe variance estimation is either not requested to be estimated or did not converge.\n")
     }
   } else {
@@ -196,44 +193,36 @@ print.logistic2ph <- function(object) {
   }
 }
 
-#' Coefficient Method for logistic2ph Objects
+#' Extract Coefficients from logistic2ph Model
 #'
-#' Prints the coefficients of a \code{logistic2ph} object.
-#' @param object An object of class \code{logistic2ph}.
-#' @export
-#' @method coef logistic2ph
-coef.logistic2ph <- function(object) {
-  if (!object$converge) {
-    warning("This model did not converge. No coefficient estimation available.")
-    return(NULL)
-  } else {
-    object$coefficients
-  }
-}
-
-#' Coefficient Method for logistic2ph Objects
+#' Extracts estimated coefficients from a two-phase logistic regression model
+#' of class \code{logistic2ph}.
 #'
-#' Prints the coefficients of a \code{logistic2ph} object.
 #' @param object An object of class \code{logistic2ph}.
+#' @param ... Additional arguments passed to other methods.
+#' @return A numeric vector of coefficients if the model converged,
+#'         otherwise \code{NULL} with a warning.
 #' @export
-#' @method coef logistic2ph
-coefficients.logistic2ph <- function(object) {
+#' @method coefficients logistic2ph
+#' @aliases coef.logistic2ph
+#' @seealso \code{\link[stats]{coefficients}}
+coefficients.logistic2ph <- function(object, ...) {
   if (!object$converge) {
-    warning("This model did not converge. No coefficient estimation available.")
+    warning("Model did not converge - no coefficient estimates available")
     return(NULL)
-  } else {
-    object$coefficients
   }
+  object$coefficients
 }
 
 #' Summary Method for logistic2ph Objects
 #'
 #' Summarizes the details of a \code{logistic2ph} object.
 #' @param object An object of class \code{logistic2ph}.
+#' @param ... Additional arguments passed to methods
 #' @return An object of class \code{summary.logistic2ph}, containing the call, coefficients, and covariance.
 #' @export
 #' @method summary logistic2ph
-summary.logistic2ph <- function(object) {
+summary.logistic2ph <- function(object, ...) {
   if (!object$converge) {
     warning("This model did not converge. No summary available.")
     return(invisible(NULL))
@@ -254,10 +243,11 @@ summary.logistic2ph <- function(object) {
 #'
 #' Prints a structured summary of a \code{logistic2ph} model.
 #' @param x An object of class \code{summary.logistic2ph}.
+#' @param ... Additional arguments passed to methods
 #' @return Invisibly returns \code{x}.
 #' @export
 #' @method print summary.logistic2ph
-print.summary.logistic2ph <- function(x) {
+print.summary.logistic2ph <- function(x, ...) {
   if (!inherits(x, "summary.logistic2ph")) {
     stop("print.summary.logistic2ph() called on a non-summary object")
   }

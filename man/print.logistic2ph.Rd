@@ -4,10 +4,12 @@
 \alias{print.logistic2ph}
 \title{Print Method for logistic2ph Objects}
 \usage{
-\method{print}{logistic2ph}(object)
+\method{print}{logistic2ph}(x, ...)
 }
 \arguments{
-\item{object}{An object of class \code{logistic2ph}.}
+\item{x}{An object of class \code{logistic2ph}.}
+
+\item{...}{Additional arguments passed to methods}
 }
 \description{
 Prints the details of a \code{logistic2ph} object.

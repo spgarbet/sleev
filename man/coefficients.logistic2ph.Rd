@@ -2,13 +2,24 @@
 % Please edit documentation in R/Class.R
 \name{coefficients.logistic2ph}
 \alias{coefficients.logistic2ph}
-\title{Coefficient Method for logistic2ph Objects}
+\alias{coef.logistic2ph}
+\title{Extract Coefficients from logistic2ph Model}
 \usage{
-\method{coef}{logistic2ph}(object)
+\method{coefficients}{logistic2ph}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{logistic2ph}.}
+
+\item{...}{Additional arguments passed to other methods.}
+}
+\value{
+A numeric vector of coefficients if the model converged,
+otherwise \code{NULL} with a warning.
 }
 \description{
-Prints the coefficients of a \code{logistic2ph} object.
+Extracts estimated coefficients from a two-phase logistic regression model
+of class \code{logistic2ph}.
+}
+\seealso{
+\code{\link[stats]{coefficients}}
 }

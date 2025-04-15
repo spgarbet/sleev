@@ -1,6 +1,6 @@
 #' Cross-validation log-likelihood prediction for \code{linear2ph}
 #'
-#' Performs cross-validation to calculate the average predicted log likelihood for the \code{linear2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood.
+#' Performs cross-validation to calculate the average predicted log likelihood for the \code{linear2ph} function. This function can be used to select the B-spline basis that yields the largest average predicted log likelihood. See pacakge vigenette for code examples.
 #'
 #' @param y_unval Specifies the column of the error-prone outcome that is continuous. Subjects with missing values of \code{y_unval} are omitted from the analysis. This argument is required.
 #' @param y Specifies the column that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
@@ -23,51 +23,7 @@
 #' \item{pred_loglike}{The predicted log likelihood in each fold.}
 #' \item{converge}{The convergence status of the EM algorithm in each run.}
 #' @importFrom Rcpp evalCpp
-#' @importFrom stats pchisq
-#' @examples
-#'   rho = 0.3
-#'   p = 0.3
-#'   n = 100
-#'   n2 = 40
-#'   alpha = 0.3
-#'   beta = 0.4
-#'
-#'   ### generate data
-#'   simX = rnorm(n)
-#'   epsilon = rnorm(n)
-#'   simY = alpha+beta*simX+epsilon
-#'   error = MASS::mvrnorm(n, mu=c(0,0), Sigma=matrix(c(1, rho, rho, 1), nrow=2))
-#'
-#'   simS = rbinom(n, 1, p)
-#'   simU = simS*error[,2]
-#'   simW = simS*error[,1]
-#'   simY_tilde = simY+simW
-#'   simX_tilde = simX+simU
-#'
-#'   id_phase2 = sample(n, n2)
-#'
-#'   simY[-id_phase2] = NA
-#'   simX[-id_phase2] = NA
-#'
-#'   # cubic basis
-#'   nsieves = c(5, 10)
-#'   pred_loglike = rep(NA, length(nsieves))
-#'   for (i in 1:length(nsieves)) {
-#'       nsieve = nsieves[i]
-#'       Bspline = splines::bs(simX_tilde, df=nsieve, degree=3,
-#'         Boundary.knots=range(simX_tilde), intercept=TRUE)
-#'       colnames(Bspline) = paste("bs", 1:nsieve, sep="")
-#'       # cubic basis
-#'
-#'       data = data.frame(Y_tilde=simY_tilde, X_tilde=simX_tilde, Y=simY, X=simX, Bspline)
-#'       ### generate data
-#'
-#'       res = cv_linear2ph(Y="Y", X="X", Y_unval="Y_tilde", X_unval="X_tilde",
-#'         Bspline=colnames(Bspline), data=data, nfolds = 5)
-#'       pred_loglike[i] = res$avg_pred_loglik
-#'     }
-#'
-#'   data.frame(nsieves, pred_loglike)
+#' @importFrom stats pchisq coefficients
 #'
 #' @export
 cv_linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spline=NULL, data=NULL, nfolds=5, max_iter=2000, tol=1E-4, verbose=FALSE) {
