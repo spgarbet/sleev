@@ -3,7 +3,7 @@
     <h1>SLEEV: Semiparametric Likelihood Estimation with Errors in Variables</h1>
     </p>
 
-License: file LICENSE_sleev.txt
+License: file `/inst/LICENSE_sleev.txt`
 
 The complete R package `logreg2ph` and code for the simulation settings included in [this paper](https://doi.org/10.1111/biom.13512). 
   
