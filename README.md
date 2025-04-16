@@ -9,7 +9,7 @@ The complete R package `logreg2ph` and code for the simulation settings included
   
 Part of the R package `TwoPhaseReg` as described in [this paper](https://doi.org/10.1002/sim.8876).
   
-Below is a simple example for running a linear regression with `sleev`. The complete vignette detailing all uses of example in `sleev` can be found as a [article](articles/sleev_vignette.pdf).
+Below is a simple example for running a linear regression with `sleev`. The complete vignette detailing all uses of example in `sleev` can be found as an [article](articles/sleev_vignette.pdf).
   
 ### Install
 To install the package for GitHub, run the following in your `R` console: 

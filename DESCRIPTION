@@ -17,7 +17,6 @@ LinkingTo:
     RcppArmadillo,
     RcppEigen
 Suggests: 
-    knitr,
     lme4,
     MASS,
     rmarkdown,
