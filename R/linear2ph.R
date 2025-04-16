@@ -1,6 +1,6 @@
 #' Sieve maximum likelihood estimator (SMLE) for two-phase linear regression problems
 #'
-#' Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
+#' Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates. See pacakge vigenette for code examples.
 #'
 #' @param y_unval Column name of the error-prone or unvalidated continuous outcome. Subjects with missing values of \code{y_unval} are omitted from the analysis. This argument is required.
 #' @param y Column name that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
@@ -38,21 +38,8 @@
 #' Tao, R., Mercaldo, N. D., Haneuse, S., Maronge, J. M., Rathouz, P. J., Heagerty, P. J., & Schildcrout, J. S. (2021). Two-wave two-phase outcome-dependent sampling designs, with applications to longitudinal binary data. *Statistics in Medicine, 40*(8), 1863–1876. https://doi.org/10.1002/sim.8876
 #'
 #' @seealso [cv_linear2ph()] to calculate the average predicted log likelihood of this function.
-#'
-#' @examples
-#' # example code
-#' data("mock.vccc")
-#' sn <- 20
-#' b_spline_names <- paste0("bs", 1:sn)
-#' data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
-#'                          degree = 3,  bs_names = b_spline_names,
-#'                          group = "Sex")
-#' res_linear <- linear2ph(y_unval = "CD4_unval", y = "CD4_val",
-#'                         x_unval = "VL_unval", x = "VL_val",
-#'                         z = "Sex", b_spline = b_spline_names,
-#'                         data = data.linear,  hn_scale = 1, se = TRUE,
-#'                         tol = 1e-04, max_iter = 1000, verbose = FALSE)
 #' @export
+#'
 linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spline=NULL, data=NULL, hn_scale=1, se=TRUE, tol=1E-4, max_iter=1000, verbose=FALSE)
 {
   # Store the function call

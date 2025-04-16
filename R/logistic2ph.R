@@ -1,6 +1,6 @@
 #' Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 #'
-#' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021).
+#' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021). See pacakge vigenette for code examples.
 #'
 #' @param y_unval Column name of the error-prone or unvalidated binary outcome. This argument is optional. If \code{y_unval = NULL} (the default), \code{y} is treated as error-free.
 #' @param y Column name that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
@@ -35,20 +35,6 @@
 #'
 #' @importFrom stats as.formula
 #' @importFrom stats glm
-#'
-#' @examples
-#' # example code
-#' data("mock.vccc")
-#' sn <- 20
-#' logistic_names <- paste0("bs", 1:sn)
-#' data.logistic <- spline2ph(x = "CD4_unval", size = 20, degree = 3,
-#'                            bs_names = logistic_names, data = mock.vccc,
-#'                            group = "Prior_ART", split_group = TRUE)
-#' res_logistic <- logistic2ph(y = "ADE_val", y_unval = "ADE_unval",
-#'                             x = "CD4_val", x_unval = "CD4_unval",
-#'                             z = "Prior_ART", b_spline = logistic_names,
-#'                             data = data.logistic, hn_scale = 1/2, se = TRUE,
-#'                             tol = 1e-04, max_iter = 1000, verbose = FALSE)
 #'
 #' @export
 
