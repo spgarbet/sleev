@@ -24,6 +24,8 @@ Suggests:
     testthat (>= 3.0.0),
     R.rsp,
     tibble,
-    knitr
+    knitr,
+    quarto
 LazyData: true
 Config/testthat/edition: 3
+VignetteBuilder: knitr
