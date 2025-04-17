@@ -28,7 +28,7 @@ female & error-free covariate, binary}
 }
 }
 \source{
-\url{https://www.vanderbilthealth.com/service-line/comprehensive-care-clinic}
+\url{https://www.vanderbilthealth.com/clinic/comprehensive-care-clinic}
 }
 \usage{
 mock.vccc

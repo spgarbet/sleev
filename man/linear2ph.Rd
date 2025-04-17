@@ -56,26 +56,12 @@ An object of class \code{"linear2ph"} is a list containing at least the followin
 \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
 }
 \description{
-Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates.
+Performs efficient semiparametric estimation for general two-phase measurement error models when there are errors in both the outcome and covariates. See pacakge vigenette for code examples.
 }
 \details{
 Models for \code{linear2ph()} are specified through the arguments. The dataset input should at least contain columns for unvalidated error-prone outcome, validated error-prone outcome,
 unvalidated error-prone covariate(s), validated error-prone covariate(s), and B-spline basis. B-spline basis can be generated from \code{splines::bs()} function, with argument \code{x}
 being the unvalidated error-prone covariate(s). See vignette for options in tuning the B-spline basis.
-}
-\examples{
-# example code
-data("mock.vccc")
-sn <- 20
-b_spline_names <- paste0("bs", 1:sn)
-data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
-                         degree = 3,  bs_names = b_spline_names,
-                         group = "Sex")
-res_linear <- linear2ph(y_unval = "CD4_unval", y = "CD4_val",
-                        x_unval = "VL_unval", x = "VL_val",
-                        z = "Sex", b_spline = b_spline_names,
-                        data = data.linear,  hn_scale = 1, se = TRUE,
-                        tol = 1e-04, max_iter = 1000, verbose = FALSE)
 }
 \references{
 Tao, R., Mercaldo, N. D., Haneuse, S., Maronge, J. M., Rathouz, P. J., Heagerty, P. J., & Schildcrout, J. S. (2021). Two-wave two-phase outcome-dependent sampling designs, with applications to longitudinal binary data. \emph{Statistics in Medicine, 40}(8), 1863–1876. https://doi.org/10.1002/sim.8876

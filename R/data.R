@@ -29,5 +29,5 @@
 #'   female & error-free covariate, binary}
 #'   \item{Age}{age of patient, error-free covariate, continuous}
 #' }
-#' @source \url{https://www.vanderbilthealth.com/service-line/comprehensive-care-clinic}
+#' @source \url{https://www.vanderbilthealth.com/clinic/comprehensive-care-clinic}
 "mock.vccc"
