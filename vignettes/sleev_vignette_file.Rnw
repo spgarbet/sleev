@@ -1,0 +1,7 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{Your Vignette Title}
+
+\begin{document}
+\includepdf[pages=-, fitpaper=true]{sleev_vignette.pdf}
+\end{document}
