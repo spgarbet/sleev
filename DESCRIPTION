@@ -1,7 +1,7 @@
 Package: sleev
 Type: Package
 Title: Semiparametric Likelihood Estimation with Errors in Variables
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(person(given = "Sarah", family = "Lotspeich", role = "aut"),
     person(given = "Ran", family = "Tao", role=c("aut","cre"), email = "r.tao@vanderbilt.edu"),
     person(given = "Joey", family = "Sherrill", role = "prg"),
@@ -28,3 +28,5 @@ Suggests:
     quarto
 LazyData: true
 Config/testthat/edition: 3
+URL: https://github.com/dragontaoran/sleev
+BugReports: https://github.com/dragontaoran/sleev/issues
