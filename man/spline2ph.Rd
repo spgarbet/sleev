@@ -9,7 +9,7 @@ spline2ph(
   data,
   size = 20,
   degree = 3,
-  bs_names,
+  bs_names = NULL,
   group = NULL,
   split_group = TRUE
 )
@@ -23,7 +23,7 @@ spline2ph(
 
 \item{degree}{Pass on to the \code{degree} argument in \code{splines::bs()}. Degree of the piecewise polynomial. Default is 3 for cubic splines.}
 
-\item{bs_names}{Column names of the output B-spline basis matrix.}
+\item{bs_names}{Optional. Vecotr of column names of the output B-spline basis matrix. When not specified, a default will be provided.}
 
 \item{group}{Optional. Column name of the categorical variable of which might have heterogeneous errors among different groups.}
 

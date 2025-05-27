@@ -30,8 +30,6 @@ logistic2ph(
 
 \item{z}{Specifies the columns of the accurately measured covariates. This argument is optional.}
 
-\item{b_spline}{Specifies the columns of the B-spline basis. This argument is required.}
-
 \item{data}{Specifies the name of the dataset. This argument is required.}
 
 \item{hn_scale}{Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.}

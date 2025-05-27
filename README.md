@@ -8,6 +8,8 @@ License: file `/inst/LICENSE_sleev.txt`
 The complete R package `logreg2ph` and code for the simulation settings included in [this paper](https://doi.org/10.1111/biom.13512). 
   
 Part of the R package `TwoPhaseReg` as described in [this paper](https://doi.org/10.1002/sim.8876).
+
+If you wish to make suggestions, report a problem, or need more support with package use, please email Dr. Ran Tao (r DOT tao AT vumc DOT org) or Dr. Sarah Lotspeich (lotspes AT wfu DOT edu).
   
 Below is a simple example for running a linear regression with `sleev`. The complete vignette detailing all uses of example in `sleev` can be found as an [article](https://github.com/dragontaoran/sleev/blob/main/inst/article/sleev_vignette.pdf).
   

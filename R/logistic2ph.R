@@ -6,7 +6,6 @@
 #' @param y Column name that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
 #' @param x_unval Specifies the columns of the error-prone covariates. This argument is required.
 #' @param x Specifies the columns that store the validated values of \code{x_unval} in the second phase. Subjects with missing values of \code{x} are considered as those not selected in the second phase. This argument is required.
-#' @param b_spline Specifies the columns of the B-spline basis. This argument is required.
 #' @param z Specifies the columns of the accurately measured covariates. This argument is optional.
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param hn_scale Specifies the scale of the perturbation constant in the variance estimation. For example, if \code{hn_scale = 0.5}, then the perturbation constant is \eqn{0.5n^{-1/2}}, where \eqn{n} is the first-phase sample size. The default value is \code{1}. This argument is optional.
@@ -44,7 +43,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
 
   # variable name change
   Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
-  Bspline = b_spline; noSE = !se; TOL = tol; MAX_ITER = max_iter
+  Bspline = attr(data, "bs_name"); noSE = !se; TOL = tol; MAX_ITER = max_iter
 
   if (missing(data)) {
     stop("No dataset is provided!")

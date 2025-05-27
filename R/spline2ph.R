@@ -6,7 +6,7 @@
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param size Pass on to the \code{df} argument in \code{splines::bs()}. Degrees of freedom for EACH variable.
 #' @param degree Pass on to the \code{degree} argument in \code{splines::bs()}. Degree of the piecewise polynomial. Default is 3 for cubic splines.
-#' @param bs_names Column names of the output B-spline basis matrix.
+#' @param bs_names Optional. Vecotr of column names of the output B-spline basis matrix. When not specified, a default will be provided.
 #' @param group Optional. Column name of the categorical variable of which might have heterogeneous errors among different groups.
 #' @param split_group Optional. Whether to split by group proportion for the group with B-spline size if the \code{group} argument is provided. If `FALSE`, then the split will be averaged across all groups. Default is `TRUE`.
 #'
@@ -27,7 +27,7 @@
 #'
 #' @export
 
-spline2ph <- function(x, data, size = 20, degree = 3, bs_names, group = NULL, split_group = TRUE){
+spline2ph <- function(x, data, size = 20, degree = 3, bs_names = NULL, group = NULL, split_group = TRUE){
   n <- nrow(data) # get the number of rows of the dataset
   # portion the size of the B-spline basis according to the size of two sex groups
   if(is.null(group)){
@@ -80,8 +80,19 @@ spline2ph <- function(x, data, size = 20, degree = 3, bs_names, group = NULL, sp
 
   # create B-spline basis for this analysis by combining the bases created
   Bspline.df <- data.frame(Bspline.df)
-  colnames(Bspline.df) <- bs_names
+
+  # store the splines column name with the data
+  if (is.null(bs_names)) {
+    bs_names <- paste0("bs", 1:ncol(Bspline.df))
+    colnames(Bspline.df) <- bs_names
+  } else if (length(bs_names) != ncol(Bspline.df)){
+    stop(paste0("Length of B-splines column name should be ", nrow(Bspline.df), "."))
+  } else {
+    colnames(Bspline.df) <- bs_names
+  }
+
   Bspline.df <- cbind(data, Bspline.df)
+  attr(Bspline.df, "bs_name") <- bs_names
 
   return(Bspline.df)
 }

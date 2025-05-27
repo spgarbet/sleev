@@ -6,7 +6,6 @@
 #' @param y Specifies the column that stores the validated value of \code{y_unval} in the second phase. Subjects with missing values of \code{y} are considered as those not selected in the second phase. This argument is required.
 #' @param x_unval Specifies the columns of the error-prone covariates. Subjects with missing values of \code{x_unval} are omitted from the analysis. This argument is required.
 #' @param x Specifies the columns that store the validated values of \code{x_unval} in the second phase. Subjects with missing values of \code{x} are considered as those not selected in the second phase. This argument is required.
-#' @param b_spline Specifies the columns of the B-spline basis. Subjects with missing values of \code{b_spline} are omitted from the analysis. This argument is required.
 #' @param z Specifies the columns of the accurately measured covariates. Subjects with missing values of \code{z} are omitted from the analysis. This argument is optional.
 #' @param data Specifies the name of the dataset. This argument is required.
 #' @param nfolds Specifies the number of cross-validation folds. The default value is \code{5}. Although \code{nfolds} can be as large as the sample size (leave-one-out cross-validation), it is not recommended for large datasets. The smallest value allowable is \code{3}.
@@ -26,11 +25,11 @@
 #' @importFrom stats pchisq coefficients
 #'
 #' @export
-cv_linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spline=NULL, data=NULL, nfolds=5, max_iter=2000, tol=1E-4, verbose=FALSE) {
+cv_linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, data=NULL, nfolds=5, max_iter=2000, tol=1E-4, verbose=FALSE) {
 
   # variable name change
   Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
-  Bspline = b_spline; TOL = tol; MAX_ITER = max_iter
+  Bspline = attr(data, "bs_name"); TOL = tol; MAX_ITER = max_iter
 
   ###############################################################################################################
   #### check data ###############################################################################################
