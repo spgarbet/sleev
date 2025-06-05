@@ -20,10 +20,9 @@
 #' # example code
 #' data("mock.vccc")
 #' sn <- 20
-#' b_spline_names <- paste0("bs", 1:sn)
 #' data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
-#'                          degree = 3,  bs_names = b_spline_names,
-#'                          group = "Sex")
+#'                          degree = 3,  group = "Sex")
+#'
 #'
 #' @export
 

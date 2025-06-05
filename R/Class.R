@@ -33,7 +33,7 @@ print.linear2ph <- function(x, ...) {
   if (x$converge) {
     cat("\nThe parameter estimation has converged.\n")
     cat("\nCoefficients:\n")
-    print(x$coefficients[,1])
+    print(x$coefficients)
     if(!x$converge_cov){
       cat("\nThe variance estimation is either not requested to be estimated or did not converge.\n")
     }
