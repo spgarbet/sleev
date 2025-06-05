@@ -5,6 +5,7 @@
 ^.paper.bib
 ^.paper.md
 ^.github$
+LICENSE
 
 cran-comments.html
 ^vignettes/.*\.rds$
