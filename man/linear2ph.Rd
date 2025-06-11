@@ -10,7 +10,6 @@ linear2ph(
   x_unval = NULL,
   x = NULL,
   z = NULL,
-  b_spline = NULL,
   data = NULL,
   hn_scale = 1,
   se = TRUE,

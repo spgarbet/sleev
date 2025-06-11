@@ -39,7 +39,7 @@
 #' @seealso [cv_linear2ph()] to calculate the average predicted log likelihood of this function.
 #' @export
 #'
-linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, b_spline=NULL, data=NULL, hn_scale=1, se=TRUE, tol=1E-4, max_iter=1000, verbose=FALSE)
+linear2ph <- function (y_unval=NULL, y=NULL, x_unval=NULL, x=NULL, z=NULL, data=NULL, hn_scale=1, se=TRUE, tol=1E-4, max_iter=1000, verbose=FALSE)
 {
   # Store the function call
   model_call <- match.call()
