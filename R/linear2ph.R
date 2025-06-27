@@ -30,6 +30,20 @@
 #' \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 #' \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
 #'
+#' @examples
+#' \dontrun{
+#' # Regression model: CD4 ~ VL + Sex. CD4 and VL are partially validated.
+#' data("mock.vccc")
+#' sn <- 20
+#' data.linear <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
+#'                          degree = 3,  group = "Sex")
+#' res_linear <- linear2ph(y_unval = "CD4_unval", y = "CD4_val",
+#'                         x_unval = "VL_unval", x = "VL_val",
+#'                         z = "Sex", data = data.linear,  hn_scale = 1,
+#'                         se = TRUE, tol = 1e-04, max_iter = 1000,
+#'                         verbose = FALSE)
+#' }
+#'
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq
 #'

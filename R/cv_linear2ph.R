@@ -21,6 +21,35 @@
 #' \item{avg_pred_loglike}{The average predicted log likelihood across each fold.}
 #' \item{pred_loglike}{The predicted log likelihood in each fold.}
 #' \item{converge}{The convergence status of the EM algorithm in each run.}
+#'
+#' @examples
+#' \dontrun{
+#'   data("mock.vccc")
+#'   # different B-spline sizes
+#'   sns <- c(15, 20, 25, 30, 35, 40)
+#'   # vector to hold mean log-likelihood
+#'   pred_loglike.1 <- rep(NA, length(sns))
+#'   # specify number of folds in the cross validation
+#'   k <- 5
+#'   for (i in 1:length(sns)) {
+#'     # constructing B-spline basis using the same process as in Section 4.3.1
+#'     sn <- sns[i]
+#'     data.sieve <- spline2ph(x = "VL_unval", data = mock.vccc, size = sn,
+#'                             degree = 3, group = "Sex")
+#'
+#'     # cross validation, produce mean log-likelihood
+#'     start.time <- Sys.time()
+#'     res.1 <- cv_linear2ph(y = "CD4_val", y_unval = "CD4_unval",
+#'                           x ="VL_val", x_unval = "VL_unval", z = "Sex",
+#'                           data = data.sieve, nfolds = k, max_iter = 2000,
+#'                           tol = 1e-04, verbose = FALSE)
+#'     # save mean log-likelihood result
+#'     pred_loglike.1[i] <- res.1$avg_pred_loglik
+#'   }
+#'   # Print predicted log-likelihood for different B-spline sizes
+#'   print(pred_loglike.1)
+#' }
+#'
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats pchisq coefficients
 #'

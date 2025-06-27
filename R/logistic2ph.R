@@ -29,6 +29,21 @@
 #' \item{converge}{In parameter estimation, if the EM algorithm converges, then \code{converge = TRUE}. Otherwise, \code{converge = FALSE}.}
 #' \item{converge_cov}{In variance estimation, if the EM algorithm converges, then \code{converge_cov = TRUE}. Otherwise, \code{converge_cov = FALSE}.}
 #'
+#' @examples
+#' \dontrun{
+#' # Regression model: ADE ~ CD4 + Prior_ART. ADE and CD4 are partially validated.
+#' data("mock.vccc")
+#' sn <- 20
+#' data.logistic <- spline2ph(x = "CD4_unval", size = 20, degree = 3,
+#'                            data = mock.vccc, group = "Prior_ART",
+#'                            split_group = TRUE)
+#' res_logistic <- logistic2ph(y = "ADE_val", y_unval = "ADE_unval",
+#'                            x = "CD4_val", x_unval = "CD4_unval",
+#'                             z = "Prior_ART", data = data.logistic,
+#'                             hn_scale = 1/2, se = TRUE, tol = 1e-04,
+#'                             max_iter = 1000, verbose = FALSE)
+#' }
+#'
 #' @references
 #' Lotspeich, S. C., Shepherd, B. E., Amorim, G. G. C., Shaw, P. A., & Tao, R. (2021). Efficient odds ratio estimation under two-phase sampling using error-prone data from a multi-national HIV research cohort. *Biometrics, biom.13512.* https://doi.org/10.1111/biom.13512
 #'

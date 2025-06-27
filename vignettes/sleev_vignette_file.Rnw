@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage{pdfpages}
-%\VignetteIndexEntry{sleev vignette}
+%\VignetteIndexEntry{sleev: Semiparametric Likelihood Estimation with Errors in Variables}
 
 \begin{document}
 \includepdf[pages=-, fitpaper=true]{sleev_vignette.pdf}
