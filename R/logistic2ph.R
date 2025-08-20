@@ -76,9 +76,9 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
     stop("If X_unval and X are NULL, all predictors are assumed to be error-free. You must define both variables or neither!")
   }
 
-  if (length(data[,X_unval]) != length(data[,X])) {
-    stop("The number of columns in X_unval and X is different!")
-  }
+  # if (length(data[,X_unval]) != length(data[,X])) {
+  #   stop("The number of columns in X_unval and X is different!")
+  # }
 
   # Convert data to data.frame to avoid conflicts with tbl
   data <- data.frame(data)
