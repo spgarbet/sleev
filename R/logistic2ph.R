@@ -89,7 +89,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   # Calculate the validated subjects
   Validated <- logical(N) # initialize a logical vector of length N
   for (i in 1:N) {
-    Validated[i] <- !(is.na(data[i,X]) || is.na(data[i,Y]))
+    Validated[i] <- !any(is.na(data[i, c(Y, X)]))
   }
 
   # n is how many validated subjects there are in data
