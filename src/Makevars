@@ -22,7 +22,7 @@
 
 ## Allowing larger memory allocations to arrays in Rcpp Armadillo
 ## Remove stupid warnings from Rcpp Eigen (warning: pragma diagnostic pop could not pop, no matching push [-Wunknown-pragmas]    #pragma clang diagnostic pop)
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -DARMA_64BIT_WORD=1 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS -DNDEBUG -DARMA_NO_DEBUG -DEIGEN_NO_DEBUG
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -DARMA_64BIT_WORD=1 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS -DNDEBUG -DARMA_NO_DEBUG -DEIGEN_NO_DEBUG -DARMA_USE_CURRENT
 
 ## Compilation
 PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
