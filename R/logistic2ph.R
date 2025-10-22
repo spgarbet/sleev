@@ -1,3 +1,5 @@
+utils::globalVariables(c("..X", ".I", "k", ":=")) # Silence CHECK issues with data.table
+
 #' Sieve maximum likelihood estimator (SMLE) for two-phase logistic regression problems
 #'
 #' This function returns the sieve maximum likelihood estimators (SMLE) for the logistic regression model from Lotspeich et al. (2021). See pacakge vigenette for code examples.
@@ -49,6 +51,14 @@
 #'
 #' @importFrom stats as.formula
 #' @importFrom stats glm
+#' @importFrom data.table data.table
+#' @importFrom data.table setDT
+#' @importFrom data.table setkeyv
+#' @importFrom data.table setorderv
+#' @importFrom data.table rbindlist
+#' @importFrom data.table CJ
+#' @importFrom data.table copy
+#' @importFrom data.table ":="
 #'
 #' @export
 
@@ -134,35 +144,91 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
 
   # Create "complete" data ------------------------------------------
   ## Save distinct X ------------------------------------------------
-  x_obs <- data.frame(unique(data[1:n, c(X)]))
-  x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
+  setDT(data)
+
+  # --- Step 1: Distinct and ordered x_obs ----------------------------
+  x_obs <- unique(data[1:n, ..X])
+  setkeyv(x_obs, X)            # sets key and orders in place
   m <- nrow(x_obs)
-  x_obs_stacked <- do.call(rbind, replicate(n = (N - n), expr = x_obs, simplify = FALSE))
-  x_obs_stacked <- data.frame(x_obs_stacked[order(x_obs_stacked[, 1]), ])
-  colnames(x_obs) <- colnames(x_obs_stacked) <- c(X)
-  ## ------------------------------------------------ Save distinct X
-  ## Save static (X*,Y*,X,Y,Z) since they don't change --------------
-  comp_dat_val <- data[c(1:n), c(Y_unval, X_unval, Z, Bspline, X, Y)]
-  comp_dat_val <- merge(x = comp_dat_val, y = data.frame(x_obs, k = 1:m), all.x = TRUE)
-  comp_dat_val <- comp_dat_val[, c(Y_unval, pred, Bspline, "k")]
-  comp_dat_val <- data.matrix(comp_dat_val)
-  ## -------------- Save static (X*,Y*,X,Y,Z) since they don't change
-  # 2 (m x n)xd matrices (y=0/y=1) of each (one column per person, --
-  # one row per x) --------------------------------------------------
-  comp_dat_unval <- cbind(data[rep(seq(from = (n+1), N), times = m), c(Y_unval, setdiff(x = pred, y = X), Bspline)],
-                          x_obs_stacked,
-                          k = rep(seq(1, m), each = (N - n)),
-                          row.names = NULL)
+
+  # --- Step 2: Replicate x_obs (stacked)
+  # Using .SD for in-place repetition avoids copies
+  x_obs_stacked <- x_obs[rep(seq_len(m), times = (N - n))]
+  # The key on X remains valid, no need to re-sort
+  # (if order matters strictly, uncomment next line)
+  setorderv(x_obs_stacked, X)
+
+  # --- Step 3: comp_dat_val ------------------------------------------
+  # Static component (first n observations)
+  comp_dat_val <- data[1:n, c(Y_unval, X_unval, Z, Bspline, X, Y), with = FALSE]
+
+  # Prepare keyed x_obs with index k
+  x_obs[, k := .I]             # fast in-place index column
+
+  # Set keys for fast join
+  setkeyv(comp_dat_val, X)     # join key
+  # Join directly by key — fastest possible join
+  comp_dat_val <- x_obs[comp_dat_val, nomatch = 0L]
+
+  # Select relevant columns
+  comp_dat_val <- comp_dat_val[, c(Y_unval, pred, Bspline, "k"), with = FALSE]
+
+  # Convert to matrix only at the end (copy unavoidable)
+  comp_dat_val <- as.matrix(comp_dat_val)
+
+  # --- Step 4: comp_dat_unval ----------------------------------------
+  # Efficient replication: (N - n) rows per x_obs
+  # Using CJ() cross join to generate index pairs without materializing full cross product in R memory
+  idx <- CJ(k = seq_len(m), i = seq(from = n + 1, to = N))
+  # Join these index pairs to data and x_obs
+  comp_dat_unval <- data.table(
+    data[rep((n + 1):N, times = m), c(Y_unval, setdiff(pred, X), Bspline), with = FALSE],
+    x_obs_stacked,
+    k = rep(seq_len(m), each = (N - n))
+  )
+
+  # x_obs <- data.frame(unique(data[1:n, c(X)]))
+  # x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
+  # m <- nrow(x_obs)
+  # x_obs_stacked <- do.call(rbind, replicate(n = (N - n), expr = x_obs, simplify = FALSE))
+  # x_obs_stacked <- data.frame(x_obs_stacked[order(x_obs_stacked[, 1]), ])
+  # colnames(x_obs) <- colnames(x_obs_stacked) <- c(X)
+  # ## ------------------------------------------------ Save distinct X
+  # ## Save static (X*,Y*,X,Y,Z) since they don't change --------------
+  # comp_dat_val <- data[c(1:n), c(Y_unval, X_unval, Z, Bspline, X, Y)]
+  # comp_dat_val <- merge(x = comp_dat_val, y = data.frame(x_obs, k = 1:m), all.x = TRUE)
+  # comp_dat_val <- comp_dat_val[, c(Y_unval, pred, Bspline, "k")]
+  # comp_dat_val <- data.matrix(comp_dat_val)
+  # ## -------------- Save static (X*,Y*,X,Y,Z) since they don't change
+  # # 2 (m x n)xd matrices (y=0/y=1) of each (one column per person, --
+  # # one row per x) --------------------------------------------------
+  # comp_dat_unval <- cbind(data[rep(seq(from = (n+1), N), times = m), c(Y_unval, setdiff(x = pred, y = X), Bspline)],
+  #                         x_obs_stacked,
+  #                         k = rep(seq(1, m), each = (N - n)),
+  #                         row.names = NULL)
   if (errorsY) {
     ### Create two versions of the complete data
-    comp_dat_y0 <- comp_dat_y1 <- comp_dat_unval
-    comp_dat_y0[, Y] <- 0 ### One with Y = 0
-    comp_dat_y1[, Y] <- 1 ### And one with Y = 1
-    comp_dat_unval <- data.matrix(rbind(comp_dat_y0, comp_dat_y1))
+    ### Create two independent copies of comp_dat_unval
+    comp_dat_y0 <- copy(comp_dat_unval)
+    comp_dat_y1 <- copy(comp_dat_unval)
+
+    ### One with Y = 0
+    comp_dat_y0[, (Y) := 0]
+
+    ### One with Y = 1
+    comp_dat_y1[, (Y) := 1]
+
+    ### Combine vertically
+    comp_dat_unval <- rbindlist(list(comp_dat_y0, comp_dat_y1))
+
+    ### Convert to matrix if needed
+    comp_dat_unval <- as.matrix(comp_dat_unval)
   }
-  comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k")]
-  comp_dat_all <- rbind(comp_dat_val,
-                        comp_dat_unval)
+  # Select columns (note: if already matrix, indexing by column names may fail)
+  comp_dat_unval <- comp_dat_unval[, c(Y_unval, pred, Bspline, "k"), drop = FALSE]
+
+  # Combine with comp_dat_val
+  comp_dat_all <- rbind(comp_dat_val, comp_dat_unval)
 
   # Initialize B-spline coefficients {p_kj}  -----------------------
   ## Numerators sum B(Xi*) over k = 1,...,m ------------------------
@@ -174,9 +240,9 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
 
   # Create model formulas
   theta_formula <- as.formula(paste0(Y, "~", paste(theta_pred, collapse = "+")))
-  theta_design_mat <- data.matrix(cbind(int = 1, comp_dat_all[, theta_pred]))
+  theta_design_mat <- as.matrix(cbind(int = 1, comp_dat_all[, theta_pred]))
   gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
-  gamma_design_mat <- data.matrix(cbind(int = 1, comp_dat_all[, gamma_pred]))
+  gamma_design_mat <- as.matrix(cbind(int = 1, comp_dat_all[, gamma_pred]))
 
   # Initialize parameter values -------------------------------------
   ## theta, gamma ---------------------------------------------------
@@ -318,7 +384,17 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
     # M Step ----------------------------------------------------------
     ###################################################################
     all_conv <- c(theta_conv, gamma_conv, p_conv)
-    if (mean(all_conv) == 1) { CONVERGED <- TRUE }
+    if(any(is.na(theta_conv)))
+    {
+      bad <- paste(all.vars(theta_formula)[is.na(theta_conv)], collapse=", ")
+      stop(paste("System is singular. Variables possibly at fault: ", bad))
+    }
+    if(any(is.na(gamma_conv)))
+    {
+      bad <- paste(all.vars(gamma_formula)[is.na(gamma_conv)], collapse=", ")
+      stop(paste("System is singular. Variables possibly at fault: ", bad))
+    }
+    if (mean(all_conv, na.rm=TRUE) == 1) { CONVERGED <- TRUE }
 
     # Update values for next iteration  -------------------------------
     it <- it + 1

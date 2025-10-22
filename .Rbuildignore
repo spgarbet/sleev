@@ -11,3 +11,4 @@ cran-comments.html
 ^vignettes/.*\.rds$
 ^doc$
 ^Meta$
+^tests/testthat.R$
