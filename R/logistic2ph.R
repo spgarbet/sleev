@@ -146,10 +146,14 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   ## Save distinct X ------------------------------------------------
   setDT(data)
 
+  if(verbose) message("Begin step one")
+
   # --- Step 1: Distinct and ordered x_obs ----------------------------
   x_obs <- unique(data[1:n, ..X])
   setkeyv(x_obs, X)            # sets key and orders in place
   m <- nrow(x_obs)
+
+  if(verbose) message("Begin step two")
 
   # --- Step 2: Replicate x_obs (stacked)
   # Using .SD for in-place repetition avoids copies
@@ -160,6 +164,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
 
   # --- Step 3: comp_dat_val ------------------------------------------
   # Static component (first n observations)
+  if(verbose) message("Begin step three")
   comp_dat_val <- data[1:n, c(Y_unval, X_unval, Z, Bspline, X, Y), with = FALSE]
 
   # Prepare keyed x_obs with index k
@@ -176,6 +181,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   # Convert to matrix only at the end (copy unavoidable)
   comp_dat_val <- as.matrix(comp_dat_val)
 
+  if(verbose) message("Begin step four")
   # --- Step 4: comp_dat_unval ----------------------------------------
   # Efficient replication: (N - n) rows per x_obs
   # Using CJ() cross join to generate index pairs without materializing full cross product in R memory
@@ -258,7 +264,14 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
 
   # Estimate theta using EM -------------------------------------------
-  while(it <= MAX_ITER & !CONVERGED) {
+  if(verbose) message("Begin loop")
+  all_conv <- 0
+  while(it <= MAX_ITER && !CONVERGED) {
+    if(verbose)
+      message(
+        "Iteration: ",   it,
+        "  Converged: ", round(100*sum(all_conv, na.rm=TRUE)/length(all_conv), 2), "%",
+        "  Time: ",      Sys.time())
     # E Step ----------------------------------------------------------
     ## Update the psi_kyji for unvalidated subjects -------------------
     ### P(Y|X) --------------------------------------------------------
