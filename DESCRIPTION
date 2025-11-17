@@ -12,6 +12,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: Rcpp (>= 1.0.7), R (>= 3.5.0)
+Imports: data.table
 LinkingTo:
     Rcpp,
     RcppArmadillo,
