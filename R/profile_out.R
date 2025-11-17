@@ -80,13 +80,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
 
   # Estimate gamma/p using EM -----------------------------------------
   #browser()
-  message("# profile_out loop")
-  all_conv <- 0
   while(it <= MAX_ITER & !CONVERGED) {
-    message(
-      "Iteration: ",   it,
-      "  Converged: ", round(100*sum(all_conv, na.rm=TRUE)/length(all_conv), 2), "%",
-      "  Time: ",      Sys.time())
     # E Step ----------------------------------------------------------
     # P(Y*|X*,Y,X) ---------------------------------------------------
     if (errorsY) {
