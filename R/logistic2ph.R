@@ -62,7 +62,19 @@ utils::globalVariables(c("..X", ".I", "k", ":=")) # Silence CHECK issues with da
 #'
 #' @export
 
-logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = NULL, data = NULL, hn_scale = 1, se = TRUE, tol = 1E-4, max_iter = 1000, verbose = FALSE) {
+logistic2ph <- function(
+    y_unval  = NULL,
+    y        = NULL,
+    x_unval  = NULL,
+    x        = NULL,
+    z        = NULL,
+    data     = NULL,
+    hn_scale = 1,
+    se       = TRUE,
+    tol      = 1E-4,
+    max_iter = 1000,
+    verbose  = FALSE)
+{
   # Store the function call
   model_call <- match.call()
 
@@ -146,10 +158,14 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   ## Save distinct X ------------------------------------------------
   setDT(data)
 
+  if(verbose) message("Begin step one")
+
   # --- Step 1: Distinct and ordered x_obs ----------------------------
   x_obs <- unique(data[1:n, ..X])
   setkeyv(x_obs, X)            # sets key and orders in place
   m <- nrow(x_obs)
+
+  if(verbose) message("Begin step two")
 
   # --- Step 2: Replicate x_obs (stacked)
   # Using .SD for in-place repetition avoids copies
@@ -160,6 +176,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
 
   # --- Step 3: comp_dat_val ------------------------------------------
   # Static component (first n observations)
+  if(verbose) message("Begin step three")
   comp_dat_val <- data[1:n, c(Y_unval, X_unval, Z, Bspline, X, Y), with = FALSE]
 
   # Prepare keyed x_obs with index k
@@ -176,6 +193,7 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   # Convert to matrix only at the end (copy unavoidable)
   comp_dat_val <- as.matrix(comp_dat_val)
 
+  if(verbose) message("Begin step four")
   # --- Step 4: comp_dat_unval ----------------------------------------
   # Efficient replication: (N - n) rows per x_obs
   # Using CJ() cross join to generate index pairs without materializing full cross product in R memory
@@ -258,68 +276,44 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
   mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
 
   # Estimate theta using EM -------------------------------------------
-  while(it <= MAX_ITER & !CONVERGED) {
-    # E Step ----------------------------------------------------------
-    ## Update the psi_kyji for unvalidated subjects -------------------
-    ### P(Y|X) --------------------------------------------------------
-    mu_theta <- as.numeric(theta_design_mat[-c(1:n), ] %*% prev_theta)
-    pY_X <- 1 / (1 + exp(- mu_theta))
-    I_y0 <- comp_dat_unval[, Y] == 0
-    pY_X[I_y0] <- 1 - pY_X[I_y0]
-    ### -------------------------------------------------------- P(Y|X)
-    ###################################################################
-    ### P(Y*|X*,Y,X) --------------------------------------------------
-    if (errorsY) {
-      pYstar <- 1 / (1 + exp(- as.numeric((gamma_design_mat[-c(1:n), ] %*% prev_gamma))))
-      I_ystar0 <- comp_dat_unval[, Y_unval] == 0
-      pYstar[I_ystar0] <- 1 - pYstar[I_ystar0]
-    } else {
-      pYstar <- 1
+  if(verbose) message("Begin loop")
+  all_conv <- 0
+  while(it <= MAX_ITER && !CONVERGED) {
+    if(verbose)
+      message(
+        "Iteration: ",   it,
+        "  Converged: ", round(100*sum(all_conv, na.rm=TRUE)/length(all_conv), 2), "%",
+        "  Time: ",      Sys.time())
+    # cpp E Step
+    if (!is.matrix(comp_dat_unval)) {
+      comp_dat_unval <- as.matrix(comp_dat_unval)
     }
-    ### -------------------------------------------------- P(Y*|X*,Y,X)
-    ###################################################################
-    ### P(X|X*) -------------------------------------------------------
-    ### p_kj ------------------------------------------------------
-    ### need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
-    ### multiply by the B-spline terms
-    if (errorsY) {
-      pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_unval[, Bspline]
-    } else {
-      pX <- prev_p[rep(seq(1, m), each = (N - n)), ] * comp_dat_unval[, Bspline]
-    }
-    ### ------------------------------------------------------- P(X|X*)
-    ###################################################################
-    ### Estimate conditional expectations -----------------------------
-    ### P(Y|X,Z)P(Y*|X*,Y,X,Z)p_kjB(X*) -----------------------------
-    psi_num <- c(pY_X * pYstar) * pX
-    ### Update denominator ------------------------------------------
-    #### Sum up all rows per id (e.g. sum over xk/y) ----------------
-    if (errorsY) {
-      psi_denom <- rowsum(x = psi_num,
-                          group = rep(seq(1, (N - n)),
-                                      times = 2 * m))
-    } else {
-      psi_denom <- rowsum(x = psi_num,
-                          group = rep(seq(1, (N - n)),
-                                      times = m))
-    }
-    #### Then sum over the sn splines -------------------------------
-    psi_denom <- rowSums(psi_denom)
-    #### Avoid NaN resulting from dividing by 0 ---------------------
-    psi_denom[psi_denom == 0] <- 1
-    ### And divide them! --------------------------------------------
-    psi_t <- psi_num / psi_denom
-    ### Update the w_kyi for unvalidated subjects -------------------
-    ### by summing across the splines/ columns of psi_t -------------
-    w_t <- rowSums(psi_t)
-    ### Update the u_kji for unvalidated subjects ------------------
-    ### by summing over Y = 0/1 w/i each i, k ----------------------
-    ### add top half of psi_t (y = 0) to bottom half (y = 1) -------
-    u_t <- psi_t[c(1:(m * (N - n))), ]
-    if (errorsY) {
-      u_t <- u_t + psi_t[- c(1:(m * (N - n))), ]
-    }
-    # ---------------------------------------------------------- E Step
+
+    Bspline_mat <- comp_dat_unval[, Bspline, drop = FALSE]
+    storage.mode(Bspline_mat) <- "double"
+
+    Y_vec <- comp_dat_unval[, Y]
+    Y_unval_vec <- if (errorsY) comp_dat_unval[, Y_unval] else rep(0, nrow(comp_dat_unval))
+    storage.mode(Y_vec) <- "double"
+    storage.mode(Y_unval_vec) <- "double"
+
+    res_C <- logistic2ph_estep_cpp(
+      theta_design_mat,
+      gamma_design_mat,
+      prev_theta,
+      prev_gamma,
+      prev_p,
+      Bspline_mat,
+      Y_vec,
+      Y_unval_vec,
+      n, N, m,
+      errorsY
+    )
+
+    w_t <- res_C$w_t
+    u_t <- res_C$u_t
+
+
     ###################################################################
 
     ###################################################################
@@ -371,6 +365,10 @@ logistic2ph <- function(y_unval = NULL, y = NULL, x_unval = NULL, x = NULL, z = 
     ###################################################################
     ## Update {p_kj} --------------------------------------------------
     ### Update numerators by summing u_t over i = 1, ..., N ---------
+    # new_p_num <- p_val_num +
+    #   rowsum(x = u_t,
+    #          group = rep(seq(1, m), each = (N - n)),
+    #          reorder = TRUE)
     new_p_num <- p_val_num +
       rowsum(x = u_t,
              group = rep(seq(1, m), each = (N - n)),
