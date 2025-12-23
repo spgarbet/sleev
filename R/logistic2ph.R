@@ -273,69 +273,9 @@ logistic2ph <- function(
     ###################################################################
     # M Step ----------------------------------------------------------
     ###################################################################
-    ## Update theta using weighted logistic regression ----------------
+
+    ## Lengthen w_t by prepending n ones (for validated subjects)
     w_t <- .lengthenWT(w_t, n)
-
-    # calculateMu returns exp(-mu) / (1 + exp(-mu))
-    muVector <- .calculateMu(theta_design_mat, prev_theta)
-    gradient_theta <- .calculateGradient(w_t, n, theta_design_mat, comp_dat_all[, Y], muVector)
-    hessian_theta <- .calculateHessian(theta_design_mat, w_t, muVector, n, mus_theta);
-    new_theta <- tryCatch(expr = prev_theta - (solve(hessian_theta) %*% gradient_theta),
-      error = function(err) {
-        matrix(NA, nrow = nrow(prev_theta))
-        })
-    if (any(is.na(new_theta)))
-    {
-      if(verbose) warning("Falling back to glm for theta")
-      suppressWarnings(new_theta <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
-    }
-
-    ### Check for convergence -----------------------------------------
-    theta_conv <- abs(new_theta - prev_theta) < TOL
-
-    ## --------------------------------------------------- Update theta
-    ###################################################################
-    # w_t is already the proper size, no need to run .lengthenWT again
-
-    if (errorsY)
-    {
-      ## Update gamma using weighted logistic regression ----------------
-      muVector <- .calculateMu(gamma_design_mat, prev_gamma)
-      gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
-      hessian_gamma <- .calculateHessian(gamma_design_mat, w_t, muVector, n, mus_gamma)
-      new_gamma <- tryCatch(expr = prev_gamma - (solve(hessian_gamma) %*% gradient_gamma),
-                            error = function(err) {
-                              matrix(NA, nrow = nrow(prev_gamma))
-                            })
-      if (any(is.na(new_gamma)))
-      {
-        if(verbose) warning("Falling back to glm for gamma")
-        suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
-      }
-
-      # Check for convergence -----------------------------------------
-      gamma_conv <- abs(new_gamma - prev_gamma) < TOL
-      ## ---------------- Update gamma using weighted logistic regression
-    } else
-    {
-      new_gamma <- NULL
-      gamma_conv <- TRUE
-    }
-    ###################################################################
-    ## Update {p_kj} --------------------------------------------------
-    ### Update numerators by summing u_t over i = 1, ..., N ---------
-    # new_p_num <- p_val_num +
-    #   rowsum(x = u_t,
-    #          group = rep(seq(1, m), each = (N - n)),
-    #          reorder = TRUE)
-    new_p_num <- p_val_num +
-      rowsum(x = u_t,
-             group = rep(seq(1, m), each = (N - n)),
-             reorder = TRUE)
-    new_p <- t(t(new_p_num) / colSums(new_p_num))
-    ### Check for convergence ---------------------------------------
-    p_conv <- abs(new_p - prev_p) < TOL
-    ## -------------------------------------------------- Update {p_kj}
 
     mstep_result <- logistic2ph_mstep(
       theta_design_mat,
@@ -352,35 +292,46 @@ logistic2ph <- function(
       errorsY,
       TOL
     )
+
     # Extract results
-    # new_theta <- mstep_result$theta
-    # new_gamma <- mstep_result$gamma
-    # new_p     <- mstep_result$p
-    cat("Max theta diff:", max(abs(new_theta - mstep_result$theta)), "\n")
-    cat("Max gamma diff:", max(abs(new_gamma - mstep_result$gamma)), "\n")
+    new_theta <- mstep_result$theta
+    new_gamma <- mstep_result$gamma
+    new_p     <- mstep_result$p
 
+    # Check if we need fallback to glm
+    if (!mstep_result$theta_success)
+    {
+      new_theta <- matrix(glm(formula = theta_formula, family = "binomial",
+                              data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1)
+    }
 
-    ###################################################################
-    # Convergence Checks and Update State
-    all_conv <- c(theta_conv, gamma_conv, p_conv)
-    if(any(is.na(theta_conv)))
+    if (errorsY && !mstep_result$gamma_success)
+    {
+      new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial",
+                              data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1)
+    }
+
+    # Check convergence
+    if (mstep_result$theta_conv && mstep_result$gamma_conv && mstep_result$p_conv)
+      CONVERGED <- TRUE
+
+    if(any(is.na(mstep_result$theta_conv)))
     {
       bad <- paste(all.vars(theta_formula)[is.na(theta_conv)], collapse=", ")
       stop(paste("System is singular. Variables possibly at fault: ", bad))
     }
-    if(any(is.na(gamma_conv)))
+
+    if(any(is.na(mstep_result$gamma_conv)))
     {
       bad <- paste(all.vars(gamma_formula)[is.na(gamma_conv)], collapse=", ")
       stop(paste("System is singular. Variables possibly at fault: ", bad))
     }
-    if (mean(all_conv, na.rm=TRUE) == 1) { CONVERGED <- TRUE }
 
-    # Update values for next iteration  -------------------------------
+    ## Update values for next iteration -------------------------------
     it         <- it + 1
     prev_theta <- new_theta
     prev_gamma <- new_gamma
     prev_p     <- new_p
-    #  ------------------------------- Update values for next iteration
   }
 
   rownames(new_theta) <- c("Intercept", theta_pred)

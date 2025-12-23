@@ -4,99 +4,63 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 // Helper function: compute mu = exp(-X*beta) / (1 + exp(-X*beta))
-// This is used in the gradient and Hessian calculations
+// Matches .calculateMu from R
 inline void compute_mu(
     const arma::mat& design_mat,
     const arma::colvec& beta,
     arma::colvec& mu_out)
 {
-  // mu = exp(-X*beta) / (1 + exp(-X*beta))
   arma::colvec xb = design_mat * beta;
-  for (size_t i = 0; i < xb.n_elem; ++i) {
-    double exp_neg_xb = std::exp(-xb[i]);
-    mu_out[i] = exp_neg_xb / (1.0 + exp_neg_xb);
-  }
+  xb = -xb;  // Negate
+  mu_out = arma::exp(xb) / (1.0 + arma::exp(xb));
 }
 
-// Compute gradient: sum_i w_i * (y_i - (1 - mu_i)) * x_i
-// = sum_i w_i * (y_i - 1 + mu_i) * x_i
+// Compute gradient: sum_i w_i * (y_i - 1 + mu_i) * x_i
+// Matches .calculateGradient from R
+// NOTE: w_t should already have ones prepended (lengthened)
 inline void compute_gradient(
     const arma::mat& design_mat,
-    const arma::colvec& w,
+    const arma::colvec& w_t,
     const arma::colvec& y,
     const arma::colvec& mu,
-    int n_validated,
     arma::colvec& gradient_out)
 {
   int n_total = design_mat.n_rows;
   int n_params = design_mat.n_cols;
 
-  gradient_out.zeros(n_params);
+  // sumsVector = Y - 1 + mu
+  arma::colvec sumsVector = y - 1.0 + mu;
 
-  // For validated subjects (first n rows), weight is 1
-  for (int i = 0; i < n_validated; ++i) {
-    double residual = y[i] - 1.0 + mu[i];
-    for (int j = 0; j < n_params; ++j) {
-      gradient_out[j] += residual * design_mat(i, j);
-    }
-  }
+  // Multiply design_mat by sumsVector element-wise per row, then by w_t
+  // This matches: matTimesVec(matTimesVec(design_mat, sumsVector), w_t)
+  arma::mat temp = design_mat;
+  temp.each_col() %= sumsVector;  // Multiply each column by sumsVector
+  temp.each_col() %= w_t;          // Multiply each column by w_t
 
-  // For unvalidated subjects, use weight w[i]
-  for (int i = n_validated; i < n_total; ++i) {
-    double residual = y[i] - 1.0 + mu[i];
-    double weight = w[i];
-    for (int j = 0; j < n_params; ++j) {
-      gradient_out[j] += weight * residual * design_mat(i, j);
-    }
-  }
+  // Sum columns (like colSums in R)
+  gradient_out = arma::sum(temp, 0).t();
 }
 
-// Compute Hessian: sum_i w_i * mu_i * (1 - mu_i) * x_i * x_i^T
+// Compute Hessian: design_mat^T * diag(w_t * mu * (mu - 1)) * design_mat
+// Matches .calculateHessian from R
+// NOTE: The R version uses mu * (mu - 1), which is NEGATIVE
 inline void compute_hessian(
     const arma::mat& design_mat,
-    const arma::colvec& w,
+    const arma::colvec& w_t,
     const arma::colvec& mu,
-    int n_validated,
     arma::mat& hessian_out)
 {
-  int n_total = design_mat.n_rows;
   int n_params = design_mat.n_cols;
 
-  hessian_out.zeros(n_params, n_params);
+  // mus = mu * (mu - 1) * w_t
+  arma::colvec mus = mu % (mu - 1.0) % w_t;
 
-  // For validated subjects (first n rows), weight is 1
-  for (int i = 0; i < n_validated; ++i) {
-    double mu_i = mu[i];
-    double scale = mu_i * (1.0 - mu_i);
+  // Hessian = design_mat^T * diag(mus) * design_mat
+  // Efficiently: design_mat^T * (design_mat with each col multiplied by mus)
+  arma::mat weighted_design = design_mat;
+  weighted_design.each_col() %= mus;
 
-    for (int j = 0; j < n_params; ++j) {
-      double x_ij = design_mat(i, j);
-      for (int k = j; k < n_params; ++k) {
-        hessian_out(j, k) += scale * x_ij * design_mat(i, k);
-      }
-    }
-  }
-
-  // For unvalidated subjects, use weight w[i]
-  for (int i = n_validated; i < n_total; ++i) {
-    double mu_i = mu[i];
-    double weight = w[i];
-    double scale = weight * mu_i * (1.0 - mu_i);
-
-    for (int j = 0; j < n_params; ++j) {
-      double x_ij = design_mat(i, j);
-      for (int k = j; k < n_params; ++k) {
-        hessian_out(j, k) += scale * x_ij * design_mat(i, k);
-      }
-    }
-  }
-
-  // Fill lower triangle (Hessian is symmetric)
-  for (int j = 0; j < n_params; ++j) {
-    for (int k = j + 1; k < n_params; ++k) {
-      hessian_out(k, j) = hessian_out(j, k);
-    }
-  }
+  hessian_out = design_mat.t() * weighted_design;
 }
 
 // Newton-Raphson update: beta_new = beta_old - H^{-1} * g
@@ -135,10 +99,13 @@ inline void update_p(
   // Compute new_p_num = p_val_num + rowsum(u_t, group by k)
   arma::mat new_p_num = p_val_num;
 
-  for (int k = 0; k < m; ++k) {
-    for (int i = 0; i < Nu; ++i) {
+  for (int k = 0; k < m; ++k)
+  {
+    for (int i = 0; i < Nu; ++i)
+    {
       int row_idx = k * Nu + i;
-      for (int j = 0; j < n_spline; ++j) {
+      for (int j = 0; j < n_spline; ++j)
+      {
         new_p_num(k, j) += u_t(row_idx, j);
       }
     }
@@ -147,8 +114,10 @@ inline void update_p(
   // Normalize: p_new = new_p_num / colSums(new_p_num)
   arma::rowvec col_sums = arma::sum(new_p_num, 0);
 
-  for (int k = 0; k < m; ++k) {
-    for (int j = 0; j < n_spline; ++j) {
+  for (int k = 0; k < m; ++k)
+  {
+    for (int j = 0; j < n_spline; ++j)
+    {
       p_new(k, j) = new_p_num(k, j) / col_sums[j];
     }
   }
@@ -178,6 +147,8 @@ Rcpp::List logistic2ph_mstep(
   int n_params_theta = theta_design_mat.n_cols;
   int n_params_gamma = gamma_design_mat.n_cols;
 
+  // NOTE: w_t should already be lengthened with n ones prepended by caller
+
   // ===================================================================
   // Update theta
   // ===================================================================
@@ -187,8 +158,8 @@ Rcpp::List logistic2ph_mstep(
   arma::colvec new_theta(n_params_theta);
 
   compute_mu(theta_design_mat, prev_theta, mu_theta);
-  compute_gradient(theta_design_mat, w_t, Y_all, mu_theta, n, gradient_theta);
-  compute_hessian(theta_design_mat, w_t, mu_theta, n, hessian_theta);
+  compute_gradient(theta_design_mat, w_t, Y_all, mu_theta, gradient_theta);
+  compute_hessian(theta_design_mat, w_t, mu_theta, hessian_theta);
 
   bool theta_success = newton_raphson_step(prev_theta, gradient_theta, hessian_theta, new_theta);
 
@@ -211,14 +182,15 @@ Rcpp::List logistic2ph_mstep(
     new_gamma.set_size(n_params_gamma);
 
     compute_mu(gamma_design_mat, prev_gamma, mu_gamma);
-    compute_gradient(gamma_design_mat, w_t, Y_unval_all, mu_gamma, n, gradient_gamma);
-    compute_hessian(gamma_design_mat, w_t, mu_gamma, n, hessian_gamma);
+    compute_gradient(gamma_design_mat, w_t, Y_unval_all, mu_gamma, gradient_gamma);
+    compute_hessian(gamma_design_mat, w_t, mu_gamma, hessian_gamma);
 
     gamma_success = newton_raphson_step(prev_gamma, gradient_gamma, hessian_gamma, new_gamma);
 
     arma::colvec gamma_diff = arma::abs(new_gamma - prev_gamma);
     gamma_conv = arma::all(gamma_diff < TOL);
-  } else {
+  } else
+  {
     new_gamma = prev_gamma;
   }
 
