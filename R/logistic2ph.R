@@ -82,25 +82,11 @@ logistic2ph <- function(
   Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
   Bspline = attr(data, "bs_name"); noSE = !se; TOL = tol; MAX_ITER = max_iter
 
-  if (missing(data)) {
-    stop("No dataset is provided!")
-  }
-
-  if (missing(Bspline)) {
-    stop("The B-spline basis is not specified!")
-  }
-
-  if (missing(Y)) {
-    stop("The accurately measured response Y is not specified!")
-  }
-
-  if (xor(missing(X), missing(X_unval))) {
+  if (missing(data))    stop("No dataset is provided!")
+  if (missing(Bspline)) stop("The B-spline basis is not specified!")
+  if (missing(Y))       stop("The accurately measured response Y is not specified!")
+  if (xor(missing(X), missing(X_unval)))
     stop("If X_unval and X are NULL, all predictors are assumed to be error-free. You must define both variables or neither!")
-  }
-
-  # if (length(data[,X_unval]) != length(data[,X])) {
-  #   stop("The number of columns in X_unval and X is different!")
-  # }
 
   # Convert data to data.frame to avoid conflicts with tbl
   data <- data.frame(data)
@@ -109,10 +95,7 @@ logistic2ph <- function(
   N <- nrow(data)
 
   # Calculate the validated subjects
-  Validated <- logical(N) # initialize a logical vector of length N
-  for (i in 1:N) {
-    Validated[i] <- !any(is.na(data[i, c(Y, X)]))
-  }
+  Validated <- complete.cases(data[,c(Y,X)])
 
   # n is how many validated subjects there are in data
   n <- sum(Validated)
@@ -124,19 +107,17 @@ logistic2ph <- function(
   theta_pred <- c(X, Z)
   gamma_pred <- c(X_unval, Y, X, Z)
   pred <- unique(c(theta_pred, gamma_pred))
-  # ----------------------  Create vector of predictors for each model
 
   # Determine error setting -----------------------------------------
   ## If unvalidated outcome was left blank, assume error-free -------
   errorsY <- !is.null(Y_unval)
-  if (!errorsY & any(is.na(data[, Y]))) {
+  if (!errorsY & any(is.na(data[, Y])))
     stop("If Y_unval is NULL, the outcome is assumed to be error-free, but Y has missing values.")
-  }
-  # ----------------------------------------- Determine error setting
 
   # Add the B spline basis ------------------------------------------
   sn <- ncol(data[, Bspline])
-  if(0 %in% colSums(data[c(1:n), Bspline])) {
+  if(0 %in% colSums(data[c(1:n), Bspline]))
+  {
     warning("Empty sieve in validated data. Reconstruct B-spline basis and try again.", call. = FALSE)
 
     res_coefficients <- data.frame(Estimate = rep(NA, length(theta_pred) + 1),
@@ -145,29 +126,24 @@ logistic2ph <- function(
                                    pvalue = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    res_final = list(coefficients = res_coefficients,
-                     covariance = NA,
-                     converge = FALSE,
-                     converge_cov = NA)
-
-    return(res_final)
+    return(list(coefficients = res_coefficients,
+                covariance   = NA,
+                converge     = FALSE,
+                converge_cov = NA))
   }
-  # ------------------------------------------ Add the B spline basis
 
   # Create "complete" data ------------------------------------------
   ## Save distinct X ------------------------------------------------
   setDT(data)
 
-  if(verbose) message("Begin step one")
-
   # --- Step 1: Distinct and ordered x_obs ----------------------------
+  if(verbose) message("Create distinct and ordered x_obs")
   x_obs <- unique(data[1:n, ..X])
   setkeyv(x_obs, X)            # sets key and orders in place
   m <- nrow(x_obs)
 
-  if(verbose) message("Begin step two")
-
   # --- Step 2: Replicate x_obs (stacked)
+  if(verbose) message("Replicate x_obs (stacked)")
   # Using .SD for in-place repetition avoids copies
   x_obs_stacked <- x_obs[rep(seq_len(m), times = (N - n))]
   # The key on X remains valid, no need to re-sort
@@ -176,7 +152,7 @@ logistic2ph <- function(
 
   # --- Step 3: comp_dat_val ------------------------------------------
   # Static component (first n observations)
-  if(verbose) message("Begin step three")
+  if(verbose) message("Locate static component (first n observations)")
   comp_dat_val <- data[1:n, c(Y_unval, X_unval, Z, Bspline, X, Y), with = FALSE]
 
   # Prepare keyed x_obs with index k
@@ -193,9 +169,8 @@ logistic2ph <- function(
   # Convert to matrix only at the end (copy unavoidable)
   comp_dat_val <- as.matrix(comp_dat_val)
 
-  if(verbose) message("Begin step four")
   # --- Step 4: comp_dat_unval ----------------------------------------
-  # Efficient replication: (N - n) rows per x_obs
+  if(verbose) message("Efficient replication: (N - n) rows per x_obs")
   # Using CJ() cross join to generate index pairs without materializing full cross product in R memory
   idx <- CJ(k = seq_len(m), i = seq(from = n + 1, to = N))
   # Join these index pairs to data and x_obs
@@ -205,26 +180,8 @@ logistic2ph <- function(
     k = rep(seq_len(m), each = (N - n))
   )
 
-  # x_obs <- data.frame(unique(data[1:n, c(X)]))
-  # x_obs <- data.frame(x_obs[order(x_obs[, 1]), ])
-  # m <- nrow(x_obs)
-  # x_obs_stacked <- do.call(rbind, replicate(n = (N - n), expr = x_obs, simplify = FALSE))
-  # x_obs_stacked <- data.frame(x_obs_stacked[order(x_obs_stacked[, 1]), ])
-  # colnames(x_obs) <- colnames(x_obs_stacked) <- c(X)
-  # ## ------------------------------------------------ Save distinct X
-  # ## Save static (X*,Y*,X,Y,Z) since they don't change --------------
-  # comp_dat_val <- data[c(1:n), c(Y_unval, X_unval, Z, Bspline, X, Y)]
-  # comp_dat_val <- merge(x = comp_dat_val, y = data.frame(x_obs, k = 1:m), all.x = TRUE)
-  # comp_dat_val <- comp_dat_val[, c(Y_unval, pred, Bspline, "k")]
-  # comp_dat_val <- data.matrix(comp_dat_val)
-  # ## -------------- Save static (X*,Y*,X,Y,Z) since they don't change
-  # # 2 (m x n)xd matrices (y=0/y=1) of each (one column per person, --
-  # # one row per x) --------------------------------------------------
-  # comp_dat_unval <- cbind(data[rep(seq(from = (n+1), N), times = m), c(Y_unval, setdiff(x = pred, y = X), Bspline)],
-  #                         x_obs_stacked,
-  #                         k = rep(seq(1, m), each = (N - n)),
-  #                         row.names = NULL)
-  if (errorsY) {
+  if (errorsY)
+  {
     ### Create two versions of the complete data
     ### Create two independent copies of comp_dat_unval
     comp_dat_y0 <- copy(comp_dat_unval)
@@ -257,9 +214,9 @@ logistic2ph <- function(
   prev_p <- p0 <-  t(t(p_val_num) / colSums(p_val_num))
 
   # Create model formulas
-  theta_formula <- as.formula(paste0(Y, "~", paste(theta_pred, collapse = "+")))
+  theta_formula    <- as.formula(paste0(Y, "~", paste(theta_pred, collapse = "+")))
   theta_design_mat <- as.matrix(cbind(int = 1, comp_dat_all[, theta_pred]))
-  gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
+  gamma_formula    <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
   gamma_design_mat <- as.matrix(cbind(int = 1, comp_dat_all[, gamma_pred]))
 
   # Initialize parameter values -------------------------------------
@@ -267,27 +224,26 @@ logistic2ph <- function(
   prev_theta <- theta0 <- matrix(0, nrow = ncol(theta_design_mat), ncol = 1)
   prev_gamma <- gamma0 <- matrix(0, nrow = ncol(gamma_design_mat), ncol = 1)
 
-  CONVERGED <- FALSE
+  CONVERGED     <- FALSE
   CONVERGED_MSG <- "Unknown"
-  it <- 1
+  it            <- 1
 
   # pre-allocate memory for loop variables
   mus_theta <- vector("numeric", nrow(theta_design_mat) * ncol(prev_theta))
   mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
 
   # Estimate theta using EM -------------------------------------------
-  if(verbose) message("Begin loop")
+  if(verbose) message("Beginning EM loop")
   all_conv <- 0
-  while(it <= MAX_ITER && !CONVERGED) {
+  while(it <= MAX_ITER && !CONVERGED)
+  {
     if(verbose)
       message(
         "Iteration: ",   it,
         "  Converged: ", round(100*sum(all_conv, na.rm=TRUE)/length(all_conv), 2), "%",
         "  Time: ",      Sys.time())
-    # cpp E Step
-    if (!is.matrix(comp_dat_unval)) {
+    if (!is.matrix(comp_dat_unval))
       comp_dat_unval <- as.matrix(comp_dat_unval)
-    }
 
     Bspline_mat <- comp_dat_unval[, Bspline, drop = FALSE]
     storage.mode(Bspline_mat) <- "double"
@@ -297,7 +253,7 @@ logistic2ph <- function(
     storage.mode(Y_vec) <- "double"
     storage.mode(Y_unval_vec) <- "double"
 
-    res_C <- logistic2ph_estep_cpp(
+    res_C <- logistic2ph_estep(
       theta_design_mat,
       gamma_design_mat,
       prev_theta,
@@ -312,9 +268,6 @@ logistic2ph <- function(
 
     w_t <- res_C$w_t
     u_t <- res_C$u_t
-
-
-    ###################################################################
 
     ###################################################################
     # M Step ----------------------------------------------------------
@@ -358,7 +311,8 @@ logistic2ph <- function(
       # Check for convergence -----------------------------------------
       gamma_conv <- abs(new_gamma - prev_gamma) < TOL
       ## ---------------- Update gamma using weighted logistic regression
-    } else {
+    } else
+    {
       new_gamma <- NULL
       gamma_conv <- TRUE
     }
@@ -379,8 +333,7 @@ logistic2ph <- function(
     ## -------------------------------------------------- Update {p_kj}
 
     ###################################################################
-    # M Step ----------------------------------------------------------
-    ###################################################################
+    # Convergence Checks and Update State
     all_conv <- c(theta_conv, gamma_conv, p_conv)
     if(any(is.na(theta_conv)))
     {
@@ -395,92 +348,116 @@ logistic2ph <- function(
     if (mean(all_conv, na.rm=TRUE) == 1) { CONVERGED <- TRUE }
 
     # Update values for next iteration  -------------------------------
-    it <- it + 1
+    it         <- it + 1
     prev_theta <- new_theta
     prev_gamma <- new_gamma
-    prev_p <- new_p
+    prev_p     <- new_p
     #  ------------------------------- Update values for next iteration
   }
 
   rownames(new_theta) <- c("Intercept", theta_pred)
-  if (errorsY) {
-    rownames(new_gamma) <- c("Intercept", gamma_pred)
-  }
+  if (errorsY) rownames(new_gamma) <- c("Intercept", gamma_pred)
 
-  if(!CONVERGED) {
-    if(it > MAX_ITER) {
-      CONVERGED_MSG = "MAX_ITER reached"
-    }
+  if(CONVERGED) CONVERGED_MSG <- "Converged" else
+  {
+    if(it > MAX_ITER) CONVERGED_MSG = "MAX_ITER reached"
 
-    res_coefficients <- data.frame(Estimate = rep(NA, length(new_theta)),
-                                   SE = NA,
+    res_coefficients <- data.frame(Estimate  = rep(NA, length(new_theta)),
+                                   SE        = NA,
                                    Statistic = NA,
-                                   pvalue = NA)
+                                   pvalue    = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    if (errorsY) {
-      res_final = list(coefficients = res_coefficients,
-                       covariance = NA,
-                       converge = FALSE,
-                       converge_cov = NA)
-    } else {
-      res_final = list(coefficients = res_coefficients,
-                       covariance = NA,
-                       converge = FALSE,
-                       converge_cov = NA)
-    }
-    return(res_final)
+    return(list(coefficients = res_coefficients,
+                covariance   = NA,
+                converge     = FALSE,
+                converge_cov = NA))
   }
 
-  if(CONVERGED) { CONVERGED_MSG <- "Converged" }
-
-  # ---------------------------------------------- Estimate theta using EM
-  if(noSE) {
-    res_coefficients <- data.frame(Estimate = new_theta,
-                                   SE = NA,
+  # If computation of SE is not requested, return results
+  if(noSE)
+  {
+    res_coefficients <- data.frame(Estimate  = new_theta,
+                                   SE        = NA,
                                    Statistic = NA,
-                                   pvalue = NA)
+                                   pvalue    = NA)
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    if (errorsY) {
-      res_final = list(coefficients = res_coefficients,
-                       covariance = NA,
-                       converge = CONVERGED,
-                       converge_cov = NA)
-    } else {
-      res_final = list(coefficients = res_coefficients,
-                       covariance = NA,
-                       converge = CONVERGED,
-                       converge_cov = NA)
-    }
-    return(res_final)
-  } else {
-    # Estimate Cov(theta) using profile likelihood -------------------------
-    h_N <- hn_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
+    return(list(coefficients = res_coefficients,
+                covariance = NA,
+                converge = CONVERGED,
+                converge_cov = NA))
+  }
 
-    ## Calculate pl(theta) -------------------------------------------------
-    od_loglik_theta <- observed_data_loglik(N = N,
-      n = n,
-      Y_unval = Y_unval,
-      Y = Y,
-      X_unval = X_unval,
-      X = X,
-      Z = Z,
-      Bspline = Bspline,
-      comp_dat_all = comp_dat_all,
-      theta_pred = theta_pred,
-      gamma_pred = gamma_pred,
-      theta = new_theta,
-      gamma = new_gamma,
-      p = new_p)
+  # Estimate Cov(theta) using profile likelihood -------------------------
+  h_N <- hn_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
 
-    I_theta <- matrix(data = od_loglik_theta,
+  ## Calculate pl(theta) -------------------------------------------------
+  od_loglik_theta <- observed_data_loglik(
+    N = N,
+    n = n,
+    Y_unval = Y_unval,
+    Y = Y,
+    X_unval = X_unval,
+    X = X,
+    Z = Z,
+    Bspline = Bspline,
+    comp_dat_all = comp_dat_all,
+    theta_pred = theta_pred,
+    gamma_pred = gamma_pred,
+    theta = new_theta,
+    gamma = new_gamma,
+    p = new_p)
+
+  I_theta <- matrix(data = od_loglik_theta,
+                    nrow = nrow(new_theta),
+                    ncol = nrow(new_theta))
+
+  single_pert_theta <- sapply(X = seq(1, ncol(I_theta)),
+    FUN = pl_theta,
+    theta = new_theta,
+    h_N = h_N,
+    n = n,
+    N = N,
+    Y_unval = Y_unval,
+    Y = Y,
+    X_unval = X_unval,
+    X,
+    Z = Z,
+    Bspline = Bspline,
+    comp_dat_all = comp_dat_all,
+    theta_pred = theta_pred,
+    gamma_pred = gamma_pred,
+    gamma0 = new_gamma,
+    p0 = new_p,
+    p_val_num = p_val_num,
+    TOL = TOL,
+    MAX_ITER = MAX_ITER)
+
+  if (any(is.na(single_pert_theta)))
+  {
+    I_theta <- matrix(data = NA,
                       nrow = nrow(new_theta),
                       ncol = nrow(new_theta))
+    SE_CONVERGED <- FALSE
+  } else
+  {
+    spt_wide <- matrix(data = rep(c(single_pert_theta),
+                           times = ncol(I_theta)),
+                       ncol = ncol(I_theta),
+                       byrow = FALSE)
+    #for the each kth row of single_pert_theta add to the kth row / kth column of I_theta
+    I_theta <- I_theta - spt_wide - t(spt_wide)
+    SE_CONVERGED <- TRUE
+  }
 
-    single_pert_theta <- sapply(X = seq(1, ncol(I_theta)),
+  for (c in 1:ncol(I_theta))
+  {
+    pert_theta <- new_theta
+    pert_theta[c] <- pert_theta[c] + h_N
+    double_pert_theta <- sapply(X = seq(c, ncol(I_theta)),
       FUN = pl_theta,
-      theta = new_theta,
+      theta = pert_theta,
       h_N = h_N,
       n = n,
       N = N,
@@ -496,93 +473,50 @@ logistic2ph <- function(
       gamma0 = new_gamma,
       p0 = new_p,
       p_val_num = p_val_num,
-      TOL = TOL,
-      MAX_ITER = MAX_ITER)
-
-    if (any(is.na(single_pert_theta))) {
-      I_theta <- matrix(data = NA,
-                        nrow = nrow(new_theta),
-                        ncol = nrow(new_theta))
-      SE_CONVERGED <- FALSE
-    } else {
-      spt_wide <- matrix(data = rep(c(single_pert_theta),
-                             times = ncol(I_theta)),
-                         ncol = ncol(I_theta),
-                         byrow = FALSE)
-      #for the each kth row of single_pert_theta add to the kth row / kth column of I_theta
-      I_theta <- I_theta - spt_wide - t(spt_wide)
-      SE_CONVERGED <- TRUE
+      MAX_ITER = MAX_ITER,
+      TOL = TOL)
+    dpt <- matrix(data = 0,
+                  nrow = nrow(I_theta),
+                  ncol = ncol(I_theta))
+    dpt[c,c] <- double_pert_theta[1] #Put double on the diagonal
+    if(c < ncol(I_theta))
+    {
+      ## And fill the others in on the cth row/ column
+      dpt[c, -(1:c)] <- dpt[-(1:c), c] <- double_pert_theta[-1]
     }
 
-    for (c in 1:ncol(I_theta)) {
-      pert_theta <- new_theta
-      pert_theta[c] <- pert_theta[c] + h_N
-      double_pert_theta <- sapply(X = seq(c, ncol(I_theta)),
-        FUN = pl_theta,
-        theta = pert_theta,
-        h_N = h_N,
-        n = n,
-        N = N,
-        Y_unval = Y_unval,
-        Y = Y,
-        X_unval = X_unval,
-        X,
-        Z = Z,
-        Bspline = Bspline,
-        comp_dat_all = comp_dat_all,
-        theta_pred = theta_pred,
-        gamma_pred = gamma_pred,
-        gamma0 = new_gamma,
-        p0 = new_p,
-        p_val_num = p_val_num,
-        MAX_ITER = MAX_ITER,
-        TOL = TOL)
-      dpt <- matrix(data = 0,
-                    nrow = nrow(I_theta),
-                    ncol = ncol(I_theta))
-      dpt[c,c] <- double_pert_theta[1] #Put double on the diagonal
-      if(c < ncol(I_theta)) {
-        ## And fill the others in on the cth row/ column
-        dpt[c, -(1:c)] <- dpt[-(1:c), c] <- double_pert_theta[-1]
-      }
-
-      I_theta <- I_theta + dpt
-    }
-    I_theta <- h_N ^ (- 2) * I_theta
-    cov_theta <- tryCatch(expr = - solve(I_theta),
-      error = function(err) { matrix(NA, nrow = nrow(I_theta), ncol = ncol(I_theta)) }
-      )
-    # ------------------------- Estimate Cov(theta) using profile likelihood
-
-    se_theta <- tryCatch(expr = sqrt(diag(cov_theta)),
-      warning = function(w) { matrix(NA, nrow = nrow(prev_theta)) })
-    if (any(is.na(se_theta))) {
-      SE_CONVERGED <- FALSE
-    } else {
-      SE_CONVERGED <- TRUE
-    }
-
-    if (verbose) {
-      message(CONVERGED_MSG)
-    }
-
-    res_coefficients <- data.frame(Estimate = new_theta, SE = se_theta)
-    res_coefficients$Statistic <- res_coefficients$Estimate / res_coefficients$SE
-    res_coefficients$pvalue <- 1 - pchisq(res_coefficients$Statistic ^ 2, df = 1)
-    colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
-
-    coef_return <- as.numeric(new_theta)
-    names(coef_return) <- rownames(res_coefficients)
-
-    res_final = list(
-                    call = model_call,  # Store the call in the object
-                    coefficients = coef_return,
-                    covariance = cov_theta,
-                    converge = CONVERGED,
-                    converge_cov = SE_CONVERGED)
-
-    res_final <- logistic2ph_class(res_final)
-
-    return(res_final)
+    I_theta <- I_theta + dpt
   }
+  I_theta <- h_N ^ (- 2) * I_theta
+  cov_theta <- tryCatch(expr = - solve(I_theta),
+    error = function(err) { matrix(NA, nrow = nrow(I_theta), ncol = ncol(I_theta)) }
+    )
+  # ------------------------- Estimate Cov(theta) using profile likelihood
+
+  se_theta <- tryCatch(expr = sqrt(diag(cov_theta)),
+    warning = function(w) { matrix(NA, nrow = nrow(prev_theta)) })
+  if (any(is.na(se_theta)))
+  {
+    SE_CONVERGED <- FALSE
+  } else
+  {
+    SE_CONVERGED <- TRUE
+  }
+
+  if (verbose) message(CONVERGED_MSG)
+
+  res_coefficients           <- data.frame(Estimate = new_theta, SE = se_theta)
+  res_coefficients$Statistic <- res_coefficients$Estimate / res_coefficients$SE
+  res_coefficients$pvalue    <- 1 - pchisq(res_coefficients$Statistic ^ 2, df = 1)
+  colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
+
+  coef_return                <- as.numeric(new_theta)
+  names(coef_return)         <- rownames(res_coefficients)
+
+  logistic2ph_class(list(
+    call         = model_call,
+    coefficients = coef_return,
+    covariance   = cov_theta,
+    converge     = CONVERGED,
+    converge_cov = SE_CONVERGED))
 }
