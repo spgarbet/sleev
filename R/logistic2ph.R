@@ -106,12 +106,12 @@ logistic2ph <- function(
   # Create vector of predictors for each model ----------------------
   theta_pred <- c(X, Z)
   gamma_pred <- c(X_unval, Y, X, Z)
-  pred <- unique(c(theta_pred, gamma_pred))
+  pred       <- unique(c(theta_pred, gamma_pred))
 
   # Determine error setting -----------------------------------------
   ## If unvalidated outcome was left blank, assume error-free -------
-  errorsY <- !is.null(Y_unval)
-  if (!errorsY & any(is.na(data[, Y])))
+  errorsY    <- !is.null(Y_unval)
+  if (!errorsY && any(is.na(data[, Y])))
     stop("If Y_unval is NULL, the outcome is assumed to be error-free, but Y has missing values.")
 
   # Add the B spline basis ------------------------------------------
@@ -229,8 +229,9 @@ logistic2ph <- function(
   it            <- 1
 
   # pre-allocate memory for loop variables
-  mus_theta <- vector("numeric", nrow(theta_design_mat) * ncol(prev_theta))
-  mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
+  # NOTE: This strategy doesn't really work in R as it reallocs each loop anyway
+  mus_theta     <- vector("numeric", nrow(theta_design_mat) * ncol(prev_theta))
+  mus_gamma     <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
 
   # Estimate theta using EM -------------------------------------------
   if(verbose) message("Beginning EM loop")
@@ -283,9 +284,10 @@ logistic2ph <- function(
       error = function(err) {
         matrix(NA, nrow = nrow(prev_theta))
         })
-    if (any(is.na(new_theta))) {
+    if (any(is.na(new_theta)))
+    {
+      if(verbose) warning("Falling back to glm for theta")
       suppressWarnings(new_theta <- matrix(glm(formula = theta_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
-      # browser()
     }
 
     ### Check for convergence -----------------------------------------
@@ -295,7 +297,8 @@ logistic2ph <- function(
     ###################################################################
     # w_t is already the proper size, no need to run .lengthenWT again
 
-    if (errorsY) {
+    if (errorsY)
+    {
       ## Update gamma using weighted logistic regression ----------------
       muVector <- .calculateMu(gamma_design_mat, prev_gamma)
       gradient_gamma <- .calculateGradient(w_t, n, gamma_design_mat, comp_dat_all[, c(Y_unval)], muVector)
@@ -304,7 +307,9 @@ logistic2ph <- function(
                             error = function(err) {
                               matrix(NA, nrow = nrow(prev_gamma))
                             })
-      if (any(is.na(new_gamma))) {
+      if (any(is.na(new_gamma)))
+      {
+        if(verbose) warning("Falling back to glm for gamma")
         suppressWarnings(new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial", data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1))
       }
 
@@ -331,6 +336,29 @@ logistic2ph <- function(
     ### Check for convergence ---------------------------------------
     p_conv <- abs(new_p - prev_p) < TOL
     ## -------------------------------------------------- Update {p_kj}
+
+    mstep_result <- logistic2ph_mstep(
+      theta_design_mat,
+      gamma_design_mat,
+      comp_dat_all[, Y],
+      comp_dat_all[, Y_unval],
+      w_t,
+      u_t,
+      p_val_num,
+      prev_theta,
+      prev_gamma,
+      prev_p,
+      n, N, m,
+      errorsY,
+      TOL
+    )
+    # Extract results
+    # new_theta <- mstep_result$theta
+    # new_gamma <- mstep_result$gamma
+    # new_p     <- mstep_result$p
+    cat("Max theta diff:", max(abs(new_theta - mstep_result$theta)), "\n")
+    cat("Max gamma diff:", max(abs(new_gamma - mstep_result$gamma)), "\n")
+
 
     ###################################################################
     # Convergence Checks and Update State

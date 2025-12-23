@@ -123,9 +123,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// logistic2ph_estep_cpp
-Rcpp::List logistic2ph_estep_cpp(const arma::mat& theta_design, const arma::mat& gamma_design, const arma::mat& prev_theta, const arma::mat& prev_gamma, const arma::mat& prev_p, const arma::mat& Bspline, const arma::colvec& Y, const arma::colvec& Y_unval, int n, int N, int m, bool errorsY);
-RcppExport SEXP _sleev_logistic2ph_estep_cpp(SEXP theta_designSEXP, SEXP gamma_designSEXP, SEXP prev_thetaSEXP, SEXP prev_gammaSEXP, SEXP prev_pSEXP, SEXP BsplineSEXP, SEXP YSEXP, SEXP Y_unvalSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP) {
+// logistic2ph_estep
+Rcpp::List logistic2ph_estep(const arma::mat& theta_design, const arma::mat& gamma_design, const arma::mat& prev_theta, const arma::mat& prev_gamma, const arma::mat& prev_p, const arma::mat& Bspline, const arma::colvec& Y, const arma::colvec& Y_unval, int n, int N, int m, bool errorsY);
+RcppExport SEXP _sleev_logistic2ph_estep(SEXP theta_designSEXP, SEXP gamma_designSEXP, SEXP prev_thetaSEXP, SEXP prev_gammaSEXP, SEXP prev_pSEXP, SEXP BsplineSEXP, SEXP YSEXP, SEXP Y_unvalSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -141,7 +141,32 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
-    rcpp_result_gen = Rcpp::wrap(logistic2ph_estep_cpp(theta_design, gamma_design, prev_theta, prev_gamma, prev_p, Bspline, Y, Y_unval, n, N, m, errorsY));
+    rcpp_result_gen = Rcpp::wrap(logistic2ph_estep(theta_design, gamma_design, prev_theta, prev_gamma, prev_p, Bspline, Y, Y_unval, n, N, m, errorsY));
+    return rcpp_result_gen;
+END_RCPP
+}
+// logistic2ph_mstep
+Rcpp::List logistic2ph_mstep(const arma::mat& theta_design_mat, const arma::mat& gamma_design_mat, const arma::colvec& Y_all, const arma::colvec& Y_unval_all, const arma::colvec& w_t, const arma::mat& u_t, const arma::mat& p_val_num, const arma::colvec& prev_theta, const arma::colvec& prev_gamma, const arma::mat& prev_p, int n, int N, int m, bool errorsY, double TOL);
+RcppExport SEXP _sleev_logistic2ph_mstep(SEXP theta_design_matSEXP, SEXP gamma_design_matSEXP, SEXP Y_allSEXP, SEXP Y_unval_allSEXP, SEXP w_tSEXP, SEXP u_tSEXP, SEXP p_val_numSEXP, SEXP prev_thetaSEXP, SEXP prev_gammaSEXP, SEXP prev_pSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type theta_design_mat(theta_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type gamma_design_mat(gamma_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_all(Y_allSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_unval_all(Y_unval_allSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type w_t(w_tSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type u_t(u_tSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type p_val_num(p_val_numSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type prev_theta(prev_thetaSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type prev_gamma(prev_gammaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type prev_p(prev_pSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
+    Rcpp::traits::input_parameter< double >::type TOL(TOLSEXP);
+    rcpp_result_gen = Rcpp::wrap(logistic2ph_mstep(theta_design_mat, gamma_design_mat, Y_all, Y_unval_all, w_t, u_t, p_val_num, prev_theta, prev_gamma, prev_p, n, N, m, errorsY, TOL));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -154,7 +179,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_calculateGradient", (DL_FUNC) &_sleev_calculateGradient, 6},
     {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
     {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
-    {"_sleev_logistic2ph_estep_cpp", (DL_FUNC) &_sleev_logistic2ph_estep_cpp, 12},
+    {"_sleev_logistic2ph_estep", (DL_FUNC) &_sleev_logistic2ph_estep, 12},
+    {"_sleev_logistic2ph_mstep", (DL_FUNC) &_sleev_logistic2ph_mstep, 15},
     {NULL, NULL, 0}
 };
 
