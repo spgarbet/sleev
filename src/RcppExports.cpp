@@ -123,50 +123,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// logistic2ph_estep
-Rcpp::List logistic2ph_estep(const arma::mat& theta_design, const arma::mat& gamma_design, const arma::mat& prev_theta, const arma::mat& prev_gamma, const arma::mat& prev_p, const arma::mat& Bspline, const arma::colvec& Y, const arma::colvec& Y_unval, int n, int N, int m, bool errorsY);
-RcppExport SEXP _sleev_logistic2ph_estep(SEXP theta_designSEXP, SEXP gamma_designSEXP, SEXP prev_thetaSEXP, SEXP prev_gammaSEXP, SEXP prev_pSEXP, SEXP BsplineSEXP, SEXP YSEXP, SEXP Y_unvalSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type theta_design(theta_designSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type gamma_design(gamma_designSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type prev_theta(prev_thetaSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type prev_gamma(prev_gammaSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type prev_p(prev_pSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Bspline(BsplineSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_unval(Y_unvalSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    Rcpp::traits::input_parameter< int >::type m(mSEXP);
-    Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
-    rcpp_result_gen = Rcpp::wrap(logistic2ph_estep(theta_design, gamma_design, prev_theta, prev_gamma, prev_p, Bspline, Y, Y_unval, n, N, m, errorsY));
-    return rcpp_result_gen;
-END_RCPP
-}
-// logistic2ph_mstep
-Rcpp::List logistic2ph_mstep(const arma::mat& theta_design_mat, const arma::mat& gamma_design_mat, const arma::colvec& Y_all, const arma::colvec& Y_unval_all, const arma::colvec& w_t, const arma::mat& u_t, const arma::mat& p_val_num, const arma::colvec& prev_theta, const arma::colvec& prev_gamma, const arma::mat& prev_p, int n, int N, int m, bool errorsY, double TOL);
-RcppExport SEXP _sleev_logistic2ph_mstep(SEXP theta_design_matSEXP, SEXP gamma_design_matSEXP, SEXP Y_allSEXP, SEXP Y_unval_allSEXP, SEXP w_tSEXP, SEXP u_tSEXP, SEXP p_val_numSEXP, SEXP prev_thetaSEXP, SEXP prev_gammaSEXP, SEXP prev_pSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP) {
+// logistic2ph_em_loop
+Rcpp::List logistic2ph_em_loop(const arma::mat& theta_design_mat, const arma::mat& gamma_design_mat, const arma::mat& comp_dat_all, const arma::mat& comp_dat_unval, const arma::mat& Bspline, const arma::colvec& Y_all, const arma::colvec& Y_unval_all, const arma::colvec& Y_unval_vec, const arma::colvec& Y_vec, const arma::mat& p_val_num, arma::colvec theta_init, arma::colvec gamma_init, arma::mat p_init, int n, int N, int m, bool errorsY, double TOL, int MAX_ITER, bool verbose);
+RcppExport SEXP _sleev_logistic2ph_em_loop(SEXP theta_design_matSEXP, SEXP gamma_design_matSEXP, SEXP comp_dat_allSEXP, SEXP comp_dat_unvalSEXP, SEXP BsplineSEXP, SEXP Y_allSEXP, SEXP Y_unval_allSEXP, SEXP Y_unval_vecSEXP, SEXP Y_vecSEXP, SEXP p_val_numSEXP, SEXP theta_initSEXP, SEXP gamma_initSEXP, SEXP p_initSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP, SEXP MAX_ITERSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type theta_design_mat(theta_design_matSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type gamma_design_mat(gamma_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_all(comp_dat_allSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_unval(comp_dat_unvalSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Bspline(BsplineSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type Y_all(Y_allSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type Y_unval_all(Y_unval_allSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type w_t(w_tSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type u_t(u_tSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_unval_vec(Y_unval_vecSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_vec(Y_vecSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type p_val_num(p_val_numSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type prev_theta(prev_thetaSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type prev_gamma(prev_gammaSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type prev_p(prev_pSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type theta_init(theta_initSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type gamma_init(gamma_initSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type p_init(p_initSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
     Rcpp::traits::input_parameter< double >::type TOL(TOLSEXP);
-    rcpp_result_gen = Rcpp::wrap(logistic2ph_mstep(theta_design_mat, gamma_design_mat, Y_all, Y_unval_all, w_t, u_t, p_val_num, prev_theta, prev_gamma, prev_p, n, N, m, errorsY, TOL));
+    Rcpp::traits::input_parameter< int >::type MAX_ITER(MAX_ITERSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(logistic2ph_em_loop(theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -179,8 +162,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_calculateGradient", (DL_FUNC) &_sleev_calculateGradient, 6},
     {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
     {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
-    {"_sleev_logistic2ph_estep", (DL_FUNC) &_sleev_logistic2ph_estep, 12},
-    {"_sleev_logistic2ph_mstep", (DL_FUNC) &_sleev_logistic2ph_mstep, 15},
+    {"_sleev_logistic2ph_em_loop", (DL_FUNC) &_sleev_logistic2ph_em_loop, 20},
     {NULL, NULL, 0}
 };
 

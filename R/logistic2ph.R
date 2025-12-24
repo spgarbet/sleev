@@ -229,134 +229,75 @@ logistic2ph <- function(
   # Estimate theta using EM -------------------------------------------
   if(verbose) message("Beginning EM loop")
 
-  while(it <= MAX_ITER && !CONVERGED)
-  {
-    if(verbose) message("Iteration: ", it, "  Time: ", Sys.time())
-
-    # ===================================================================
-    # E-Step (C++)
-    if (!is.matrix(comp_dat_unval))
-      comp_dat_unval <- as.matrix(comp_dat_unval)
-
-    Bspline_mat <- comp_dat_unval[, Bspline, drop = FALSE]
-    storage.mode(Bspline_mat) <- "double"
-
-    Y_vec <- comp_dat_unval[, Y]
-    Y_unval_vec <- if (errorsY) comp_dat_unval[, Y_unval] else rep(0, nrow(comp_dat_unval))
-    storage.mode(Y_vec) <- "double"
-    storage.mode(Y_unval_vec) <- "double"
-
-    res_C <- logistic2ph_estep(
-      theta_design_mat,
-      gamma_design_mat,
-      prev_theta,
-      prev_gamma,
-      prev_p,
-      Bspline_mat,
-      Y_vec,
-      Y_unval_vec,
-      n, N, m,
-      errorsY
-    )
-
-    w_t <- res_C$w_t
-    u_t <- res_C$u_t
-
-    # ===================================================================
-    # M-Step (C++)
-    ## Lengthen w_t by prepending n ones (for validated subjects)
-    w_t <- .lengthenWT(w_t, n)
-
-    mstep_result <- logistic2ph_mstep(
-      theta_design_mat,
-      gamma_design_mat,
-      comp_dat_all[, Y],
-      comp_dat_all[, Y_unval],
-      w_t,
-      u_t,
-      p_val_num,
-      prev_theta,
-      prev_gamma,
-      prev_p,
-      n, N, m,
-      errorsY,
-      TOL
-    )
-
-    # Extract results
-    new_theta <- mstep_result$theta
-    new_gamma <- mstep_result$gamma
-    new_p     <- mstep_result$p
-
-    # ===================================================================
-    # Fallback to R glm() if C++ failed (singular Hessian)
-    if (!mstep_result$theta_success) {
-      if(verbose) warning("C++ M-step failed for theta, falling back to glm")
-      suppressWarnings(
-        new_theta <- matrix(
-          glm(formula = theta_formula,
-              family = "binomial",
-              data = data.frame(comp_dat_all),
-              weights = w_t)$coefficients,
-          ncol = 1
-        )
-      )
-    }
-
-    if (errorsY && !mstep_result$gamma_success) {
-      if(verbose) warning("C++ M-step failed for gamma, falling back to glm")
-      suppressWarnings(
-        new_gamma <- matrix(
-          glm(formula = gamma_formula,
-              family = "binomial",
-              data = data.frame(comp_dat_all),
-              weights = w_t)$coefficients,
-          ncol = 1
-        )
-      )
-    }
-
-    # ===================================================================
-    # Check convergence
-    if (mstep_result$theta_conv && mstep_result$gamma_conv && mstep_result$p_conv)
-      CONVERGED <- TRUE
-
-    # ===================================================================
-    # Error checking for singular systems
-    theta_conv <- abs(new_theta - prev_theta) < TOL
-    if(any(is.na(theta_conv)))
-    {
-      bad <- paste(all.vars(theta_formula)[is.na(theta_conv)], collapse=", ")
-      stop(paste("System is singular. Variables possibly at fault: ", bad))
-    }
-
-    if (errorsY)
-    {
-      gamma_conv <- abs(new_gamma - prev_gamma) < TOL
-      if(any(is.na(gamma_conv)))
-      {
-        bad <- paste(all.vars(gamma_formula)[is.na(gamma_conv)], collapse=", ")
-        stop(paste("System is singular. Variables possibly at fault: ", bad))
-      }
-    }
-
-    # ===================================================================
-    # Update for next iteration
-    it <- it + 1
-    prev_theta <- new_theta
-    prev_gamma <- new_gamma
-    prev_p <- new_p
+  # Prepare data for C++ EM loop
+  if (!is.matrix(comp_dat_unval)) {
+    comp_dat_unval <- as.matrix(comp_dat_unval)
   }
 
-  # =====================================================================
-  # Post-convergence processing
-  # =====================================================================
+  Bspline_mat <- comp_dat_unval[, Bspline, drop = FALSE]
+  storage.mode(Bspline_mat) <- "double"
+
+  Y_vec <- comp_dat_unval[, Y]
+  Y_unval_vec <- if (errorsY) comp_dat_unval[, Y_unval] else rep(0, nrow(comp_dat_unval))
+  storage.mode(Y_vec) <- "double"
+  storage.mode(Y_unval_vec) <- "double"
+
+  # Call C++ EM loop
+  if(verbose) message("Running EM algorithm in C++")
+
+  em_result <- logistic2ph_em_loop(
+    theta_design_mat,
+    gamma_design_mat,
+    comp_dat_all,
+    comp_dat_unval,
+    Bspline_mat,
+    comp_dat_all[, Y],
+    comp_dat_all[, Y_unval],
+    Y_unval_vec,
+    Y_vec,
+    p_val_num,
+    prev_theta,
+    prev_gamma,
+    prev_p,
+    n, N, m,
+    errorsY,
+    TOL,
+    MAX_ITER,
+    verbose
+  )
+
+  if (!em_result$converged && !em_result$theta_success)
+  {
+    stop("logistic2ph failed with singular Hessian for theta")
+  } else if (!em_result$converged && !em_result$gamma_success)
+  {
+    stop("logistic2ph failed with singular Hessian for gamma")
+  }
+
+  # Success! Extract results
+  CONVERGED <- em_result$converged
+  new_theta <- em_result$theta
+  new_gamma <- em_result$gamma
+  new_p <- em_result$p
+  iterations <- em_result$iterations
+
   rownames(new_theta) <- c("Intercept", theta_pred)
   if (errorsY) rownames(new_gamma) <- c("Intercept", gamma_pred)
 
-  if(!CONVERGED) {
-    if(verbose && it > MAX_ITER) message("MAX_ITER reached")
+  if(verbose)
+  {
+    if (CONVERGED)
+    {
+      message("EM algorithm converged in ", iterations, " iterations")
+    } else
+    {
+      message("MAX_ITER reached after ", iterations, " iterations")
+    }
+  }
 
+  # Continue with your existing code for handling convergence/non-convergence
+  if(!CONVERGED)
+  {
     res_coefficients <- data.frame(
       Estimate  = rep(NA, length(new_theta)),
       SE        = NA,
@@ -372,8 +313,6 @@ logistic2ph <- function(
       converge_cov = NA
     ))
   }
-
-  if(verbose) message("EM algorithm converged in ", it - 1, " iterations")
 
   # If computation of SE is not requested, return results
   if(noSE)

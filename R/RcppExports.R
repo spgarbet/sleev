@@ -114,11 +114,7 @@ NULL
     .Call(`_sleev_pYstarCalc`, gamma_design_mat, startRow, prev_gamma, comp_dat_all, Y_unval_index)
 }
 
-logistic2ph_estep <- function(theta_design, gamma_design, prev_theta, prev_gamma, prev_p, Bspline, Y, Y_unval, n, N, m, errorsY) {
-    .Call(`_sleev_logistic2ph_estep`, theta_design, gamma_design, prev_theta, prev_gamma, prev_p, Bspline, Y, Y_unval, n, N, m, errorsY)
-}
-
-logistic2ph_mstep <- function(theta_design_mat, gamma_design_mat, Y_all, Y_unval_all, w_t, u_t, p_val_num, prev_theta, prev_gamma, prev_p, n, N, m, errorsY, TOL) {
-    .Call(`_sleev_logistic2ph_mstep`, theta_design_mat, gamma_design_mat, Y_all, Y_unval_all, w_t, u_t, p_val_num, prev_theta, prev_gamma, prev_p, n, N, m, errorsY, TOL)
+logistic2ph_em_loop <- function(theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose) {
+    .Call(`_sleev_logistic2ph_em_loop`, theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose)
 }
 
