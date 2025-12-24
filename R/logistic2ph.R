@@ -220,29 +220,21 @@ logistic2ph <- function(
   gamma_design_mat <- as.matrix(cbind(int = 1, comp_dat_all[, gamma_pred]))
 
   # Initialize parameter values -------------------------------------
-  ## theta, gamma ---------------------------------------------------
   prev_theta <- theta0 <- matrix(0, nrow = ncol(theta_design_mat), ncol = 1)
   prev_gamma <- gamma0 <- matrix(0, nrow = ncol(gamma_design_mat), ncol = 1)
 
-  CONVERGED     <- FALSE
-  CONVERGED_MSG <- "Unknown"
-  it            <- 1
-
-  # pre-allocate memory for loop variables
-  # NOTE: This strategy doesn't really work in R as it reallocs each loop anyway
-  mus_theta     <- vector("numeric", nrow(theta_design_mat) * ncol(prev_theta))
-  mus_gamma     <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
+  CONVERGED <- FALSE
+  it <- 1
 
   # Estimate theta using EM -------------------------------------------
   if(verbose) message("Beginning EM loop")
-  all_conv <- 0
+
   while(it <= MAX_ITER && !CONVERGED)
   {
-    if(verbose)
-      message(
-        "Iteration: ",   it,
-        "  Converged: ", round(100*sum(all_conv, na.rm=TRUE)/length(all_conv), 2), "%",
-        "  Time: ",      Sys.time())
+    if(verbose) message("Iteration: ", it, "  Time: ", Sys.time())
+
+    # ===================================================================
+    # E-Step (C++)
     if (!is.matrix(comp_dat_unval))
       comp_dat_unval <- as.matrix(comp_dat_unval)
 
@@ -270,10 +262,8 @@ logistic2ph <- function(
     w_t <- res_C$w_t
     u_t <- res_C$u_t
 
-    ###################################################################
-    # M Step ----------------------------------------------------------
-    ###################################################################
-
+    # ===================================================================
+    # M-Step (C++)
     ## Lengthen w_t by prepending n ones (for validated subjects)
     w_t <- .lengthenWT(w_t, n)
 
@@ -298,60 +288,92 @@ logistic2ph <- function(
     new_gamma <- mstep_result$gamma
     new_p     <- mstep_result$p
 
-    # Check if we need fallback to glm
-    if (!mstep_result$theta_success)
-    {
-      new_theta <- matrix(glm(formula = theta_formula, family = "binomial",
-                              data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1)
+    # ===================================================================
+    # Fallback to R glm() if C++ failed (singular Hessian)
+    if (!mstep_result$theta_success) {
+      if(verbose) warning("C++ M-step failed for theta, falling back to glm")
+      suppressWarnings(
+        new_theta <- matrix(
+          glm(formula = theta_formula,
+              family = "binomial",
+              data = data.frame(comp_dat_all),
+              weights = w_t)$coefficients,
+          ncol = 1
+        )
+      )
     }
 
-    if (errorsY && !mstep_result$gamma_success)
-    {
-      new_gamma <- matrix(glm(formula = gamma_formula, family = "binomial",
-                              data = data.frame(comp_dat_all), weights = w_t)$coefficients, ncol = 1)
+    if (errorsY && !mstep_result$gamma_success) {
+      if(verbose) warning("C++ M-step failed for gamma, falling back to glm")
+      suppressWarnings(
+        new_gamma <- matrix(
+          glm(formula = gamma_formula,
+              family = "binomial",
+              data = data.frame(comp_dat_all),
+              weights = w_t)$coefficients,
+          ncol = 1
+        )
+      )
     }
 
+    # ===================================================================
     # Check convergence
     if (mstep_result$theta_conv && mstep_result$gamma_conv && mstep_result$p_conv)
       CONVERGED <- TRUE
 
-    if(any(is.na(mstep_result$theta_conv)))
+    # ===================================================================
+    # Error checking for singular systems
+    theta_conv <- abs(new_theta - prev_theta) < TOL
+    if(any(is.na(theta_conv)))
     {
       bad <- paste(all.vars(theta_formula)[is.na(theta_conv)], collapse=", ")
       stop(paste("System is singular. Variables possibly at fault: ", bad))
     }
 
-    if(any(is.na(mstep_result$gamma_conv)))
+    if (errorsY)
     {
-      bad <- paste(all.vars(gamma_formula)[is.na(gamma_conv)], collapse=", ")
-      stop(paste("System is singular. Variables possibly at fault: ", bad))
+      gamma_conv <- abs(new_gamma - prev_gamma) < TOL
+      if(any(is.na(gamma_conv)))
+      {
+        bad <- paste(all.vars(gamma_formula)[is.na(gamma_conv)], collapse=", ")
+        stop(paste("System is singular. Variables possibly at fault: ", bad))
+      }
     }
 
-    ## Update values for next iteration -------------------------------
-    it         <- it + 1
+    # ===================================================================
+    # Update for next iteration
+    it <- it + 1
     prev_theta <- new_theta
     prev_gamma <- new_gamma
-    prev_p     <- new_p
+    prev_p <- new_p
   }
 
+  # =====================================================================
+  # Post-convergence processing
+  # =====================================================================
   rownames(new_theta) <- c("Intercept", theta_pred)
   if (errorsY) rownames(new_gamma) <- c("Intercept", gamma_pred)
 
-  if(CONVERGED) CONVERGED_MSG <- "Converged" else
-  {
-    if(it > MAX_ITER) CONVERGED_MSG = "MAX_ITER reached"
+  if(!CONVERGED) {
+    if(verbose && it > MAX_ITER) message("MAX_ITER reached")
 
-    res_coefficients <- data.frame(Estimate  = rep(NA, length(new_theta)),
-                                   SE        = NA,
-                                   Statistic = NA,
-                                   pvalue    = NA)
+    res_coefficients <- data.frame(
+      Estimate  = rep(NA, length(new_theta)),
+      SE        = NA,
+      Statistic = NA,
+      pvalue    = NA
+    )
     colnames(res_coefficients) <- c("Estimate", "SE", "Statistic", "p-value")
 
-    return(list(coefficients = res_coefficients,
-                covariance   = NA,
-                converge     = FALSE,
-                converge_cov = NA))
+    return(list(
+      coefficients = res_coefficients,
+      covariance   = NA,
+      converge     = FALSE,
+      converge_cov = NA
+    ))
   }
+
+  if(verbose) message("EM algorithm converged in ", it - 1, " iterations")
 
   # If computation of SE is not requested, return results
   if(noSE)
@@ -472,17 +494,11 @@ logistic2ph <- function(
     )
   # ------------------------- Estimate Cov(theta) using profile likelihood
 
-  se_theta <- tryCatch(expr = sqrt(diag(cov_theta)),
-    warning = function(w) { matrix(NA, nrow = nrow(prev_theta)) })
-  if (any(is.na(se_theta)))
-  {
-    SE_CONVERGED <- FALSE
-  } else
-  {
-    SE_CONVERGED <- TRUE
-  }
-
-  if (verbose) message(CONVERGED_MSG)
+  se_theta <- tryCatch(
+    expr    = sqrt(diag(cov_theta)),
+    warning = function(w) { matrix(NA, nrow = nrow(prev_theta)) }
+  )
+  SE_CONVERGED <- !any(is.na(se_theta))
 
   res_coefficients           <- data.frame(Estimate = new_theta, SE = se_theta)
   res_coefficients$Statistic <- res_coefficients$Estimate / res_coefficients$SE
