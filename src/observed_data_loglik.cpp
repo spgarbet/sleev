@@ -4,53 +4,44 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 double compute_validated_y_loglik(
     NumericMatrix comp_dat_all,
-    int n,
+    int           n,
     IntegerVector theta_pred_cols,
     NumericVector theta,
-    int Y_col
+    int           Y_col
 )
 {
-  // Build design matrix: cbind(int=1, comp_dat_all[1:n, theta_pred_cols])
-  // theta_pred_cols are 1-indexed from R, need to convert to 0-indexed
-  int n_theta = theta.size();
-  NumericMatrix X_mat(n, n_theta);
+  int    n_theta    = theta.size();
+  int    Y_col_idx  = Y_col - 1;  // Convert to 0-indexed once
+  double loglik     = 0.0;
 
-  // Add intercept column
-  for (int i = 0; i < n; ++i) X_mat(i, 0) = 1.0;
+  // ===========================================================================
+  // Sum over log[P_theta(Yi|Xi)]
+  // pY_X <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[c(1:n), theta_pred]) %*% theta))))
+  // pY_X <- ifelse(as.vector(comp_dat_all[c(1:n), c(Y)]) == 0, 1 - pY_X, pY_X)
+  // return_loglik <- sum(log(pY_X))
 
-  // Add predictor columns (convert from R 1-indexed to C++ 0-indexed)
-  for (int j = 1; j < n_theta; ++j)
-  {
-    int pred_col = theta_pred_cols[j - 1] - 1;
-    for (int i = 0; i < n; ++i) X_mat(i, j) = comp_dat_all(i, pred_col);
-  }
-
-  // Compute linear predictor: X_mat %*% theta
-  NumericVector linear_pred(n);
+  // Compute linear predictor and log-likelihood in one pass
   for (int i = 0; i < n; ++i)
   {
-    double sum = 0.0;
-    for (int j = 0; j < n_theta; ++j) sum += X_mat(i, j) * theta[j];
-    linear_pred[i] = sum;
+    // Compute linear predictor: intercept + X %*% theta
+    double linear_pred = theta[0];  // Intercept
+    for (int j = 1; j < n_theta; ++j)
+    {
+      int pred_col = theta_pred_cols[j - 1] - 1;
+      linear_pred += comp_dat_all(i, pred_col) * theta[j];
+    }
+
+    // Compute probability: 1 / (1 + exp(-linear_pred))
+    double prob = 1.0 / (1.0 + exp(-linear_pred));
+
+    // Adjust probability based on observed Y
+    if (comp_dat_all(i, Y_col_idx) == 0.0) prob = 1.0 - prob;
+
+    // Accumulate log-likelihood
+    loglik += log(prob);
   }
 
-  // Compute pY_X = 1 / (1 + exp(-linear_pred))
-  NumericVector pY_X(n);
-  for (int i = 0; i < n; i++) pY_X[i] = 1.0 / (1.0 + exp(-linear_pred[i]));
-
-  // Apply ifelse: if Y == 0, use 1 - pY_X, else use pY_X
-  // Y_col is 1-indexed from R, convert to 0-indexed
-  int Y_col_idx = Y_col - 1;
-  for (int i = 0; i < n; ++i)
-  {
-    if (comp_dat_all(i, Y_col_idx) == 0.0) pY_X[i] = 1.0 - pY_X[i];
-  }
-
-  // Compute sum(log(pY_X))
-  double return_loglik = 0.0;
-  for (int i = 0; i < n; i++) return_loglik += log(pY_X[i]);
-
-  return return_loglik;
+  return loglik;
 }
 
 // [[Rcpp::export]]

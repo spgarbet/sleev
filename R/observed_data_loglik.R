@@ -51,18 +51,13 @@ observed_data_loglik <- function(
 
   m <- nrow(p)
   if(!is.matrix(comp_dat_all)) comp_dat_all <- data.matrix(comp_dat_all)
-  colnames_data <- colnames(comp_dat_all)
+  colnames_data   <- colnames(comp_dat_all)
+  theta_pred_cols <- get_col_indices(theta_pred, colnames_data)
+  Y_col           <- get_col_indices(Y,          colnames_data)
 
   # For validated subjects --------------------------------------------------------
   #################################################################################
   ## Sum over log[P_theta(Yi|Xi)] -------------------------------------------------
-  # pY_X <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[c(1:n), theta_pred]) %*% theta))))
-  # pY_X <- ifelse(as.vector(comp_dat_all[c(1:n), c(Y)]) == 0, 1 - pY_X, pY_X)
-  # return_loglik <- sum(log(pY_X))
-
-  theta_pred_cols <- get_col_indices(theta_pred, colnames_data)
-  Y_col           <- get_col_indices(Y,          colnames_data)
-
   return_loglik <- compute_validated_y_loglik(
     comp_dat_all    = comp_dat_all,
     n               = as.integer(n),
@@ -70,8 +65,6 @@ observed_data_loglik <- function(
     theta           = as.numeric(theta),
     Y_col           = Y_col
   )
-
-  #if(abs(return_loglik - result_cpp) > 1e-9) stop("FIRST PIECE FAILED!")
 
   ## ------------------------------------------------- Sum over log[P_theta(Yi|Xi)]
   #################################################################################
