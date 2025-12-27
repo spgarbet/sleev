@@ -137,7 +137,7 @@ logistic2ph <- function(
   setDT(data)
 
   # --- Step 1: Distinct and ordered x_obs ----------------------------
-  if(verbose) message("Create distinct and ordered x_obs")
+  if(verbose) message("\nCreate distinct and ordered x_obs")
   x_obs <- unique(data[1:n, ..X])
   setkeyv(x_obs, X)            # sets key and orders in place
   m <- nrow(x_obs)

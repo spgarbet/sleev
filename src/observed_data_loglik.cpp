@@ -182,10 +182,10 @@ double ob_loglik(
 
         for (int r = 0; r < rows_per_person; ++r)
         {
-          int row_idx = person + r * n_unval;  // Interleaved indexing
-          double b_val = comp_dat_all(n + row_idx, bspline_cols[j] - 1);
-          double term = pY_X[row_idx] * pYstar[row_idx] * pX(row_idx, j) * b_val;
-          col_sum += term;
+          int    row_idx  = person + r * n_unval;  // Interleaved indexing
+          double b_val    = comp_dat_all(n + row_idx, bspline_cols[j] - 1);
+          double term     = pY_X[row_idx] * pYstar[row_idx] * pX(row_idx, j) * b_val;
+          col_sum        += term;
         }
 
         sum += col_sum;  // rowSums: sum across columns
@@ -207,7 +207,7 @@ double ob_loglik(
       for (int r = 0; r < rows_per_person; ++r)
       {
         int row_idx = person + r * n_unval;  // Interleaved indexing
-        sum += pY_X[row_idx] * pYstar[row_idx];
+        sum        += pY_X[row_idx] * pYstar[row_idx];
       }
 
       // Accumulate log directly (handle -Inf case)
@@ -229,10 +229,10 @@ double ob_loglik(
 
         for (int r = 0; r < rows_per_person; ++r)
         {
-          int row_idx = person + r * n_unval;  // Interleaved indexing
-          double b_val = comp_dat_all(n + row_idx, bspline_cols[j] - 1);
-          double term = pY_X[row_idx] * pX(row_idx, j) * b_val;
-          col_sum += term;
+          int    row_idx  = person + r * n_unval;  // Interleaved indexing
+          double b_val    = comp_dat_all(n + row_idx, bspline_cols[j] - 1);
+          double term     = pY_X[row_idx] * pX(row_idx, j) * b_val;
+          col_sum        += term;
         }
 
         sum += col_sum;  // rowSums: sum across columns
