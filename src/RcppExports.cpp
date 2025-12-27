@@ -153,6 +153,45 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_validated_y_loglik
+double compute_validated_y_loglik(NumericMatrix comp_dat_all, int n, IntegerVector theta_pred_cols, NumericVector theta, int Y_col);
+RcppExport SEXP _sleev_compute_validated_y_loglik(SEXP comp_dat_allSEXP, SEXP nSEXP, SEXP theta_pred_colsSEXP, SEXP thetaSEXP, SEXP Y_colSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type comp_dat_all(comp_dat_allSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type theta_pred_cols(theta_pred_colsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type Y_col(Y_colSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_validated_y_loglik(comp_dat_all, n, theta_pred_cols, theta, Y_col));
+    return rcpp_result_gen;
+END_RCPP
+}
+// observed_data_loglik_cpp
+double observed_data_loglik_cpp(int N, int n, IntegerVector Y_unval, CharacterVector Y, IntegerVector X_unval, CharacterVector X, CharacterVector Z, CharacterVector Bspline, NumericMatrix comp_dat_all, CharacterVector theta_pred, CharacterVector gamma_pred, NumericVector theta, NumericVector gamma, NumericMatrix p);
+RcppExport SEXP _sleev_observed_data_loglik_cpp(SEXP NSEXP, SEXP nSEXP, SEXP Y_unvalSEXP, SEXP YSEXP, SEXP X_unvalSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BsplineSEXP, SEXP comp_dat_allSEXP, SEXP theta_predSEXP, SEXP gamma_predSEXP, SEXP thetaSEXP, SEXP gammaSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Y_unval(Y_unvalSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type X_unval(X_unvalSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type X(XSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type Bspline(BsplineSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type comp_dat_all(comp_dat_allSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type theta_pred(theta_predSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type gamma_pred(gamma_predSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(observed_data_loglik_cpp(N, n, Y_unval, Y, X_unval, X, Z, Bspline, comp_dat_all, theta_pred, gamma_pred, theta, gamma, p));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sleev_TwoPhase_MLE0_MEXY_CV_loglik", (DL_FUNC) &_sleev_TwoPhase_MLE0_MEXY_CV_loglik, 9},
@@ -163,6 +202,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
     {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
     {"_sleev_logistic2ph_em_loop", (DL_FUNC) &_sleev_logistic2ph_em_loop, 20},
+    {"_sleev_compute_validated_y_loglik", (DL_FUNC) &_sleev_compute_validated_y_loglik, 5},
+    {"_sleev_observed_data_loglik_cpp", (DL_FUNC) &_sleev_observed_data_loglik_cpp, 14},
     {NULL, NULL, 0}
 };
 
