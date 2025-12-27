@@ -154,8 +154,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_validated_y_loglik
-double compute_validated_y_loglik(NumericMatrix comp_dat_all, int n, IntegerVector theta_pred_cols, NumericVector theta, int Y_col);
-RcppExport SEXP _sleev_compute_validated_y_loglik(SEXP comp_dat_allSEXP, SEXP nSEXP, SEXP theta_pred_colsSEXP, SEXP thetaSEXP, SEXP Y_colSEXP) {
+double compute_validated_y_loglik(NumericMatrix comp_dat_all, int n, IntegerVector theta_pred_cols, NumericVector theta, int Y_col, IntegerVector gamma_pred_cols, NumericVector gamma, int Y_unval_col);
+RcppExport SEXP _sleev_compute_validated_y_loglik(SEXP comp_dat_allSEXP, SEXP nSEXP, SEXP theta_pred_colsSEXP, SEXP thetaSEXP, SEXP Y_colSEXP, SEXP gamma_pred_colsSEXP, SEXP gammaSEXP, SEXP Y_unval_colSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -164,7 +164,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type theta_pred_cols(theta_pred_colsSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< int >::type Y_col(Y_colSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_validated_y_loglik(comp_dat_all, n, theta_pred_cols, theta, Y_col));
+    Rcpp::traits::input_parameter< IntegerVector >::type gamma_pred_cols(gamma_pred_colsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< int >::type Y_unval_col(Y_unval_colSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_validated_y_loglik(comp_dat_all, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -202,7 +205,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
     {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
     {"_sleev_logistic2ph_em_loop", (DL_FUNC) &_sleev_logistic2ph_em_loop, 20},
-    {"_sleev_compute_validated_y_loglik", (DL_FUNC) &_sleev_compute_validated_y_loglik, 5},
+    {"_sleev_compute_validated_y_loglik", (DL_FUNC) &_sleev_compute_validated_y_loglik, 8},
     {"_sleev_observed_data_loglik_cpp", (DL_FUNC) &_sleev_observed_data_loglik_cpp, 14},
     {NULL, NULL, 0}
 };

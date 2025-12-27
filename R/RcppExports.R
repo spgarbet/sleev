@@ -118,8 +118,8 @@ logistic2ph_em_loop <- function(theta_design_mat, gamma_design_mat, comp_dat_all
     .Call(`_sleev_logistic2ph_em_loop`, theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose)
 }
 
-compute_validated_y_loglik <- function(comp_dat_all, n, theta_pred_cols, theta, Y_col) {
-    .Call(`_sleev_compute_validated_y_loglik`, comp_dat_all, n, theta_pred_cols, theta, Y_col)
+compute_validated_y_loglik <- function(comp_dat_all, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col) {
+    .Call(`_sleev_compute_validated_y_loglik`, comp_dat_all, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col)
 }
 
 observed_data_loglik_cpp <- function(N, n, Y_unval, Y, X_unval, X, Z, Bspline, comp_dat_all, theta_pred, gamma_pred, theta, gamma, p) {

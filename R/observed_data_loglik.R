@@ -54,28 +54,20 @@ observed_data_loglik <- function(
   colnames_data   <- colnames(comp_dat_all)
   theta_pred_cols <- get_col_indices(theta_pred, colnames_data)
   Y_col           <- get_col_indices(Y,          colnames_data)
+  gamma_pred_cols <- get_col_indices(gamma_pred, colnames_data)
+  Y_unval         <- get_col_indices(Y_unval,    colnames_data)
 
-  # For validated subjects --------------------------------------------------------
-  #################################################################################
-  ## Sum over log[P_theta(Yi|Xi)] -------------------------------------------------
   return_loglik <- compute_validated_y_loglik(
     comp_dat_all    = comp_dat_all,
     n               = as.integer(n),
     theta_pred_cols = theta_pred_cols,
     theta           = as.numeric(theta),
-    Y_col           = Y_col
+    Y_col           = Y_col,
+    gamma_pred_cols = gamma_pred_cols,
+    gamma           = as.numeric(gamma),
+    Y_unval         = Y_unval
   )
 
-  ## ------------------------------------------------- Sum over log[P_theta(Yi|Xi)]
-  #################################################################################
-  ## Sum over log[P(Yi*|Xi*,Yi,Xi)] -----------------------------------------------
-  if (errorsY)
-  {
-    pYstar <- 1 / (1 + exp(-as.numeric(cbind(int = 1, comp_dat_all[c(1:n), gamma_pred]) %*% gamma)))
-    pYstar <- ifelse(as.vector(comp_dat_all[c(1:n), Y_unval]) == 0, 1 - pYstar, pYstar)
-    return_loglik <- return_loglik + sum(log(pYstar))
-  }
-  ## ----------------------------------------------- Sum over log[P(Yi*|Xi*,Yi,Xi)]
   #################################################################################
   ## Sum over I(Xi=xk)Bj(Xi*)log p_kj ---------------------------------------------
   if (errorsX)

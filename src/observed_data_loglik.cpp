@@ -7,22 +7,30 @@ double compute_validated_y_loglik(
     int           n,
     IntegerVector theta_pred_cols,
     NumericVector theta,
-    int           Y_col
+    int           Y_col,
+    IntegerVector gamma_pred_cols,
+    NumericVector gamma,
+    int           Y_unval_col
 )
 {
   int    n_theta    = theta.size();
-  int    Y_col_idx  = Y_col - 1;  // Convert to 0-indexed once
+  int    n_gamma    = gamma.size();
+  bool   errorsY    = (n_gamma > 0);
   double loglik     = 0.0;
 
-  // ===========================================================================
-  // Sum over log[P_theta(Yi|Xi)]
-  // pY_X <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[c(1:n), theta_pred]) %*% theta))))
-  // pY_X <- ifelse(as.vector(comp_dat_all[c(1:n), c(Y)]) == 0, 1 - pY_X, pY_X)
-  // return_loglik <- sum(log(pY_X))
+  // Convert to 0-indexed
+  Y_col       -= 1;
+  Y_unval_col -= 1;
 
   // Compute linear predictor and log-likelihood in one pass
   for (int i = 0; i < n; ++i)
   {
+    // ===========================================================================
+    // Sum over log[P_theta(Yi|Xi)]
+    // pY_X <- 1 / (1 + exp(-as.numeric((cbind(int = 1, comp_dat_all[c(1:n), theta_pred]) %*% theta))))
+    // pY_X <- ifelse(as.vector(comp_dat_all[c(1:n), c(Y)]) == 0, 1 - pY_X, pY_X)
+    // return_loglik <- sum(log(pY_X))
+
     // Compute linear predictor: intercept + X %*% theta
     double linear_pred = theta[0];  // Intercept
     for (int j = 1; j < n_theta; ++j)
@@ -35,10 +43,35 @@ double compute_validated_y_loglik(
     double prob = 1.0 / (1.0 + exp(-linear_pred));
 
     // Adjust probability based on observed Y
-    if (comp_dat_all(i, Y_col_idx) == 0.0) prob = 1.0 - prob;
+    if (comp_dat_all(i, Y_col) == 0.0) prob = 1.0 - prob;
 
     // Accumulate log-likelihood
     loglik += log(prob);
+
+    // Sum over log[P(Yi*|Xi*,Yi,Xi)]
+    // if (errorsY)
+    // {
+    //   pYstar <- 1 / (1 + exp(-as.numeric(cbind(int = 1, comp_dat_all[c(1:n), gamma_pred]) %*% gamma)))
+    //   pYstar <- ifelse(as.vector(comp_dat_all[c(1:n), Y_unval]) == 0, 1 - pYstar, pYstar)
+    //   return_loglik <- return_loglik + sum(log(pYstar))
+    // }
+    if(errorsY)
+    {
+      double linear_pred_gamma = gamma[0];
+      for (int j = 1; j < n_gamma; ++j)
+      {
+        int pred_col = gamma_pred_cols[j - 1] - 1;
+        linear_pred_gamma += comp_dat_all(i, pred_col) * gamma[j];
+      }
+
+      double prob_ystar = 1.0 / (1.0 + exp(-linear_pred_gamma));
+
+      if (comp_dat_all(i, Y_unval_col) == 0.0)
+        prob_ystar = 1.0 - prob_ystar;
+
+      // Accumulate log-likelihood
+      loglik += log(prob_ystar);
+    }
   }
 
   return loglik;
