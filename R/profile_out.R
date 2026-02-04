@@ -1,12 +1,97 @@
-# C++ implementation of the E step
 Rcpp::sourceCpp(code = '
 #include <Rcpp.h>
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-List e_step_cpp(NumericVector pY_X, NumericVector pYstar, NumericMatrix pX,
-                int N_minus_n, int m, bool errorsY)
+List e_step_complete_cpp(NumericMatrix theta_design_mat, NumericVector theta,
+                         NumericMatrix comp_dat_all, int Y_col,
+                         NumericMatrix gamma_design_mat, NumericVector prev_gamma,
+                         int Y_unval_col, NumericMatrix prev_p,
+                         IntegerVector Bspline_cols, int n, int N, int m,
+                         bool errorsY)
 {
+  // Get the .pYstarCalc function from R
+  Function pYstarCalc(".pYstarCalc");
+
+  int N_minus_n = N - n;
+
+  // Calculate pY_X using existing .pYstarCalc
+  NumericVector pY_X = pYstarCalc(theta_design_mat, 1, theta,
+                                   comp_dat_all, Y_col);
+
+  // Calculate pYstar: P(Y*|X*,Y,X)
+  NumericVector pYstar;
+  if (errorsY)
+  {
+    pYstar = pYstarCalc(gamma_design_mat, n + 1, prev_gamma,
+                       comp_dat_all, Y_unval_col);
+  }
+  else
+  {
+    pYstar = NumericVector(pY_X.size(), 1.0);
+  }
+
+  // Calculate pX: P(X|X*)
+  // Extract B-spline columns
+  int n_bspline_cols = Bspline_cols.size();
+  NumericMatrix bspline_data(comp_dat_all.nrow() - n, n_bspline_cols);
+  for (int i = 0; i < bspline_data.nrow(); ++i)
+  {
+    for (int j = 0; j < n_bspline_cols; ++j)
+    {
+      bspline_data(i, j) = comp_dat_all(n + i, Bspline_cols[j]);
+    }
+  }
+
+  // Create pX matrix
+  int pX_rows;
+  if (errorsY)
+  {
+    pX_rows = m * N_minus_n * 2;
+  }
+  else
+  {
+    pX_rows = m * N_minus_n;
+  }
+
+  NumericMatrix pX(pX_rows, n_bspline_cols);
+
+  // Fill pX with reordered prev_p multiplied by B-spline data
+  if (errorsY)
+  {
+    // rep(rep(seq(1, m), each = (N - n)), times = 2)
+    for (int rep_idx = 0; rep_idx < 2; ++rep_idx)
+    {
+      for (int k = 0; k < m; ++k)
+      {
+        for (int i = 0; i < N_minus_n; ++i)
+        {
+          int pX_row = rep_idx * m * N_minus_n + k * N_minus_n + i;
+          for (int j = 0; j < n_bspline_cols; ++j)
+          {
+            pX(pX_row, j) = prev_p(k, j) * bspline_data(i, j);
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    // rep(seq(1, m), each = (N - n))
+    for (int k = 0; k < m; ++k)
+    {
+      for (int i = 0; i < N_minus_n; ++i)
+      {
+        int pX_row = k * N_minus_n + i;
+        for (int j = 0; j < n_bspline_cols; ++j)
+        {
+          pX(pX_row, j) = prev_p(k, j) * bspline_data(i, j);
+        }
+      }
+    }
+  }
+
+  // Now calculate conditional expectations
   int n_rows = pX.nrow();
   int n_cols = pX.ncol();
 
@@ -17,7 +102,6 @@ List e_step_cpp(NumericVector pY_X, NumericVector pYstar, NumericMatrix pX,
   NumericMatrix u_t(m * N_minus_n, n_cols);
 
   // Calculate psi_num: c(pY_X * pYstar) * pX
-  // Need to handle the case where pYstar might be length 1 (recycled in R)
   int pYstar_len = pYstar.size();
 
   for (int i = 0; i < n_rows; ++i)
@@ -26,34 +110,20 @@ List e_step_cpp(NumericVector pY_X, NumericVector pYstar, NumericMatrix pX,
     int pYstar_idx = (pYstar_len == 1) ? 0 : i;
     double weight = pY_X[i] * pYstar[pYstar_idx];
 
-    for (int j = 0; j < n_cols; j++)
+    for (int j = 0; j < n_cols; ++j)
     {
       psi_num(i, j) = weight * pX(i, j);
     }
   }
 
   // Calculate psi_denom by summing over groups using rowsum logic
-  // group = rep(seq(1, (N - n)), times = 2 * m) or times = m
-  // This creates: 1, 2, 3, ..., N-n, 1, 2, 3, ..., N-n, ... (repeated times)
-  int times_repeated;
-  if (errorsY)
-  {
-    times_repeated = 2 * m;
-  }
-  else
-  {
-    times_repeated = m;
-  }
-
   NumericVector psi_denom(N_minus_n, 0.0);
 
   for (int row = 0; row < n_rows; ++row)
   {
-    // Determine which group this row belongs to
-    // rep(seq(1, N-n), times = times_repeated) pattern
     int group_idx = row % N_minus_n;
 
-    for (int j = 0; j < n_cols; j++)
+    for (int j = 0; j < n_cols; ++j)
     {
       psi_denom[group_idx] += psi_num(row, j);
     }
@@ -68,7 +138,7 @@ List e_step_cpp(NumericVector pY_X, NumericVector pYstar, NumericMatrix pX,
     }
   }
 
-  // Calculate psi_t: psi_num / psi_denom (with recycling of psi_denom)
+  // Calculate psi_t: psi_num / psi_denom
   for (int row = 0; row < n_rows; ++row)
   {
     int group_idx = row % N_minus_n;
@@ -89,8 +159,6 @@ List e_step_cpp(NumericVector pY_X, NumericVector pYstar, NumericMatrix pX,
   }
 
   // Calculate u_t
-  // u_t <- psi_t[c(1:(m * (N - n))), ]
-  // if (errorsY) u_t <- u_t + psi_t[- c(1:(m * (N - n))), ]
   int u_rows = m * N_minus_n;
 
   for (int i = 0; i < u_rows; ++i)
@@ -165,29 +233,30 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
                                       comp_dat_all[-c(1:n), theta_pred]))
   comp_dat_all <- as.matrix(comp_dat_all)
 
-  # For the E-step, save static P(Y|X) for unvalidated --------------
-  pY_X <- .pYstarCalc(theta_design_mat, 1L, theta, comp_dat_all, match(Y, colnames(comp_dat_all))-1)
+  # Prepare column indices (convert to 0-based for C++)
+  Y_col_idx <- match(Y, colnames(comp_dat_all)) - 1
+  Y_unval_col_idx <- if (errorsY) match(Y_unval, colnames(comp_dat_all)) - 1 else 0L
+  Bspline_col_idx <- match(Bspline, colnames(comp_dat_all)) - 1
+
   if (errorsY)
   {
     gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
     gamma_design_mat <- as.matrix(cbind(int = 1,
                                         comp_dat_all[, gamma_pred]))
   }
+  else
+  {
+    gamma_design_mat <- matrix(0, 0, 0)  # Empty matrix for C++
+  }
 
   CONVERGED <- FALSE
   CONVERGED_MSG <- "Unknown"
   it <- 1
 
-  # pre-allocate memory for our loop variables
-  # improves performance
+  # pre-allocate memory for M-step variables
   if (errorsY)
   {
-    pYstar <- vector(mode="numeric", length = nrow(gamma_design_mat) - n)
-    mu_gamma <- vector(mode="numeric", length = length(pYstar))
     mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
-    pX <- matrix(,nrow = m * (N-n) * 2, ncol = length(Bspline))
-  } else {
-    pX <- matrix(,nrow = m * (N-n), ncol = length(Bspline))
   }
 
   # Estimate gamma/p using EM
@@ -195,27 +264,11 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
   {
      ###################################################################
     # E Step
-
-    # P(Y*|X*,Y,X)
-    if (errorsY)
-    {
-      pYstar <- .pYstarCalc(gamma_design_mat, n + 1, prev_gamma, comp_dat_all, match(Y_unval, colnames(comp_dat_all))-1)
-    } else
-    {
-      pYstar <- 1
-    }
-
-    # P(X|X*)
-    if (errorsY)
-    {
-      pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_all[-c(1:n), Bspline]
-    } else
-    {
-      pX <- prev_p[rep(seq(1, m), each = (N - n)), ] * comp_dat_all[-c(1:n), Bspline]
-    }
-
-    # Estimate conditional expectations P(X|X*)
-    e_step_results <- e_step_cpp(pY_X, pYstar, pX, N - n, m, errorsY)
+    e_step_results <- e_step_complete_cpp(
+      theta_design_mat, theta, comp_dat_all, Y_col_idx,
+      gamma_design_mat, prev_gamma, Y_unval_col_idx,
+      prev_p, Bspline_col_idx, n, N, m, errorsY
+    )
 
     psi_t <- e_step_results$psi_t
     w_t <- e_step_results$w_t
@@ -241,7 +294,6 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
                                                  data = data.frame(comp_dat_all),
                                                  weights = w_t)$coefficients,
                                              ncol = 1))
-        # browser()
       }
 
       # Check for convergence -----------------------------------------
@@ -261,7 +313,7 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
     p_conv <- abs(new_p - prev_p) < TOL
     ## -------------------------------------------------- Update {p_kj}
     ###################################################################
-    # M Step ----------------------------------------------------------
+    # End M Step
     ###################################################################
 
     all_conv <- c(gamma_conv, p_conv)
@@ -275,13 +327,16 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
 
   }
 
-  if(it == MAX_ITER & !CONVERGED) {
+  if(it == MAX_ITER & !CONVERGED)
+  {
     CONVERGED_MSG <- "MAX_ITER reached"
-    if (errorsY) {
+    if (errorsY)
+    {
       new_gamma <- matrix(data = NA,
                           nrow = nrow(gamma0),
                           ncol = 1)
-    } else {
+    } else
+    {
       new_gamma <- NULL
     }
     new_p <- matrix(data = NA,
