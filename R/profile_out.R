@@ -1,3 +1,120 @@
+# C++ implementation of the E step
+Rcpp::sourceCpp(code = '
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+List e_step_cpp(NumericVector pY_X, NumericVector pYstar, NumericMatrix pX,
+                int N_minus_n, int m, bool errorsY)
+{
+  int n_rows = pX.nrow();
+  int n_cols = pX.ncol();
+
+  // Allocate matrices
+  NumericMatrix psi_num(n_rows, n_cols);
+  NumericMatrix psi_t(n_rows, n_cols);
+  NumericVector w_t(n_rows);
+  NumericMatrix u_t(m * N_minus_n, n_cols);
+
+  // Calculate psi_num: c(pY_X * pYstar) * pX
+  // Need to handle the case where pYstar might be length 1 (recycled in R)
+  int pYstar_len = pYstar.size();
+
+  for (int i = 0; i < n_rows; ++i)
+  {
+    // Handle R-style recycling for pYstar
+    int pYstar_idx = (pYstar_len == 1) ? 0 : i;
+    double weight = pY_X[i] * pYstar[pYstar_idx];
+
+    for (int j = 0; j < n_cols; j++)
+    {
+      psi_num(i, j) = weight * pX(i, j);
+    }
+  }
+
+  // Calculate psi_denom by summing over groups using rowsum logic
+  // group = rep(seq(1, (N - n)), times = 2 * m) or times = m
+  // This creates: 1, 2, 3, ..., N-n, 1, 2, 3, ..., N-n, ... (repeated times)
+  int times_repeated;
+  if (errorsY)
+  {
+    times_repeated = 2 * m;
+  }
+  else
+  {
+    times_repeated = m;
+  }
+
+  NumericVector psi_denom(N_minus_n, 0.0);
+
+  for (int row = 0; row < n_rows; ++row)
+  {
+    // Determine which group this row belongs to
+    // rep(seq(1, N-n), times = times_repeated) pattern
+    int group_idx = row % N_minus_n;
+
+    for (int j = 0; j < n_cols; j++)
+    {
+      psi_denom[group_idx] += psi_num(row, j);
+    }
+  }
+
+  // Avoid division by zero
+  for (int i = 0; i < N_minus_n; ++i)
+  {
+    if (psi_denom[i] == 0.0)
+    {
+      psi_denom[i] = 1.0;
+    }
+  }
+
+  // Calculate psi_t: psi_num / psi_denom (with recycling of psi_denom)
+  for (int row = 0; row < n_rows; ++row)
+  {
+    int group_idx = row % N_minus_n;
+    for (int j = 0; j < n_cols; ++j)
+    {
+      psi_t(row, j) = psi_num(row, j) / psi_denom[group_idx];
+    }
+  }
+
+  // Calculate w_t by summing across columns (rowSums)
+  for (int i = 0; i < n_rows; ++i)
+  {
+    w_t[i] = 0.0;
+    for (int j = 0; j < n_cols; ++j)
+    {
+      w_t[i] += psi_t(i, j);
+    }
+  }
+
+  // Calculate u_t
+  // u_t <- psi_t[c(1:(m * (N - n))), ]
+  // if (errorsY) u_t <- u_t + psi_t[- c(1:(m * (N - n))), ]
+  int u_rows = m * N_minus_n;
+
+  for (int i = 0; i < u_rows; ++i)
+  {
+    for (int j = 0; j < n_cols; ++j)
+    {
+      u_t(i, j) = psi_t(i, j);
+      if (errorsY)
+      {
+        u_t(i, j) += psi_t(i + u_rows, j);
+      }
+    }
+  }
+
+  return List::create(
+    Named("psi_t") = psi_t,
+    Named("w_t") = w_t,
+    Named("u_t") = u_t
+  );
+}
+')
+
+
+
 #' Profiles out nuisance parameters from the observed-data log-likelihood for a given value of theta
 #'
 #' For a given vector `theta` to parameterize P(Y|X,Z), this function repeats the EM algorithm to find
@@ -31,13 +148,11 @@
 #' @noRd
 
 profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL,
-                           comp_dat_all, theta_pred, gamma_pred, gamma0, p0, p_val_num, TOL, MAX_ITER) {
-  # Determine error setting -----------------------------------------
-  ## If unvalidated variable was left blank, assume error-free ------
-  errorsY <- errorsX <- TRUE
-  if (is.null(Y_unval)) {errorsY <- FALSE}
-  if (is.null(X_unval)) {errorsX <- FALSE}
-  # ----------------------------------------- Determine error setting
+                           comp_dat_all, theta_pred, gamma_pred, gamma0, p0, p_val_num, TOL, MAX_ITER)
+{
+  # Determine error settings
+  errorsX <- !is.null(X_unval)
+  errorsY <- !is.null(Y_unval)
 
   sn <- ncol(p0)
   m <- nrow(p0)
@@ -51,9 +166,9 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
   comp_dat_all <- as.matrix(comp_dat_all)
 
   # For the E-step, save static P(Y|X) for unvalidated --------------
-  # browser()
   pY_X <- .pYstarCalc(theta_design_mat, 1L, theta, comp_dat_all, match(Y, colnames(comp_dat_all))-1)
-  if (errorsY) {
+  if (errorsY)
+  {
     gamma_formula <- as.formula(paste0(Y_unval, "~", paste(gamma_pred, collapse = "+")))
     gamma_design_mat <- as.matrix(cbind(int = 1,
                                         comp_dat_all[, gamma_pred]))
@@ -65,7 +180,8 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
 
   # pre-allocate memory for our loop variables
   # improves performance
-  if (errorsY) {
+  if (errorsY)
+  {
     pYstar <- vector(mode="numeric", length = nrow(gamma_design_mat) - n)
     mu_gamma <- vector(mode="numeric", length = length(pYstar))
     mus_gamma <- vector("numeric", nrow(gamma_design_mat) * ncol(prev_gamma))
@@ -73,75 +189,37 @@ profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X
   } else {
     pX <- matrix(,nrow = m * (N-n), ncol = length(Bspline))
   }
-  psi_num <- matrix(,nrow = nrow(comp_dat_all)-n, ncol=length(Bspline))
-  psi_t <- matrix(,nrow = nrow(psi_num), ncol = ncol(psi_num))
-  w_t <- vector("numeric", length = nrow(psi_t))
-  u_t <- matrix(,nrow = m * (N-n), ncol = ncol(psi_t))
 
-  # Estimate gamma/p using EM -----------------------------------------
-  #browser()
-  while(it <= MAX_ITER & !CONVERGED) {
-    # E Step ----------------------------------------------------------
-    # P(Y*|X*,Y,X) ---------------------------------------------------
-    if (errorsY) {
+  # Estimate gamma/p using EM
+  while(it <= MAX_ITER && !CONVERGED)
+  {
+     ###################################################################
+    # E Step
+
+    # P(Y*|X*,Y,X)
+    if (errorsY)
+    {
       pYstar <- .pYstarCalc(gamma_design_mat, n + 1, prev_gamma, comp_dat_all, match(Y_unval, colnames(comp_dat_all))-1)
-    } else {
+    } else
+    {
       pYstar <- 1
     }
-    ### -------------------------------------------------- P(Y*|X*,Y,X)
-    ###################################################################
-    ### P(X|X*) -------------------------------------------------------
 
-    # these are the slowest lines in this function (13280 ms), but I can't seem to get any faster with C++
-    # pX <- pXCalc(n, comp_dat_all[-c(1:n), Bspline], errorsX, errorsY, pX, prev_p[rep(seq(1, m), each = (N - n)), ])
-    ### p_kj ------------------------------------------------------
-    ### need to reorder pX so that it's x1, ..., x1, ...., xm, ..., xm-
-    ### multiply by the B-spline terms
-    if (errorsY) {
+    # P(X|X*)
+    if (errorsY)
+    {
       pX <- prev_p[rep(rep(seq(1, m), each = (N - n)), times = 2), ] * comp_dat_all[-c(1:n), Bspline]
-    } else {
+    } else
+    {
       pX <- prev_p[rep(seq(1, m), each = (N - n)), ] * comp_dat_all[-c(1:n), Bspline]
     }
-    ### ---------------------------------------------------------- p_kj
-    ### ------------------------------------------------------- P(X|X*)
-    ###################################################################
-    ### Estimate conditional expectations -----------------------------
 
+    # Estimate conditional expectations P(X|X*)
+    e_step_results <- e_step_cpp(pY_X, pYstar, pX, N - n, m, errorsY)
 
-    # this function modifies w_t, u_t, psi_num, and psi_t internally
-    # condExp <- conditionalExpectations(errorsX, errorsY, pX, pY_X, pYstar, N - n, m, w_t, u_t, psi_num, psi_t)
-    # w_t <- condExp[["w_t"]]
-    # u_t <- condExp[["u_t"]]
-    # psi_t <- condExp[["psi_t"]]
-
-    ### P(Y|X,Z)P(Y*|X*,Y,X,Z)p_kjB(X*) -----------------------------
-    psi_num <- c(pY_X * pYstar) * pX
-    ### Update denominator ------------------------------------------
-    #### Sum up all rows per id (e.g. sum over xk/y) ----------------
-    if (errorsY) {
-      psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = 2 * m))
-    } else {
-      psi_denom <- rowsum(psi_num, group = rep(seq(1, (N - n)), times = m))
-    }
-    #### Then sum over the sn splines -------------------------------
-    psi_denom <- rowSums(psi_denom)
-    #### Avoid NaN resulting from dividing by 0 ---------------------
-    psi_denom[psi_denom == 0] <- 1
-    ### And divide them! --------------------------------------------
-    psi_t <- psi_num / psi_denom
-    ### Update the w_kyi for unvalidated subjects -------------------
-    ### by summing across the splines/ columns of psi_t -------------
-    w_t <- rowSums(psi_t)
-    ### Update the u_kji for unvalidated subjects ------------------
-    ### by summing over Y = 0/1 w/i each i, k ----------------------
-    ### add top half of psi_t (y = 0) to bottom half (y = 1) -------
-    u_t <- psi_t[c(1:(m * (N - n))), ]
-    if (errorsY) {
-      u_t <- u_t + psi_t[- c(1:(m * (N - n))), ]
-    }
-    ### ----------------------------- Estimate conditional expectations
-    # ---------------------------------------------------------- E Step
-    ###################################################################
+    psi_t <- e_step_results$psi_t
+    w_t <- e_step_results$w_t
+    u_t <- e_step_results$u_t
 
     ###################################################################
     # M Step ----------------------------------------------------------
