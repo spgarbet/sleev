@@ -2,42 +2,43 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
+#include "sleev_api.h"
+
 // Complete EM algorithm for profiling out nuisance parameters
 // [[Rcpp::export]]
 Rcpp::List profile_out_em(
-    const arma::mat& theta_design_mat,
-    const arma::vec& theta,
-    const arma::mat& comp_dat_all,
-    int Y_col,
-    const arma::mat& gamma_design_mat,
-    const arma::vec& gamma0,
-    int Y_unval_col,
-    const arma::mat& p0,
-    const arma::uvec& Bspline_cols,
-    const arma::mat& p_val_num,
-    int n,
-    int N,
-    int m,
-    bool errorsY,
-    double TOL,
-    int MAX_ITER)
+    const  arma::mat&  theta_design_mat,
+    const  arma::vec&  theta,
+    const  arma::mat&  comp_dat_all,
+    int                Y_col,
+    const  arma::mat&  gamma_design_mat,
+    const  arma::vec&  gamma0,
+    int                Y_unval_col,
+    const  arma::mat&  p0,
+    const  arma::uvec& Bspline_cols,
+    const  arma::mat&  p_val_num,
+    int                n,
+    int                N,
+    int                m,
+    bool               errorsY,
+    double             TOL,
+    int                MAX_ITER,
+    bool               verbose)
 {
-  // Access the exported functions from sleev package
-  Environment sleev("package:sleev");
-  Function pYstarCalc = sleev[".pYstarCalc"];
-  Function lengthenWT = sleev[".lengthenWT"];
-  Function calculateMu = sleev[".calculateMu"];
-  Function calculateGradient = sleev[".calculateGradient"];
-  Function calculateHessian = sleev[".calculateHessian"];
+  // // Access the exported functions from sleev package
+  // Environment sleev("package:sleev");
+  // Function    pYstarCalc        = sleev[".pYstarCalc"];
+  // Function    lengthenWT        = sleev[".lengthenWT"];
+  // Function    calculateMu       = sleev[".calculateMu"];
+  // Function    calculateGradient = sleev[".calculateGradient"];
+  // Function    calculateHessian  = sleev[".calculateHessian"];
 
-  int N_minus_n = N - n;
-
-  arma::vec prev_gamma = gamma0;
-  arma::mat prev_p = p0;
-
-  bool CONVERGED = false;
-  std::string CONVERGED_MSG = "Unknown";
-  int it = 1;
+  int         N_minus_n         = N - n;
+  arma::vec   prev_gamma        = gamma0;
+  arma::mat   prev_p            = p0;
+  bool        CONVERGED         = false;
+  std::string CONVERGED_MSG     = "Unknown";
+  int         it                = 1;
 
   // Pre-allocate for M-step
   arma::vec mus_gamma;
@@ -53,22 +54,27 @@ Rcpp::List profile_out_em(
   arma::vec new_gamma;
   arma::mat new_p;
 
+  Rcpp::Rcout << "Beginning Profile EM Loop" << std::endl;
+
   while (it <= MAX_ITER && !CONVERGED)
   {
-    ///////////////////////////////////////////////////////////////////
-    // E Step
-    ///////////////////////////////////////////////////////////////////
+    if (verbose && (it % 10 == 0 || it < 5))
+    {
+      Rcpp::Rcout << "Iteration: " << (it + 1) << std::endl;
+    }
 
-    // Calculate pY_X using existing .pYstarCalc
-    arma::vec pY_X = as<arma::vec>(pYstarCalc(theta_design_mat, 1, theta,
-                                              comp_dat_all, Y_col));
+     ///////////////////////////////////////////////////////////////////
+    // E Step
+
+    arma::vec pY_X = pYstarCalc(theta_design_mat, 1, theta,
+                                comp_dat_all, Y_col);
 
     // Calculate pYstar: P(Y*|X*,Y,X)
     arma::vec pYstar;
     if (errorsY)
     {
-      pYstar = as<arma::vec>(pYstarCalc(gamma_design_mat, n + 1, prev_gamma,
-                                        comp_dat_all, Y_unval_col));
+      pYstar = pYstarCalc(gamma_design_mat, n + 1, prev_gamma,
+                          comp_dat_all, Y_unval_col);
     }
     else
     {
@@ -142,8 +148,8 @@ Rcpp::List profile_out_em(
     // Allocate matrices
     arma::mat psi_num(n_rows, n_cols);
     psi_t = arma::mat(n_rows, n_cols);
-    w_t = arma::vec(n_rows);
-    u_t = arma::mat(m * N_minus_n, n_cols);
+    w_t   = arma::vec(n_rows);
+    u_t   = arma::mat(m * N_minus_n, n_cols);
 
     // Calculate psi_num: c(pY_X * pYstar) * pX
     int pYstar_len = pYstar.n_elem;
@@ -217,16 +223,15 @@ Rcpp::List profile_out_em(
       }
     }
 
-    ///////////////////////////////////////////////////////////////////
+     ///////////////////////////////////////////////////////////////////
     // M Step
-    ///////////////////////////////////////////////////////////////////
 
     // Update gamma using weighted logistic regression
     arma::vec gamma_conv;
     if (errorsY)
     {
-      w_t = as<arma::vec>(lengthenWT(w_t, n, true));
-      arma::vec muVector = as<arma::vec>(calculateMu(gamma_design_mat, prev_gamma));
+      w_t = lengthenWT(w_t, n, true);
+      arma::vec muVector = calculateMu(gamma_design_mat, prev_gamma);
 
       // Extract Y_unval column
       arma::vec Y_unval_vec(comp_dat_all.n_rows);
@@ -235,16 +240,16 @@ Rcpp::List profile_out_em(
         Y_unval_vec[i] = comp_dat_all(i, Y_unval_col);
       }
 
-      arma::vec gradient_gamma = as<arma::vec>(calculateGradient(w_t, n, gamma_design_mat,
-                                                                 Y_unval_vec, muVector, false));
-      arma::mat hessian_gamma = as<arma::mat>(calculateHessian(gamma_design_mat, w_t,
-                                                               muVector, n, mus_gamma, false));
+      arma::vec gradient_gamma = calculateGradient(w_t, n, gamma_design_mat,
+                                                   Y_unval_vec, muVector, false);
+      arma::mat hessian_gamma  = calculateHessian(gamma_design_mat, w_t,
+                                                  muVector, n, mus_gamma, false);
 
       // Try to solve: new_gamma = prev_gamma - solve(hessian_gamma) %*% gradient_gamma
       try
       {
         arma::vec update = arma::solve(hessian_gamma, gradient_gamma);
-        new_gamma = prev_gamma - update;
+        new_gamma        = prev_gamma - update;
 
         // Check if any values are NA/inf
         bool has_na = false;
@@ -259,10 +264,6 @@ Rcpp::List profile_out_em(
 
         if (has_na)
         {
-          // Fall back to GLM (call R)
-          Environment stats("package:stats");
-          Function glm = stats["glm"];
-
           // Create formula dynamically would be complex, so we throw an error
           // In practice, this fallback path is rarely hit
           stop("Matrix inversion failed and GLM fallback not implemented in C++");
@@ -278,7 +279,7 @@ Rcpp::List profile_out_em(
     }
     else
     {
-      new_gamma = arma::vec();  // Empty vector
+      new_gamma  = arma::vec();  // Empty vector
       gamma_conv = arma::vec(1, arma::fill::zeros);  // Will pass convergence test
     }
 
@@ -308,7 +309,7 @@ Rcpp::List profile_out_em(
     }
 
     // Check for convergence
-    arma::vec p_conv = arma::abs(arma::vectorise(new_p - prev_p));
+    arma::vec p_conv   = arma::abs(arma::vectorise(new_p - prev_p));
 
     // Check overall convergence
     arma::vec all_conv = arma::join_cols(gamma_conv, p_conv);
@@ -321,7 +322,7 @@ Rcpp::List profile_out_em(
     }
 
     // Update for next iteration
-    it++;
+    ++it;
     prev_gamma = new_gamma;
     prev_p = new_p;
   }
@@ -347,11 +348,13 @@ Rcpp::List profile_out_em(
     CONVERGED_MSG = "converged";
   }
 
+  Rcpp::Rcout << "Ending Profile EM Loop" << std::endl;
+
   return List::create(
-    Named("psi_at_conv") = psi_t,
+    Named("psi_at_conv")   = psi_t,
     Named("gamma_at_conv") = new_gamma,
-    Named("p_at_conv") = new_p,
-    Named("converged") = CONVERGED,
+    Named("p_at_conv")     = new_p,
+    Named("converged")     = CONVERGED,
     Named("converged_msg") = CONVERGED_MSG
   );
 }

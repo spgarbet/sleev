@@ -14,7 +14,7 @@ utils::globalVariables(c("..X", ".I", "k", ":=")) # Silence CHECK issues with da
 #' @param max_iter Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.
 #' @param tol Specifies the convergence criterion in the EM algorithm. The default value is \code{1E-4}. This argument is optional.
 #' @param se If \code{FALSE}, then the variances of the parameter estimators will not be estimated. The default value is \code{TRUE}. This argument is optional.
-#' @param verbose If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.
+#' @param verbose If \code{TRUE}, then print messages of the analysis. The default value is \code{FALSE}.
 #'
 #' @details
 #' Models for \code{logistic2ph()} are specified through the arguments. The dataset input should at least contain columns for unvalidated error-prone outcome, validated error-prone outcome,
@@ -79,8 +79,15 @@ logistic2ph <- function(
   model_call <- match.call()
 
   # variable name change
-  Y_unval = y_unval; Y = y ; X_unval = x_unval; X = x; Z = z
-  Bspline = attr(data, "bs_name"); noSE = !se; TOL = tol; MAX_ITER = max_iter
+  X        <- x
+  X_unval  <- x_unval
+  Y        <- y
+  Y_unval  <- y_unval
+  Z        <- z
+  Bspline  <- attr(data, "bs_name")
+  noSE     <- !se
+  TOL      <- tol
+  MAX_ITER <- max_iter
 
   if (missing(data))    stop("No dataset is provided!")
   if (missing(Bspline)) stop("The B-spline basis is not specified!")
@@ -333,46 +340,52 @@ logistic2ph <- function(
   h_N <- hn_scale * N ^ ( - 1 / 2) # perturbation ----------------------------
 
   ## Calculate pl(theta) -------------------------------------------------
+  if(verbose) message("computing observed_data_loglik")
+
   od_loglik_theta <- observed_data_loglik(
-    N = N,
-    n = n,
-    Y_unval = Y_unval,
-    Y = Y,
-    X_unval = X_unval,
-    X = X,
-    Z = Z,
-    Bspline = Bspline,
+    N            = N,
+    n            = n,
+    Y_unval      = Y_unval,
+    Y            = Y,
+    X_unval      = X_unval,
+    X            = X,
+    Z            = Z,
+    Bspline      = Bspline,
     comp_dat_all = comp_dat_all,
-    theta_pred = theta_pred,
-    gamma_pred = gamma_pred,
-    theta = new_theta,
-    gamma = new_gamma,
-    p = new_p)
+    theta_pred   = theta_pred,
+    gamma_pred   = gamma_pred,
+    theta        = new_theta,
+    gamma        = new_gamma,
+    p            = new_p)
+
+  if(verbose) message("single perturbation pl theta starting")
 
   I_theta <- matrix(data = od_loglik_theta,
                     nrow = nrow(new_theta),
                     ncol = nrow(new_theta))
 
-  single_pert_theta <- sapply(X = seq(1, ncol(I_theta)),
-    FUN = pl_theta,
-    theta = new_theta,
-    h_N = h_N,
-    n = n,
-    N = N,
-    Y_unval = Y_unval,
-    Y = Y,
-    X_unval = X_unval,
+  single_pert_theta <- sapply(
+    X            = seq(1, ncol(I_theta)),
+    FUN          = pl_theta,
+    theta        = new_theta,
+    h_N          = h_N,
+    n            = n,
+    N            = N,
+    Y_unval      = Y_unval,
+    Y            = Y,
+    X_unval      = X_unval,
     X,
-    Z = Z,
-    Bspline = Bspline,
+    Z            = Z,
+    Bspline      = Bspline,
     comp_dat_all = comp_dat_all,
-    theta_pred = theta_pred,
-    gamma_pred = gamma_pred,
-    gamma0 = new_gamma,
-    p0 = new_p,
-    p_val_num = p_val_num,
-    TOL = TOL,
-    MAX_ITER = MAX_ITER)
+    theta_pred   = theta_pred,
+    gamma_pred   = gamma_pred,
+    gamma0       = new_gamma,
+    p0           = new_p,
+    p_val_num    = p_val_num,
+    TOL          = TOL,
+    MAX_ITER     = MAX_ITER,
+    verbose      = verbose)
 
   if (any(is.na(single_pert_theta)))
   {
@@ -391,30 +404,33 @@ logistic2ph <- function(
     SE_CONVERGED <- TRUE
   }
 
+  if(verbose) message("Starting double perturbations")
+
   for (c in 1:ncol(I_theta))
   {
     pert_theta <- new_theta
     pert_theta[c] <- pert_theta[c] + h_N
     double_pert_theta <- sapply(X = seq(c, ncol(I_theta)),
-      FUN = pl_theta,
-      theta = pert_theta,
-      h_N = h_N,
-      n = n,
-      N = N,
-      Y_unval = Y_unval,
-      Y = Y,
-      X_unval = X_unval,
+      FUN          = pl_theta,
+      theta        = pert_theta,
+      h_N          = h_N,
+      n            = n,
+      N            = N,
+      Y_unval      = Y_unval,
+      Y            = Y,
+      X_unval      = X_unval,
       X,
-      Z = Z,
-      Bspline = Bspline,
+      Z            = Z,
+      Bspline      = Bspline,
       comp_dat_all = comp_dat_all,
-      theta_pred = theta_pred,
-      gamma_pred = gamma_pred,
-      gamma0 = new_gamma,
-      p0 = new_p,
-      p_val_num = p_val_num,
-      MAX_ITER = MAX_ITER,
-      TOL = TOL)
+      theta_pred   = theta_pred,
+      gamma_pred   = gamma_pred,
+      gamma0       = new_gamma,
+      p0           = new_p,
+      p_val_num    = p_val_num,
+      MAX_ITER     = MAX_ITER,
+      TOL          = TOL,
+      verbose      = verbose)
     dpt <- matrix(data = 0,
                   nrow = nrow(I_theta),
                   ncol = ncol(I_theta))

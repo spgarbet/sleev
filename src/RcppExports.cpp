@@ -176,8 +176,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // profile_out_em
-Rcpp::List profile_out_em(const arma::mat& theta_design_mat, const arma::vec& theta, const arma::mat& comp_dat_all, int Y_col, const arma::mat& gamma_design_mat, const arma::vec& gamma0, int Y_unval_col, const arma::mat& p0, const arma::uvec& Bspline_cols, const arma::mat& p_val_num, int n, int N, int m, bool errorsY, double TOL, int MAX_ITER);
-RcppExport SEXP _sleev_profile_out_em(SEXP theta_design_matSEXP, SEXP thetaSEXP, SEXP comp_dat_allSEXP, SEXP Y_colSEXP, SEXP gamma_design_matSEXP, SEXP gamma0SEXP, SEXP Y_unval_colSEXP, SEXP p0SEXP, SEXP Bspline_colsSEXP, SEXP p_val_numSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP, SEXP MAX_ITERSEXP) {
+Rcpp::List profile_out_em(const arma::mat& theta_design_mat, const arma::vec& theta, const arma::mat& comp_dat_all, int Y_col, const arma::mat& gamma_design_mat, const arma::vec& gamma0, int Y_unval_col, const arma::mat& p0, const arma::uvec& Bspline_cols, const arma::mat& p_val_num, int n, int N, int m, bool errorsY, double TOL, int MAX_ITER, bool verbose);
+RcppExport SEXP _sleev_profile_out_em(SEXP theta_design_matSEXP, SEXP thetaSEXP, SEXP comp_dat_allSEXP, SEXP Y_colSEXP, SEXP gamma_design_matSEXP, SEXP gamma0SEXP, SEXP Y_unval_colSEXP, SEXP p0SEXP, SEXP Bspline_colsSEXP, SEXP p_val_numSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP, SEXP MAX_ITERSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -197,7 +197,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
     Rcpp::traits::input_parameter< double >::type TOL(TOLSEXP);
     Rcpp::traits::input_parameter< int >::type MAX_ITER(MAX_ITERSEXP);
-    rcpp_result_gen = Rcpp::wrap(profile_out_em(theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(profile_out_em(theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -212,7 +213,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
     {"_sleev_logistic2ph_em_loop", (DL_FUNC) &_sleev_logistic2ph_em_loop, 20},
     {"_sleev_ob_loglik", (DL_FUNC) &_sleev_ob_loglik, 12},
-    {"_sleev_profile_out_em", (DL_FUNC) &_sleev_profile_out_em, 16},
+    {"_sleev_profile_out_em", (DL_FUNC) &_sleev_profile_out_em, 17},
     {NULL, NULL, 0}
 };
 

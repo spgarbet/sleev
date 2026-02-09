@@ -22,54 +22,75 @@
 #' @param p_val_num Contributions of validated subjects to the numerator for `p`, which are fixed (a matrix)
 #' @param TOL Tolerance between iterations in the EM algorithm used to define convergence.
 #' @param MAX_ITER Maximum number of iterations allowed in the EM algorithm.
+#' @param verbose If \code{TRUE}, then print messages of the analysis. The default value is \code{FALSE}.
 #'
 #' @return Profile likelihood for `theta`: the value of the observed-data log-likelihood after profiling out other parameters.
 #'
 #' @noRd
 
-profile_out <- function(theta, n, N, Y_unval = NULL, Y = NULL, X_unval = NULL, X = NULL, Z = NULL, Bspline = NULL,
-                        comp_dat_all, theta_pred, gamma_pred, gamma0, p0, p_val_num, TOL, MAX_ITER)
+profile_out <- function(
+  theta,
+  n,
+  N,
+  Y_unval       = NULL,
+  Y             = NULL,
+  X_unval       = NULL,
+  X             = NULL,
+  Z             = NULL,
+  Bspline       = NULL,
+  comp_dat_all,
+  theta_pred,
+  gamma_pred,
+  gamma0,
+  p0,
+  p_val_num,
+  TOL,
+  MAX_ITER,
+  verbose       = FALSE)
 {
-  # Determine error settings
-  errorsX <- !is.null(X_unval)
-  errorsY <- !is.null(Y_unval)
+  if(verbose) message("profile_out")
 
-  m <- nrow(p0)
+  # Determine error settings
+  errorsX          <- !is.null(X_unval)
+  errorsY          <- !is.null(Y_unval)
+  m                <- nrow(p0)
 
   # Convert to matrices
-  comp_dat_all <- as.matrix(comp_dat_all)
-  theta_design_mat <- as.matrix(cbind(int = 1,
-                                      comp_dat_all[-c(1:n), theta_pred]))
+  comp_dat_all     <- as.matrix(comp_dat_all)
+  theta_design_mat <- as.matrix(cbind(int = 1, comp_dat_all[-c(1:n), theta_pred]))
 
   # Prepare column indices (convert to 0-based for C++)
-  Y_col_idx <- match(Y, colnames(comp_dat_all)) - 1
-  Y_unval_col_idx <- if (errorsY) match(Y_unval, colnames(comp_dat_all)) - 1 else 0L
-  Bspline_col_idx <- match(Bspline, colnames(comp_dat_all)) - 1
+  Y_col_idx        <- match(Y, colnames(comp_dat_all)) - 1
+  Y_unval_col_idx  <- if (errorsY) match(Y_unval, colnames(comp_dat_all)) - 1 else 0L
+  Bspline_col_idx  <- match(Bspline, colnames(comp_dat_all)) - 1
 
   # Prepare gamma design matrix
   gamma_design_mat <- if (errorsY)
     as.matrix(cbind(int = 1, comp_dat_all[, gamma_pred])) else
-    gamma_design_mat <- matrix(0, nrow = 0, ncol = 0) # Empty matrix
+    matrix(0, nrow = 0, ncol = 0) # Empty matrix
+
+  if(verbose) message("Calling C++ profile em loop")
 
   # Call the complete EM loop in C++
   result <- profile_out_em(
     theta_design_mat = theta_design_mat,
-    theta = theta,
-    comp_dat_all = comp_dat_all,
-    Y_col = Y_col_idx,
+    theta            = theta,
+    comp_dat_all     = comp_dat_all,
+    Y_col            = Y_col_idx,
     gamma_design_mat = gamma_design_mat,
-    gamma0 = gamma0,
-    Y_unval_col = Y_unval_col_idx,
-    p0 = p0,
-    Bspline_cols = Bspline_col_idx,
-    p_val_num = p_val_num,
-    n = n,
-    N = N,
-    m = m,
-    errorsY = errorsY,
-    TOL = TOL,
-    MAX_ITER = MAX_ITER
+    gamma0           = gamma0,
+    Y_unval_col      = Y_unval_col_idx,
+    p0               = p0,
+    Bspline_cols     = Bspline_col_idx,
+    p_val_num        = p_val_num,
+    n                = n,
+    N                = N,
+    m                = m,
+    errorsY          = errorsY,
+    TOL              = TOL,
+    MAX_ITER         = MAX_ITER,
+    verbose          = verbose
   )
 
-  return(result)
+  result
 }
