@@ -122,3 +122,7 @@ ob_loglik <- function(comp_dat_all, N, n, theta_pred_cols, theta, Y_col, gamma_p
     .Call(`_sleev_ob_loglik`, comp_dat_all, N, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col, bspline_cols, p, k_col)
 }
 
+profile_out_em <- function(theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER) {
+    .Call(`_sleev_profile_out_em`, theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER)
+}
+
