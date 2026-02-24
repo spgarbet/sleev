@@ -114,3 +114,15 @@ NULL
     .Call(`_sleev_pYstarCalc`, gamma_design_mat, startRow, prev_gamma, comp_dat_all, Y_unval_index)
 }
 
+logistic2ph_em_loop <- function(theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose) {
+    .Call(`_sleev_logistic2ph_em_loop`, theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose)
+}
+
+ob_loglik <- function(comp_dat_all, N, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col, bspline_cols, p, k_col) {
+    .Call(`_sleev_ob_loglik`, comp_dat_all, N, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col, bspline_cols, p, k_col)
+}
+
+profile_out_em <- function(theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER, verbose) {
+    .Call(`_sleev_profile_out_em`, theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER, verbose)
+}
+

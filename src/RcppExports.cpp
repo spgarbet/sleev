@@ -123,6 +123,85 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// logistic2ph_em_loop
+Rcpp::List logistic2ph_em_loop(const arma::mat& theta_design_mat, const arma::mat& gamma_design_mat, const arma::mat& comp_dat_all, const arma::mat& comp_dat_unval, const arma::mat& Bspline, const arma::colvec& Y_all, const arma::colvec& Y_unval_all, const arma::colvec& Y_unval_vec, const arma::colvec& Y_vec, const arma::mat& p_val_num, arma::colvec theta_init, arma::colvec gamma_init, arma::mat p_init, int n, int N, int m, bool errorsY, double TOL, int MAX_ITER, bool verbose);
+RcppExport SEXP _sleev_logistic2ph_em_loop(SEXP theta_design_matSEXP, SEXP gamma_design_matSEXP, SEXP comp_dat_allSEXP, SEXP comp_dat_unvalSEXP, SEXP BsplineSEXP, SEXP Y_allSEXP, SEXP Y_unval_allSEXP, SEXP Y_unval_vecSEXP, SEXP Y_vecSEXP, SEXP p_val_numSEXP, SEXP theta_initSEXP, SEXP gamma_initSEXP, SEXP p_initSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP, SEXP MAX_ITERSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type theta_design_mat(theta_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type gamma_design_mat(gamma_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_all(comp_dat_allSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_unval(comp_dat_unvalSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Bspline(BsplineSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_all(Y_allSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_unval_all(Y_unval_allSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_unval_vec(Y_unval_vecSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type Y_vec(Y_vecSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type p_val_num(p_val_numSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type theta_init(theta_initSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type gamma_init(gamma_initSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type p_init(p_initSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
+    Rcpp::traits::input_parameter< double >::type TOL(TOLSEXP);
+    Rcpp::traits::input_parameter< int >::type MAX_ITER(MAX_ITERSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(logistic2ph_em_loop(theta_design_mat, gamma_design_mat, comp_dat_all, comp_dat_unval, Bspline, Y_all, Y_unval_all, Y_unval_vec, Y_vec, p_val_num, theta_init, gamma_init, p_init, n, N, m, errorsY, TOL, MAX_ITER, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ob_loglik
+double ob_loglik(NumericMatrix comp_dat_all, int N, int n, IntegerVector theta_pred_cols, NumericVector theta, int Y_col, IntegerVector gamma_pred_cols, NumericVector gamma, int Y_unval_col, IntegerVector bspline_cols, NumericMatrix p, int k_col);
+RcppExport SEXP _sleev_ob_loglik(SEXP comp_dat_allSEXP, SEXP NSEXP, SEXP nSEXP, SEXP theta_pred_colsSEXP, SEXP thetaSEXP, SEXP Y_colSEXP, SEXP gamma_pred_colsSEXP, SEXP gammaSEXP, SEXP Y_unval_colSEXP, SEXP bspline_colsSEXP, SEXP pSEXP, SEXP k_colSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type comp_dat_all(comp_dat_allSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type theta_pred_cols(theta_pred_colsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type Y_col(Y_colSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type gamma_pred_cols(gamma_pred_colsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< int >::type Y_unval_col(Y_unval_colSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type bspline_cols(bspline_colsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type k_col(k_colSEXP);
+    rcpp_result_gen = Rcpp::wrap(ob_loglik(comp_dat_all, N, n, theta_pred_cols, theta, Y_col, gamma_pred_cols, gamma, Y_unval_col, bspline_cols, p, k_col));
+    return rcpp_result_gen;
+END_RCPP
+}
+// profile_out_em
+Rcpp::List profile_out_em(const arma::mat& theta_design_mat, const arma::vec& theta, const arma::mat& comp_dat_all, int Y_col, const arma::mat& gamma_design_mat, const arma::vec& gamma0, int Y_unval_col, const arma::mat& p0, const arma::uvec& Bspline_cols, const arma::mat& p_val_num, int n, int N, int m, bool errorsY, double TOL, int MAX_ITER, bool verbose);
+RcppExport SEXP _sleev_profile_out_em(SEXP theta_design_matSEXP, SEXP thetaSEXP, SEXP comp_dat_allSEXP, SEXP Y_colSEXP, SEXP gamma_design_matSEXP, SEXP gamma0SEXP, SEXP Y_unval_colSEXP, SEXP p0SEXP, SEXP Bspline_colsSEXP, SEXP p_val_numSEXP, SEXP nSEXP, SEXP NSEXP, SEXP mSEXP, SEXP errorsYSEXP, SEXP TOLSEXP, SEXP MAX_ITERSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type theta_design_mat(theta_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type comp_dat_all(comp_dat_allSEXP);
+    Rcpp::traits::input_parameter< int >::type Y_col(Y_colSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type gamma_design_mat(gamma_design_matSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type gamma0(gamma0SEXP);
+    Rcpp::traits::input_parameter< int >::type Y_unval_col(Y_unval_colSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type p0(p0SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type Bspline_cols(Bspline_colsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type p_val_num(p_val_numSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< bool >::type errorsY(errorsYSEXP);
+    Rcpp::traits::input_parameter< double >::type TOL(TOLSEXP);
+    Rcpp::traits::input_parameter< int >::type MAX_ITER(MAX_ITERSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(profile_out_em(theta_design_mat, theta, comp_dat_all, Y_col, gamma_design_mat, gamma0, Y_unval_col, p0, Bspline_cols, p_val_num, n, N, m, errorsY, TOL, MAX_ITER, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sleev_TwoPhase_MLE0_MEXY_CV_loglik", (DL_FUNC) &_sleev_TwoPhase_MLE0_MEXY_CV_loglik, 9},
@@ -132,6 +211,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_sleev_calculateGradient", (DL_FUNC) &_sleev_calculateGradient, 6},
     {"_sleev_calculateHessian", (DL_FUNC) &_sleev_calculateHessian, 6},
     {"_sleev_pYstarCalc", (DL_FUNC) &_sleev_pYstarCalc, 5},
+    {"_sleev_logistic2ph_em_loop", (DL_FUNC) &_sleev_logistic2ph_em_loop, 20},
+    {"_sleev_ob_loglik", (DL_FUNC) &_sleev_ob_loglik, 12},
+    {"_sleev_profile_out_em", (DL_FUNC) &_sleev_profile_out_em, 17},
     {NULL, NULL, 0}
 };
 
