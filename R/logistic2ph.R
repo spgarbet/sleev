@@ -59,6 +59,7 @@ utils::globalVariables(c("..X", ".I", "k", ":=")) # Silence CHECK issues with da
 #' @importFrom data.table CJ
 #' @importFrom data.table copy
 #' @importFrom data.table ":="
+#' @importFrom stats complete.cases
 #'
 #' @export
 
