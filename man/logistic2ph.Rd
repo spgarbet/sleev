@@ -39,7 +39,7 @@ logistic2ph(
 
 \item{max_iter}{Maximum number of iterations in the EM algorithm. The default number is \code{1000}. This argument is optional.}
 
-\item{verbose}{If \code{TRUE}, then show details of the analysis. The default value is \code{FALSE}.}
+\item{verbose}{If \code{TRUE}, then print messages of the analysis. The default value is \code{FALSE}.}
 }
 \value{
 \code{logistic2ph()} returns an object of class \code{"logistic2ph"}. The function \code{coef()} is used to obtain the coefficients of the fitted model. The function \code{summary()} is used to obtain and print a summary of results.
