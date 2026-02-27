@@ -69,7 +69,7 @@ observed_data_loglik <- function(
     Y_col           = Y_col,
     gamma_pred_cols = gamma_pred_cols,
     gamma           = as.numeric(gamma),
-    Y_unval         = Y_unval,
+    Y_unval_col     = Y_unval,
     bspline_cols    = bspline_cols,
     p               = p,
     k_col           = k_col
