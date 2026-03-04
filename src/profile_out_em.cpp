@@ -255,7 +255,7 @@ Rcpp::List profile_out_em(
         bool has_na = false;
         for (int i = 0; i < new_gamma.n_elem; ++i)
         {
-          if (!arma::is_finite(new_gamma[i]))
+          if (!std::isfinite(new_gamma[i]))
           {
             has_na = true;
             break;
